@@ -14,7 +14,7 @@
 
 /*
 "simplify_definitions" with decent formatting.
-The axiom defines the operation of array slice sum.
+The axiom defines the operation of array slice a[i:j] sum.
 
 (BG_PUSH
   (FORALL (b i j)

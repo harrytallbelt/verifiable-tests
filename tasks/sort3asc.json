@@ -1,5 +1,5 @@
 {
-    "name" : "sort(x,y,z)",
+    "name" : "sort(x,y,z) by ≤",
     "description" : "Програма повинна відсортувати значення x, y та z за неспаданням. Предикат perm(a,b) означає що список a є перестановкою списку b.",
     "human_readable_precondition" : "x, y, z = X, Y, Z",
     "simplify_precondition" : "(AND (EQ x X) (EQ y Y) (EQ z Z))",

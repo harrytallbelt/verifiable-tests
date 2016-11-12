@@ -1,6 +1,6 @@
 {
-    "name" : "mix",
-    "description" : "Програма повинна знайти найбільший елемент массиву b.",
+    "name" : "min",
+    "description" : "Програма повинна знайти найменший елемент массиву b.",
     "human_readable_precondition" : "n > 0 ∧ b[0:n-1] = B[0:n-1]",
     "simplify_precondition" : "(AND (< 0 n) (EQ b B))",
     "human_readable_postcondition" : "(∀ k : 0 ≤ k < n : m ≤ B[k]) ∧ (∃ k : 0 ≤ k < n : B[k] = m)",
