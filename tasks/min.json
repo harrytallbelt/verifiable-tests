@@ -1,0 +1,8 @@
+{
+    "name" : "max(x,y)",
+    "description" : "Програма повинна знайти мінімальне серед x та y значення та записати його у z.",
+    "human_readable_precondition" : "x = X ∧ y = Y",
+    "simplify_precondition" : "(AND (EQ x X) (EQ y Y))",
+    "human_readable_postcondition" : "z = X ∧ X ≤ Y ∨ z = Y ∧ Y ≤ X",
+    "simplify_postcondition" : "(OR (AND (EQ z X) (<= X Y)) (AND (EQ x Y) (<= Y X)))"
+}

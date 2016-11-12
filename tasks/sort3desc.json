@@ -1,0 +1,8 @@
+{
+    "name" : "sort(x,y,z)",
+    "description" : "Програма повинна відсортувати значення x, y та z за незростанням. Предикат perm(a,b) означає що список a є перестановкою списку b.",
+    "human_readable_precondition" : "x, y, z = X, Y, Z",
+    "simplify_precondition" : "(AND (EQ x X) (EQ y Y) (EQ z Z))",
+    "human_readable_postcondition" : "x ≥ y ≥ z ∧ perm((x,y,z), (X,Y,Z))",
+    "simplify_postcondition" : "(AND (>= x y) (>= y z) (OR (AND (EQ x X) (EQ y Y) (EQ z Z)) (AND (EQ x X) (EQ y Z) (EQ z Y)) (AND (EQ x Y) (EQ y X) (EQ z Z)) (AND (EQ x Y) (EQ y Z) (EQ z X)) (AND (EQ x Z) (EQ y X) (EQ z Y)) (AND (EQ x Z) (EQ y Y) (EQ z X))))"
+}

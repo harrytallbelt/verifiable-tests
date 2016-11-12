@@ -1,0 +1,34 @@
+{
+    "name" : "sum_rev",
+    "description" : "Програма повинна обчислювати суму всіх елементів масиву b.",
+    "human_readable_precondition" : "n ≥ 0 ∧ b[0:n-1] = B[0:n-1]",
+    "simplify_precondition" : "(AND (<= 0 n) (EQ b B))",
+    "human_readable_postcondition" : "s = (Σ k : 0 ≤ k < n : B[k])",
+    "simplify_postcondition" : "(EQ s (sum B 0 (- n 1)))",
+    "human_readable_loop_invariant" : "-1 ≤ i < n ∧ s = (Σ k : i < k < n : B[k])",
+    "simplify_loop_invariant" : "(AND (<= (- 0 1) i) (< i n) (EQ s (sum B (+ i 1) (- n 1))))",
+    "human_readable_boundary_function" : "i + 1",
+    "simplify_boundary_function" : "(+ i 1)",
+    "simplify_definitions" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
+}
+
+/*
+"simplify_definitions" with decent formatting.
+The axiom defines the operation of array slice sum.
+
+(BG_PUSH
+  (FORALL (b i j)
+    (AND
+      (IMPLIES
+        (> i j)
+        (EQ (sum b i j) 0)
+      )
+      (IMPLIES
+        (<= i j)
+        (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))
+      )
+    )
+  )
+)
+
+*/
