@@ -5,8 +5,8 @@
     "simplify_precondition" : "(AND (<= 0 n) (EQ b B))",
     "human_readable_postcondition" : "p = (Π k : 0 ≤ k < n : B[k])",
     "simplify_postcondition" : "(EQ p (prod B 0 (- n 1)))",
-    "human_readable_loop_invariant" : "0 ≤ i ≤ n ∧ p = (Π k : 0 ≤ k < i : B[k])",
-    "simplify_loop_invariant" : "(AND (<= 0 i) (<= i n) (EQ p (prod B 0 (- i 1))))",
+    "human_readable_loop_invariant" : "0 ≤ i ≤ n ∧ b[0:n-1] = B[0:n-1] ∧ p = (Π k : 0 ≤ k < i : B[k])",
+    "simplify_loop_invariant" : "(AND (<= 0 i) (<= i n) (EQ b B) (EQ p (prod B 0 (- i 1))))",
     "human_readable_boundary_function" : "n - i",
     "simplify_boundary_function" : "(- n i)",
     "simplify_definitions" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1)) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b j) (prod b i (- j 1))))))))"
