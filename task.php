@@ -60,7 +60,7 @@
             echo "</table>";
 
             echo "<form action=\"./verify.php\" method=\"POST\">";
-            echo "<input type=\"hidden\" name=\"filename\" value=\"" , $_GET['task']  "\" />";
+            echo "<input type=\"hidden\" name=\"filename\" value=\"", $_GET['task'], "\" />";
             echo "<p>Введіть код рішення задачі у текстове поле:</p>";
             $code = isset($_GET['code']) ? $_GET['code'] : "";
             echo "<p><textarea name=\"code\" rows=\"15\" cols=\"80\">", $code, "</textarea></p>";
