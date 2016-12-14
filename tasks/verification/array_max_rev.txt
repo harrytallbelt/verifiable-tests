@@ -1,0 +1,222 @@
+; i,m := n-2, a[n-1]
+; do i!=-1 -> if
+;                m >= a[i] -> i:=i-1
+;                m < a[i]  -> m,i := a[i],i-1
+;             fi
+; od
+
+; Definition of existential quantifier on [a; b]
+; as recursive disjunction.
+(DEFPRED (P m A i) (EQ (select A i) m))
+(DEFPRED (EX a b m Arr))
+
+(BG_PUSH
+  (FORALL (a b m Arr) (PATS (EX a b m Arr))
+    (AND
+      (IMPLIES
+        (> a b)
+        (IFF (EX a b m Arr) FALSE)
+      )
+      (IMPLIES
+        (<= a b)
+        (IFF
+          (EX a b m Arr)
+          (OR
+            (EX (+ a 1) b m Arr)
+            (P m Arr a)
+          )
+        )
+      )
+    )
+  )
+)
+
+; using DO theorem we get
+
+; Q => wp(I,R)
+(IMPLIES
+  (AND (< 0 n) (EQ b B))
+  (AND
+    (EQ b B)
+    (<= (- 0 1) (- n 2))
+    (<= (- n 2) (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< (- n 2) k) (< k n))
+        (<= (select B k) (select b (- n 1)))
+      )
+    )
+    (EX (- n 1) (- n 1) (select b (- n 1)) B)
+  )
+)
+
+; P ^ B => wp(IF,P)
+; using IF theorem we get
+
+; P ^ B => BB
+(IMPLIES
+  (AND
+    (NEQ i (- 0 1))
+    (EQ b B)
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (OR
+    (>= m (select b i))
+    (< m (select b i))    
+  )
+)
+
+; P ^ B ^ B1 => wp(S1,P)
+(IMPLIES
+  (AND
+    (>= m (select b i))
+    (NEQ i (- 0 1))
+    (EQ b B)
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (AND
+    (EQ b B)
+    (<= (- 0 1) (- i 1))
+    (<= (- i 1) (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< (- i 1) k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX i (- n 1) m B)
+  )
+)
+
+; P ^ B ^ B2 => wp(S2,P)
+(IMPLIES
+  (AND
+    (NEQ i (- 0 1))
+    (EQ b B)
+    (< m (select b i))
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (AND
+    (EQ b B)
+    (<= (- 0 1) (- i 1))
+    (<= (- i 1) (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< (- i 1) k) (< k n))
+        (<= (select B k) (select b i))
+      )
+    )
+    (EX i (- n 1) (select b i) B)
+  )
+)
+
+; P ^ ~B => R
+(IMPLIES
+  (AND
+    (NOT (NEQ i (- 0 1)))
+    (EQ b B)
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (AND
+    (FORALL (k)
+      (IMPLIES
+        (AND (<= 0 k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX 0 (- n 1) m B)
+  )
+)
+
+; P ^ B => t > 0
+(IMPLIES
+  (AND
+    (NEQ i (- 0 1))
+    (EQ b B)
+    (< (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (< 0 (+ i 1))
+)
+
+; P ^ B => wp("t0 := t; S", t < t0)
+; using IF theorem we get
+
+; P ^ B => BB is already prooven above
+
+; P ^ B ^ B1 => wp("t0 := t; S1", t < t0)
+(IMPLIES
+  (AND
+    (NEQ i n)
+    (>= m (select b i))
+    (EQ b B)
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (< (+ (- i 1) 1) (+ i 1))
+)
+
+; P ^ B ^ B2 => wp("t0 := t; S2", t < t0)
+(IMPLIES
+  (AND
+    (NEQ i n)
+    (< m (select b i))
+    (EQ b B)
+    (<= (- 0 1) i)
+    (<= i (- n 2))
+    (FORALL (k)
+      (IMPLIES
+        (AND (< i k) (< k n))
+        (<= (select B k) m)
+      )
+    )
+    (EX (+ i 1) (- n 1) m B)
+  )
+  (< (- n (+ i 1)) (- n i))
+)

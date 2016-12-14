@@ -1,0 +1,269 @@
+
+
+filename: abs.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+
+
+filename: array_max_rev.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+8: Valid.
+
+
+
+filename: array_max.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+8: Valid.
+
+
+
+filename: array_min_rev.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+8: Valid.
+
+
+
+filename: array_min.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+8: Valid.
+
+
+
+filename: linear_search_rev.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: linear_search.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: max2.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+
+
+filename: min2.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+
+
+filename: prod_rev.txt
+
+1: Valid.
+
+Counterexample:
+  context:
+    (AND
+      (NEQ (* s (select B i)) (prod B i (- n 1)))
+      (EQ B b)
+      (EQ (prod B (+ i 1) (- n 1)) s)
+      (<= (+ i 2) n)
+      (<= 0 i)
+    )
+
+2: Invalid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: prod.txt
+
+1: Valid.
+
+Counterexample:
+  context:
+    (AND
+      (NEQ (* p (select B i)) (prod B 0 i))
+      (EQ B b)
+      (EQ (prod B 0 (- i 1)) p)
+      (< i n)
+      (< 0 i)
+    )
+
+2: Invalid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: rotate3ccw.txt
+
+1: Valid.
+
+
+
+filename: rotate3cw.txt
+
+1: Valid.
+
+
+
+filename: sort3asc.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+
+
+filename: sort3desc.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+6: Valid.
+
+7: Valid.
+
+
+
+filename: sum_rev.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: sum.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
+filename: swap.txt
+
+1: Valid.
+
+
