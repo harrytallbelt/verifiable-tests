@@ -2,9 +2,6 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Список завдань</title>
-    </head>
-    <body>
         <?php
             function task_is_valid($task) {
                 if ($task == null
@@ -48,22 +45,25 @@
                 exit('Task ' . $_GET['task'] . ' is not valid.');
             }
 
-            echo "<h3>" . htmlentities($task['name']) . "</h3>";
+            echo "<title>", $task['name'], "</title>";
+            echo "</head> <body>";
+
+            echo "<h3>", htmlentities($task['name']), "</h3>";
             echo "<table border=\"0\">";
-            echo "<tr><td> Опис завдання: </td><td>" . htmlentities($task['description']) . "</td></tr>";
-            echo "<tr><td> Передумова: </td><td>" . htmlentities($task['human_readable_precondition']) . "</td></tr>";
-            echo "<tr><td> Постумова: </td><td>" . htmlentities($task['human_readable_postcondition']) . "</td></tr>";
+            echo "<tr><td> Опис завдання: </td><td>", htmlentities($task['description']), "</td></tr>";
+            echo "<tr><td> Передумова: </td><td>", htmlentities($task['human_readable_precondition']), "</td></tr>";
+            echo "<tr><td> Постумова: </td><td>", htmlentities($task['human_readable_postcondition']), "</td></tr>";
             if (array_key_exists('human_readable_loop_invariant', $task)) {
-                echo "<tr><td> Інваріант циклу: </td><td>" . htmlentities($task['human_readable_loop_invariant']) . "</td></tr>";
-                echo "<tr><td> Обмежуюча функція циклу: </td><td>" . htmlentities($task['human_readable_boundary_function']) . "</td></tr>";
+                echo "<tr><td> Інваріант циклу: </td><td>", htmlentities($task['human_readable_loop_invariant']), "</td></tr>";
+                echo "<tr><td> Обмежуюча функція циклу: </td><td>", htmlentities($task['human_readable_boundary_function']), "</td></tr>";
             }
             echo "</table>";
 
             echo "<form action=\"./verify.php\" method=\"POST\">";
-            echo "<input type=\"hidden\" name=\"filename\" value=\"" . $_GET['task'] . "\" />";
+            echo "<input type=\"hidden\" name=\"filename\" value=\"" , $_GET['task']  "\" />";
             echo "<p>Введіть код рішення задачі у текстове поле:</p>";
             $code = isset($_GET['code']) ? $_GET['code'] : "";
-            echo "<p><textarea name=\"code\" rows=\"15\" cols=\"80\">$code</textarea></p>";
+            echo "<p><textarea name=\"code\" rows=\"15\" cols=\"80\">", $code, "</textarea></p>";
             echo "<p><input type=\"submit\" value=\"Перевірити\" /></p>";
             echo "</form>";
 
