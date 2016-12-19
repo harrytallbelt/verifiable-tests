@@ -142,17 +142,7 @@ filename: prod_rev.txt
 
 1: Valid.
 
-Counterexample:
-  context:
-    (AND
-      (NEQ (* s (select B i)) (prod B i (- n 1)))
-      (EQ B b)
-      (EQ (prod B (+ i 1) (- n 1)) s)
-      (<= (+ i 2) n)
-      (<= 0 i)
-    )
-
-2: Invalid.
+2: Valid.
 
 3: Valid.
 
@@ -166,17 +156,7 @@ filename: prod.txt
 
 1: Valid.
 
-Counterexample:
-  context:
-    (AND
-      (NEQ (* p (select B i)) (prod B 0 i))
-      (EQ B b)
-      (EQ (prod B 0 (- i 1)) p)
-      (< i n)
-      (< 0 i)
-    )
-
-2: Invalid.
+2: Valid.
 
 3: Valid.
 

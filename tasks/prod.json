@@ -9,12 +9,15 @@
     "simplify_loop_invariant" : "(AND (<= 0 i) (<= i n) (EQ b B) (EQ p (prod B 0 (- i 1))))",
     "human_readable_boundary_function" : "n - i",
     "simplify_boundary_function" : "(- n i)",
-    "simplify_definitions" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1)) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b j) (prod b i (- j 1))))))))"
+    "simplify_definitions" : "(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a)))) (BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1)) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b j) (prod b i (- j 1))))))))"
 }
 
 /*
 "simplify_definitions" with decent formatting.
-The axiom defines the operation of array slice product.
+The first axiom ensures multiplication commutativity.
+The second axiom defines the operation of array slice product.
+
+(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a))))
 
 (BG_PUSH
   (FORALL (b i j)

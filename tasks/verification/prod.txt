@@ -1,6 +1,9 @@
+; Tells Simplify that multiplication is commutative.
+(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a))))
+
 ; Array slice product definition
 (BG_PUSH
-  (FORALL (b i j)
+  (FORALL (b i j) 
     (AND
       (IMPLIES
         (> i j)
