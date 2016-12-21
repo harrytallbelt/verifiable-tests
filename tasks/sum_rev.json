@@ -11,24 +11,3 @@
     "simplify_boundary_function" : "(+ i 1)",
     "simplify_definitions" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
 }
-
-/*
-"simplify_definitions" with decent formatting.
-The axiom defines the operation of array slice sum.
-
-(BG_PUSH
-  (FORALL (b i j)
-    (AND
-      (IMPLIES
-        (> i j)
-        (EQ (sum b i j) 0)
-      )
-      (IMPLIES
-        (<= i j)
-        (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))
-      )
-    )
-  )
-)
-
-*/

@@ -90,6 +90,20 @@ filename: array_min.txt
 
 
 
+filename: invert.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
+
+
+
 filename: linear_search_rev.txt
 
 1: Valid.
@@ -166,6 +180,46 @@ filename: prod.txt
 
 
 
+filename: reverse.txt
+
+1: Valid.
+
+Counterexample:
+  context:
+    (AND
+      (NOT (P n m (store (store b (t (t n 1) i) (select b i)) i (select b (t (t n 1) i))) B (+ i 1)))
+      (EQ |k%1| i)
+      (EQ (select B (t (t n 1) i)) (select b i))
+      (P n m b B i)
+      (< i m)
+      (< n (* 2 i))
+      (<= n i)
+      (<= 0 i)
+    )
+
+2: Invalid.
+
+Counterexample:
+  context:
+    (AND
+      (NEQ (select B k) (select B (t (t n 1) k)))
+      (NOT (R n b B))
+      (EQ m i)
+      (P n m b B m)
+      (EQ (select B k) (select b k))
+      (EQ (- n m) k)
+      (<= n (* 2 k))
+      (< k n)
+    )
+
+3: Invalid.
+
+4: Valid.
+
+5: Valid.
+
+
+
 filename: rotate3ccw.txt
 
 1: Valid.
@@ -175,6 +229,20 @@ filename: rotate3ccw.txt
 filename: rotate3cw.txt
 
 1: Valid.
+
+
+
+filename: slice_sums.txt
+
+1: Valid.
+
+2: Valid.
+
+3: Valid.
+
+4: Valid.
+
+5: Valid.
 
 
 
