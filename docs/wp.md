@@ -3,9 +3,10 @@ to a set of predicates and context objects, which can be used to construct
 a meaningful error message should a predicate fail.
 
 The input of WP is a Hoare triple `{Q}S{R}`, where
-- Q is the precondition predicate,
-- R is the postcondition predicate,
-- S is the program code (represented as a tree),
+
+ - Q is the precondition predicate,
+ - R is the postcondition predicate,
+ - S is the program code (represented as a tree),
 
 extended with a list of invariants `P` and a list of boundary functions `t`,
 that contain an entity for each loop, used in the program.
@@ -39,11 +40,12 @@ od
 
 Together with loop invarian `P_n` and boundary function `t_n` we compose
 these triples (and one predicate):
-1. `{Q} I {P_n}`
-2. `{P_n ^ B_i} C_i {P_n}`, for `i = 1..m`
-3. `{P_n ^ ~BB} S_n {R}`
-4. `P_n ^ BB => t > 0`
-5. `{P_n ^ B_i} t_prev := t; C_i {t < t_prev}`, for `i = 1..m`
+
+ 1. `{Q} I {P_n}`
+ 2. `{P_n ^ B_i} C_i {P_n}`, for `i = 1..m`
+ 3. `{P_n ^ ~BB} S_n {R}`
+ 4. `P_n ^ BB => t > 0`
+ 5. `{P_n ^ B_i} t_prev := t; C_i {t < t_prev}`, for `i = 1..m`
 
 where `BB` is a shorhand for `B_1 v B_2 v ... v B_m`.
 
@@ -82,8 +84,9 @@ fi
 ```
 
 We can compose these triples
-1. `{Q} S_0 {BB}`
-2. `{Q ^ wp(S_0, B_i)} S_0; C_i; S_1 {R}` for `i = 1..m`
+
+ 1. `{Q} S_0 {BB}`
+ 2. `{Q ^ wp(S_0, B_i)} S_0; C_i; S_1 {R}` for `i = 1..m`
 
 Further, we do the same thing as for loops: WP is used recursively on
 each triple and the results are combined. The information about usage in a
@@ -108,9 +111,10 @@ Q => wp(S_0, wp(S_1, ... , wp(S_n, R) ... ))
 ```
 
 where each of the wp is computed by these rules:
-1. `wp(abort, R) = F`
-2. `wp(skip, R) = R`
-3. `wp("a := e", R) = R[e/a]`, where
+
+ 1. `wp(abort, R) = F`
+ 2. `wp(skip, R) = R`
+ 3. `wp("a := e", R) = R[e/a]`, where
    - `a = a_1, a_2, ... , a_m`,
    - `e = e_1, e_2, ... , e_m`,
    - `R[e/a]` is `R` with each free variable `a_i`
