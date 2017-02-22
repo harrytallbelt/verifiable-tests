@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{name}}</title>
+  </head>
+  <body>
+    <h3>{{name}}</h3>
+    <table border="0">
+      <tr>
+        <td>Опис завдання:</td>
+        <td>{{description}}</td>
+      </tr>
+      <tr>
+        <td>Передумова:</td>
+        <td>{{human_readable_precondition}}</td>
+      </tr>
+      <tr>
+        <td>Постумова:</td>
+        <td>{{human_readable_postcondition}}</td>
+      </tr>
+      {{#if human_readable_loop_invariant}}
+        <tr>
+          <td>Інваріант циклу:</td>
+          <td>{{human_readable_loop_invariant}}</td>
+        </tr>
+        <tr>
+          <td>Обмежуюча функція циклу:</td>
+          <td>{{human_readable_boundary_function}}</td>
+        </tr>
+      {{/if}}
+    </table>
+    <form action="./{{name}}" method="POST">
+      <input type="hidden" name="name" value="{{name}}" />
+      <p>Введіть код рішення задачі у текстове поле:</p>
+      <p>
+        {{!-- We might have no code in context. This is fine. --}}
+        <textarea name="code" rows="15" cols="80">{{code}}</textarea>
+      </p>
+      <p>
+        <input type="submit" value="Перевірити" />
+      </p>
+    </form>
+    {{!-- If verification has been performed,
+          we'll display its results. --}}
+    {{#if verification}}
+      {{#if verification.errors}}
+        <table>
+          <tr>
+            <th>Line:Column</th>
+            <th>Error description</th>
+          </tr>
+          {{#each verification.errors}}
+            <tr>
+              <td>{{row}}:{{col}}</td>
+              <td>{{message}}</td>
+            </tr>
+          {{/each}}
+        </table>
+      {{else}}
+        <p>Рішення вірне!</p>
+      {{/if}}
+    {{/if}}
+  </body>
+</html>

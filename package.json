@@ -1,0 +1,29 @@
+{
+  "name": "verifiable-tests",
+  "version": "1.0.0",
+  "description": "An attempt to apply formal methods (D. Gries style) to specification and verification of code-writting tasks for CS students.",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harry-tallbelt/verifiable-tests.git"
+  },
+  "author": "harry-tallbelt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/harry-tallbelt/verifiable-tests/issues"
+  },
+  "homepage": "https://github.com/harry-tallbelt/verifiable-tests#readme",
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "express": "^4.14.1",
+    "handlebars": "^4.0.6",
+    "promisify-node": "^0.4.0"
+  }
+}

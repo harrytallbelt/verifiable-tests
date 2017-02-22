@@ -1,0 +1,54 @@
+(BG_PUSH
+  (FORALL (b i j) (PATS (sum b i j))
+    (AND
+      (IMPLIES
+        (> i j)
+        (EQ (sum b i j) 0))
+      (IMPLIES
+        (<= i j)
+        (EQ
+          (sum b i j)
+          (+ (select b j) (sum b i (- j 1))) )))))
+
+(DEFPRED (Q n b B) (AND (< 0 n) (EQ b B)))
+
+(DEFPRED (R n b B)
+  (FORALL (k)
+    (IMPLIES
+      (AND (<= 0 k) (< k n))
+      (EQ (select b k) (sum B 0 k)) )))
+
+(DEFPRED (P n b B i)
+  (AND
+    (<= 1 i) (<= i n)
+    (FORALL (k)
+      (IMPLIES
+        (AND (<= 0 k) (< k i))
+        (EQ (select b k) (sum B 0 k)) ))
+    (FORALL (k)
+      (IMPLIES
+        (AND (<= i k) (< k n))
+        (EQ (select b k) (select B k)) ))))
+
+(BG_PUSH (FORALL (n i) (EQ (t n i) (- n i))))
+
+(DEFPRED (CONDITION n i) (NEQ i n))
+
+
+(IMPLIES (Q n b B) (P n b B 1))
+
+(IMPLIES
+  (AND (P n b B i) (CONDITION n i))
+  (P n (store b i (+ (select b i) (select b (- i 1)))) B (+ i 1)))
+
+(IMPLIES
+  (AND (P n b B i) (NOT (CONDITION n i)))
+  (R n b B))
+
+(IMPLIES
+  (AND (P n b B i) (CONDITION n i))
+  (> (t n i) 0))
+
+(IMPLIES
+  (AND (P n b B i) (CONDITION n i))
+  (< (t n (+ i 1)) (t n i)))

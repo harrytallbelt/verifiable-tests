@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Список завдань</title>
+  </head>
+  <body>
+    <ol>
+      {{#each tasks}}
+        <li><a href="./tasks/{{name}}"> {{name}} </a></li>
+      {{/each}}
+    </ol> 
+  </body>
+</html>

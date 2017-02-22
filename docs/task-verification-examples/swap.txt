@@ -1,0 +1,4 @@
+(IMPLIES
+  (AND (EQ x X) (EQ y Y))
+  (AND (EQ y Y) (EQ x X))
+)

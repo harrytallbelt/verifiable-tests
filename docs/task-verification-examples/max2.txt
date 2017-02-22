@@ -1,0 +1,38 @@
+; using IF theorem we get three predicates:
+
+; Q => BB
+(IMPLIES
+  (AND (EQ x X) (EQ y Y))
+  (OR
+    (< x y)
+    (>= x y)
+  )
+)
+
+; Q ^ B1 => wp(S1, R)
+; where B1 - x < y, S1 - z := y 
+(IMPLIES
+  (AND
+    (EQ x X)
+    (EQ y Y)
+    (< x y)
+  )
+  (OR
+    (AND (EQ y X) (<= Y X))
+    (AND (EQ y Y) (<= X Y))
+  )
+)
+
+; Q ^ B2 => wp(S2, R)
+; where B1 - x >= y, S2 - z := x
+(IMPLIES
+  (AND
+    (EQ x X)
+    (EQ y Y)
+    (>= x y)
+  )
+  (OR
+    (AND (EQ x X) (<= Y X))
+    (AND (EQ x Y) (<= X Y))
+  )
+)

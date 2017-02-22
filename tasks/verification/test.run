@@ -1,8 +1,0 @@
-#!/bin/bash
-echo "" > test-output
-for filename in *.txt
-do
-    printf "\nfilename: $filename\n\n" >> test-output
-    echo "`../../bin/simplify.exe $filename`" >> test-output
-    printf "\n\n" >> test-output
-done
