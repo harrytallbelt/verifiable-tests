@@ -134,7 +134,7 @@ ProgramDtoBuilder.prototype.visitAdd_expr = function(ctx) {
   return {
     type: ctx.PLUS() ? 'plus' : 'minus',
     left: this.visit(ctx.int_expr(0)),
-    right: this.visit(ctx.int_expr(1))    
+    right: this.visit(ctx.int_expr(1))
   }
 }
 
