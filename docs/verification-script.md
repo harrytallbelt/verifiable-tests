@@ -28,5 +28,5 @@ This file provides a step-by-step description of the verification process
    the error messamge is formed. The error information objects, returned
    by the wp script, allow us to form a sensible error messamge, that
    says which code construction failed and why.
-9. The error messamges (if any) are packed together and passed back to
+9. The error messages (if any) are packed together and passed back to
    the user.
