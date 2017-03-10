@@ -1,6 +1,6 @@
-The current article describes the internal system predicate representation
+The current document describes the internal application predicate representation
 format. Predicates are parsed into simple (plain old) JavaScript objects,
-that can be easily be converted to JSON if a need arises.
+that, if needed, can easily be converted to JSON.
 
 The described format is compatible with
 [program-representation format](./program-representation.md) in a sense
@@ -19,29 +19,33 @@ A predicate can take different forms, all of which are described below.
 }
 ```
 
-## Unary Operators
+## Negation/Parentheses
 
-There is only one unary operator, which is boolean negation.
-Note that parentheses are not needed, because of
-the tree structure of the representation.
+There is only one unary operator, boolean negation.
+Its representation has similar structure to parentheses representation.
 
 ```
 {
-  type: 'not',
+  type: ('not'|'parets'),
   inner: <predicate>
 }
 ```
+
+Note that we keep parentheses in representation even though they
+loose their value with the tree way of struturing an expression.
+It will simplify tree-to-expression conversion, in case we ever need one.
 
 ## Binary Operators
 
 There are three binary operators:
 - conjunction,
 - disjuntion,
-- implication.
+- implication,
+- equivalention (iff, if and only if).
 
 ```
 {
-  type: ('and'|'or'|'implies'),
+  type: ('and'|'or'|'implies'|'iff'),
   left: <predicate>,
   right: <predicate>
 }
