@@ -41,7 +41,7 @@ of statements have some common fields.
 Text range field is used to remember the statement's original position in the
 program source code.
 
-### Skip/Abort
+### Skip and Abort
 
 Skip and abort are simple statements, whose representation contains no fields,
 except for the common statement fields described above.
@@ -49,23 +49,41 @@ except for the common statement fields described above.
 ### Assignment
 
 Assignment statement representation contains two lists:
-- a list of lvalues, the values being assigned,
-- a list of rvalues, the values being assigned to.
+- a list of lvalues, the variables that will change their value,
+- a list of rvalues, the values being assigned to the variables.
 
 ```
 {
   type: 'assign',
   textRange: {...},
   lvalues: [<name>, ... , <name>],
-  rvalues: [<var>, ... , <var>]
+  rvalues: [<rvalue>, ... , <rvalue>]
 }
 ```
 
-Note that there are different types of variables and, while
-any one can represent an rvalue, only the simplest one, name,
-can be an lvalue.
+Lvalues can only be represented via the name variables (see below).
 
-### If/Do
+On the other hand, there are two cases of rvalues. They can be either
+
+```
+{
+  type: 'int',
+  inner: <int_expr>
+}
+```
+
+if we want to assign an integer value, or
+
+```
+{
+  type: 'map',
+  inner: <var>
+}
+```
+
+if we want to assign a map value.
+
+### If and Do
 
 If and Do statement representations have similar structure.
 Each contain two lists:
@@ -120,10 +138,10 @@ There are several types of integer expressions.
 }
 ```
 
-Note that `<store>` variable does not appear in
+Note that `<store>` variable will not appear in
 integer expression, as its value is allways a map.
 
-### Negation/Parentheses
+### Negation and Parentheses
 
 There is only one unary operator, integer negation.
 Its representation has similar structure to parentheses representation.
@@ -157,10 +175,10 @@ There are three inreger binary operations:
 
 ## Variables
 
-We support arrays by the means of the theory of maps, i.e. each
-array is represented by a map `index -> value`. This way each
-assignment to an array element is converted to an assignment of
-a new map to the array variable.
+We support arrays via the theory of maps, i.e. each array
+is represented by a map `index -> value`. This way each assignment
+to an array element is converted to an assignment of a new map
+to the array variable.
 
 ```
 a[i] := x   <===>   a := (a; i:x)

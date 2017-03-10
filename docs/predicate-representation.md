@@ -19,7 +19,7 @@ A predicate can take different forms, all of which are described below.
 }
 ```
 
-## Negation/Parentheses
+## Negation and Parentheses
 
 There is only one unary operator, boolean negation.
 Its representation has similar structure to parentheses representation.
@@ -94,13 +94,17 @@ a better intuition.
 = ∃ v1, ... , vn [Q(v1, ... , vn) ^ P(v1, ... , vn)]
 ```
 
-And finaly our quantifier representation format.
+And finally our quantifier representation format looks like this.
 
 ```
 {
   type: ('exists'|'forall'),
-  boundedVars: [<var>, <var>, ...],
+  boundedVars: [<name>, <name>, ...],
   condition: <predicate>,
   inner: <predicate>
 }
 ```
+
+`<name>` refears to the simplest class of variables. To read more about
+it see [program representation docs](./program-representation.md).
+  
