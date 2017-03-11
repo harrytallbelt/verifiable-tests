@@ -128,13 +128,11 @@ The structure of a context object can be seen below.
 
 ```
 {
-  start: { row: <int>, col: <int> }, // the start and the end of 
-  end: { row: <int>, col: <int> },   // the statemets being proven
-  cause: {
-    type: ('seq' | 'if' | 'do'),
-    step: <int>,  // step of the theorem proof
-    branch: <int> // branch of the if or do statement
-  }
+  type: ('seq' | 'if' | 'do'),
+  step: <int>,   // step of the theorem proof
+  branch: <int>  // branch of the if or do statement
+  start: { row: <int>, col: <int> },  // the start and the end of 
+  end: { row: <int>, col: <int> },    // the statemets being proven
 }
 ```
 

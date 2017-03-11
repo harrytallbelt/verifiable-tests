@@ -4,7 +4,7 @@ const { findLastIndex, flatten } = require('./utils')
  * the list of predicates, prooving which will
  * mean the program's validity.
  * Here `program` is an object tree representation of
- * the program being proven,
+ * the program being proven or a list of statements,
  * `spec` is an object, that contains fields
  *  - `precondition` with precondition predicate,
  *  - `postcondition` with postcondition predicate,
@@ -17,10 +17,10 @@ const { findLastIndex, flatten } = require('./utils')
  *  - `context`, the that for each predicate of `predicates` provides
  *    a list of context objects, collected while aquiring the predicate.
 */
-function wp(program, spec, context) {
+function wp(spec, program, context) {
   const Q = spec.precondition
   const R = spec.postcondition
-  const S = program
+  const S = Array.isArray(program) ? program : program.statements
   context = context || []
 
   if (S.length === 0) {     // an empty program acts
@@ -30,14 +30,22 @@ function wp(program, spec, context) {
       right: R
     }
 
+    if (context.length === 0) {
+      context.push({                // Empty program might contain
+        start: { row: 0, col: 0 },  // whitespaces, so it won't
+        end: { row: 0, col: 0 },    // end at 0:0, but we cannot
+        type: 'seq'                 // access the real coordinates.
+      })
+    }
+
     return {
       predicates: [implication],
-      context: context
+      context: [context]
     }
   }
 
   const lastLoopIndex = findLastIndex(S, st => st.type === 'do')
-  if (lastLoopIndex > 0) {
+  if (lastLoopIndex >= 0) {
     const DO = S[lastLoopIndex]
     const P = spec.invariants.pop()
     const t = spec.boundaryFunctions.pop()
@@ -48,7 +56,7 @@ function wp(program, spec, context) {
   }
 
   const firstIfIndex = S.findIndex(st => st.type === 'if')
-  if (firstIfIndex > 0) {
+  if (firstIfIndex >= 0) {
     const IF = S[firstIfIndex]
     const I = S.slice(0, firstIfIndex)    // commands before if
     const J = S.slice(firstIfIndex + 1)   // commands after if
@@ -68,6 +76,20 @@ function wp(program, spec, context) {
 */
 function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
   const BB = conjunction(DO.guards)
+  
+  if (I.length === 0) {
+    I.push({
+      type: 'skip',
+      textRange: DO.textRange
+    })
+  }
+
+  if (J.length === 0) {
+    J.push({
+      type: 'skip',
+      textRange: DO.textRange
+    })
+  }
   
   const results = flatten([
     doTheoremPt1(Q, I, P, innerSpec, context),
@@ -118,6 +140,7 @@ function doTheoremPt3(P, R, BB, J, innerSpec, context) {
 // P ^ BB => t > 0
 function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
   const contextObject = createContext({ command: DO, type: 'do', step: 4 })
+  const newContext = [contextObject, ... context]
   const implication = {
     type: 'implies',
     left: { type: 'and', left: P, right: BB },
@@ -130,7 +153,7 @@ function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
   }
   return {
     predicates: [implication],
-    context: [contextObject, ... context]
+    context: [newContext]
   }
 }
 
@@ -182,6 +205,20 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
 function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
   const BB = conjunction(IF.guards)
   
+  if (I.length === 0) {
+    I.push({
+      type: 'skip',
+      textRange: IF.textRange
+    })
+  }
+
+  if (J.length === 0) {
+    J.push({
+      type: 'skip',
+      textRange: IF.textRange
+    })
+  }
+
   const results = flatten([
     ifTheoremPt1(Q, BB, I, innerSpec, context),
     ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context)
@@ -192,7 +229,7 @@ function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
 
 
 function ifTheoremPt1(Q, BB, I, innerSpec, context) {
-  const context = createContext({ command: I, type: 'if', step: 1 })
+  const contextObject = createContext({ command: I, type: 'if', step: 1 })
   return wrapWpArguments(Q, I, BB, innerSpec, [contextObject, ... context])
 }
 
@@ -204,7 +241,7 @@ function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
       type: 'and',
       left: Q,
       // we get Q => WP(I, B_i) and take the right part
-      right: elementarySequenceWp(Q, I, guard).predicates[0].right
+      right: elementarySequenceWp(Q, I, guard, []).predicates[0].right
     }
     const contextObject = createContext({
       command: commands,
@@ -223,7 +260,7 @@ function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
 /* Generates a proof of elementary command sequence.
 */
 function elementarySequenceWp(Q, S, R, context) {
-  const seqWp = S.reduceRight((predicate, command) => {
+  let seqWp = S.reduceRight((predicate, command) => {
     switch (command.type) {
       case 'abort':
         return { type: 'const', const: false }
@@ -240,11 +277,13 @@ function elementarySequenceWp(Q, S, R, context) {
     seqWp = Object.assign({}, R)   // was nothing but skip's
   }
 
+  const implication = { type: 'implies', left: Q, right: seqWp }
   const contextObject = createContext({ command: S, type: 'seq' })
+  const newContext = [contextObject, ... context]
 
   return {
-    predicates: [seqWp],
-    context: [contextObject, ... context]
+    predicates: [implication],
+    context: [newContext]
   }
 }
 
@@ -286,7 +325,7 @@ function substitutePredicate(pred, names, exprs) {
     case 'exists':
     case 'forall':
       const filteredPairs = names
-        .map((n, i) => { 'var': name, expr: exprs[i] })
+        .map((n, i) => ({ var: name, expr: exprs[i] }))
         .filter(pair => pred.boundedVars.every(bn => bn.name !== pair.var.name))
 
       const filteredNames = filteredPairs.map(p => p.var)
@@ -311,10 +350,7 @@ function substituteIntExpr(intExpr, names, exprs) {
       return intExpr
 
     case 'var':
-      return {
-        type: 'var',
-        var: substituteVariable(intExpr.var, names, exprs)
-      }
+      return substituteVariable(intExpr.var, names, exprs)
     
     case 'negare':
     case 'parets':
@@ -328,8 +364,8 @@ function substituteIntExpr(intExpr, names, exprs) {
     case 'mult':
       return {
         type: intExpr.type,
-        leftIntExpr: substituteIntExpr(intExpr.leftIntExpr, names. exprs),
-        rightIntExpr: substituteIntExpr(intExpr.rightIntExpr, names. exprs)
+        left: substituteIntExpr(intExpr.left, names, exprs),
+        right: substituteIntExpr(intExpr.right, names, exprs)
       }
     
     default:
@@ -353,9 +389,9 @@ function substituteVariable(variable, names, exprs) {
     case 'store':
       return {
         type: 'store',
-        base: substituteVariable(variable.base, names, exprs),         // TODO: do we need
-        selector: substituteIntExpr(variable.selector, names, exprs),  // substitutions
-        value: substituteIntExpr(variable.value, names, exprs)         // in all of these??
+        base: substituteVariable(variable.base, names, exprs),
+        selector: substituteIntExpr(variable.selector, names, exprs),
+        value: substituteIntExpr(variable.value, names, exprs)
       }
 
     default:
@@ -365,11 +401,10 @@ function substituteVariable(variable, names, exprs) {
 
 
 function combineResults(results) {
-  // TOOD: is there a better way? (maybe concat without creating new array?)
-  return results.reduce((acc, res) => {
+  return results.reduce((acc, res) => ({
     predicates: acc.predicates.concat(res.predicates),
     context: acc.context.concat(res.context)
-  })
+  }))
 }
 
 function conjunction(predicates) {
@@ -382,14 +417,13 @@ function conjunction(predicates) {
 
 // You can omit step and branch
 function createContext({ command, type, step, branch }) {
-  // TODO: either change docs or return to what we had before
-  let context = { proofType: type, proofStep: step, proofBranch branch }
+  let context = { type, step, branch }
 
   if (Array.isArray(command)) {
-    // TODO: what if command is empty (this *can* happen)
-    // (past me did not bother to left a note on *when* it can happen)
+    // We make sure the array is not empty in calling methods
+    assert(command.length > 0)
     context.start = command[0].textRange.start
-    context.end = command[commands.length - 1].textRange.end
+    context.end = command[command.length - 1].textRange.end
   } else {
     context.start = command.textRange.start
     context.end = command.textRange.end
