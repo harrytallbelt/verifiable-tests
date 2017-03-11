@@ -56,9 +56,7 @@ function wp(program, spec, context) {
     return ifTheorem(Q, R, I, IF, J, spec, context)
   }
 
-  // TODO
-  throw new Error('Not implemented')  // wp for elementary command seq
-  return
+  return elementarySequenceWp(Q, S, R, context)
 }
 
 
@@ -170,13 +168,8 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
       rvalues: [t]
     }
     const command = [fakeAssignment, ... DO.commands[i]]
-    const contextObject = Object.assign({}, getCommandsTextRange(command), { // TODO
-      cause: {
-        type: 'do',
-        step: 5,
-        branch: i
-      }
-    })
+    const contextObject =
+      createContext({ command: command, type: 'do', step: 5, branch: i + 1 })
 
     return Object.assign({}, innerSpec, {
       precondition: {
@@ -210,7 +203,7 @@ function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
   
   const results = flatten([
     ifTheoremPt1(Q, BB, I, innerSpec, context),
-    ifTheoremPt2(Q, R, I, IF, J, innerSpec, context)
+    ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context)
   ]).map(wp)
 
   return combineResults(results)
@@ -229,13 +222,18 @@ function ifTheoremPt1(Q, BB, I, innerSpec, context) {
 }
 
 
-function ifTheoremPt2(Q, R, I, IF, J, innerSpec, context) {
+function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
   const specs = IF.guards.map((guard, i) => {
-    const commands = null // TODO
-    const precondition = null // TODO
+    const commands = I.concat(IF.commands[i]).concat(J)
+    const precondition = {
+      type: 'and',
+      left: Q,
+      // we get Q => WP(I, BB) and take the right part
+      right: elementarySequenceWp(Q, I, BB).predicates[0].right
+    }
 
     const contextObject =
-      createContext({ command: commands, type: 'if', step: 2, branch: i})
+      createContext({ command: commands, type: 'if', step: 2, branch: i + 1})
 
     return Object.assign({}, innerSpec, {
       precondition: precondition,
@@ -253,8 +251,7 @@ function ifTheoremPt2(Q, R, I, IF, J, innerSpec, context) {
 /* Generates a proof of elementary command sequence.
 */
 function elementarySequenceWp(Q, S, R, context) {
-  // TODO: reduceRight ??
-  const seqWp = S.reverse().reduce((predicate, command) => {
+  const seqWp = S.reduceRight((predicate, command) => {
     switch (command.type) {
       case 'abort':
         return { type: 'const', const: false }
@@ -418,6 +415,7 @@ function createContext({ command, type, step, branch }) {
 
   if (Array.isArray(command)) {
     // TODO: what if command is empty (this *can* happen)
+    // (past me did not bother to left a note on *when* it can happen)
     context.start = command[0].textRange.start
     context.end = command[commands.length - 1].textRange.end
   } else {
