@@ -74,7 +74,7 @@ function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
     doTheoremPt2(P, DO, innerSpec, context),
     doTheoremPt3(P, R, BB, J),
     doTheoremPt5(P, t, DO, innerSpec, context)
-  ]).map(wp)
+  ]).map(args => wp(args.spec, args.prog, args.ctx))
 
   // pt. 4 returns a predicate, so no wp call needed
   results.push(doTheoremPt4(P, t, BB, DO, innerSpec))
@@ -85,32 +85,18 @@ function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
 // {Q} I {P}
 function doTheoremPt1(Q, I, P, innerSpec, context) {
   const contextObject = createContext({ command: I, type: 'do', step: 1 })
-
-  return Object.assign({}, innerSpec, {
-    precondition: Q,
-    postcondition: P,
-    program: I,
-    context: [contextObject, ... context]
-  })
+  return wrapWpArguments(Q, I, P, innerSpec, [contextObject, ... context])
 }
 
 // {P ^ Bi} Ci {P} for i = 1..n
 function doTheoremPt2(P, DO, innerSpec, context) {
   const subSpecs = DO.guards.map((guard, i) => {
     const command = DO.commands[i]
+    const precondition = { type: 'and', left: P, right: guard }
     const contextObject =
       createContext({ command: command, type: 'do', step: 2, branch: i + 1})
-
-    return Object.assign({}, innerSpec, {
-      precondition: {
-        type: 'and',
-        left: P,
-        right: guard,
-      },
-      postcondition: P,
-      program: command,
-      context: [contextObject, ... context]
-    })
+    const newContext = [contextObject, ... context]
+    return wrapWpArguments(precondition, command, P, newContext)
   })
 
   return subSpecs
@@ -119,20 +105,14 @@ function doTheoremPt2(P, DO, innerSpec, context) {
 // {P ^ ~BB} J {R}
 function doTheoremPt3(P, R, BB, J, innerSpec, context) {
   const contextObject = createContext({ command: J, type: 'do', step: 3})
+  const newContext = [contextObject, ... context]
+  const precondition = {
+    type: 'and',
+    left: P,
+    right: { type: 'not', inner: BB }
+  }
 
-  return Object.assign({}, innerSpec, {
-    precondition: {
-      type: 'and',
-      left: P,
-      right: {
-        type: 'not',
-        inner: BB
-      }
-    },
-    postcondition: R,
-    program: J,
-    context: [contextObject, ... context]
-  })
+  return wrapWpArguments(precondition, J, R, innerSpec, newContext)
 }
 
 // P ^ BB => t > 0
@@ -159,7 +139,7 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
   const specs = DO.guards.map((guard, i) => {
     const tInit = {
       type: 'name',
-      name: '@t_init',    // NOTE: here we use @ which might cause problems.
+      name: '@t_init'     // NOTE: here we use @ which might cause problems.
     }
     const fakeAssignment = {            // we reuse first command text range
       textRange: command[0].textRange,  // so it would seem like our command
@@ -168,24 +148,25 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
       rvalues: [t]
     }
     const command = [fakeAssignment, ... DO.commands[i]]
-    const contextObject =
-      createContext({ command: command, type: 'do', step: 5, branch: i + 1 })
-
-    return Object.assign({}, innerSpec, {
-      precondition: {
-        type: 'and',
-        left: P,
-        right: guard
-      },
-      postcondition: {
-        type: 'comp',
-        comp: '<',
-        left: t,
-        right: tInit
-      },
-      program: command,
-      context: [contextObject, ... context]
+    const precondition = {
+      type: 'and',
+      left: P,
+      right: guard
+    }
+    const postcondition = {
+      type: 'comp',
+      comp: '<',
+      left: t,
+      right: tInit
+    }
+    const contextObject = createContext({
+      command: command,
+      type: 'do',
+      step: 5,
+      branch: i + 1
     })
+    const newContext = [contextObject, ... context]
+    return wrapWpArguments(precondition, command, postcondition, innerSpec, newContext)
   })
 
   return specs
@@ -204,7 +185,7 @@ function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
   const results = flatten([
     ifTheoremPt1(Q, BB, I, innerSpec, context),
     ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context)
-  ]).map(wp)
+  ]).map(args => wp(args.spec, args.prog, args.ctx))
 
   return combineResults(results)
 }
@@ -212,13 +193,7 @@ function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
 
 function ifTheoremPt1(Q, BB, I, innerSpec, context) {
   const context = createContext({ command: I, type: 'if', step: 1 })
-
-  return Object.assign({}, innerSpec, {
-    precondition: Q,
-    postcondition: BB,
-    program: I,
-    context: [contextObject, ... context]
-  })
+  return wrapWpArguments(Q, I, BB, innerSpec, [contextObject, ... context])
 }
 
 
@@ -228,21 +203,18 @@ function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
     const precondition = {
       type: 'and',
       left: Q,
-      // we get Q => WP(I, BB) and take the right part
-      right: elementarySequenceWp(Q, I, BB).predicates[0].right
+      // we get Q => WP(I, B_i) and take the right part
+      right: elementarySequenceWp(Q, I, guard).predicates[0].right
     }
-
-    const contextObject =
-      createContext({ command: commands, type: 'if', step: 2, branch: i + 1})
-
-    return Object.assign({}, innerSpec, {
-      precondition: precondition,
-      postcondition: guard,
-      program: commands,
-      context: [contextObject, ... context]
+    const contextObject = createContext({
+      command: commands,
+      type: 'if',
+      step: 2,
+      branch: i + 1
     })
+    const newContext = [contextObject, ... context]
+    return wrapWpArguments(precondition, commands, R, innerSpec, newContext)
   })
-
   return specs
 }
 
@@ -424,6 +396,20 @@ function createContext({ command, type, step, branch }) {
   }
 
   return context
+}
+
+// Wraps three WP arguments in one object
+function wrapWpArguments(Q, S, R, innerSpec, context) {
+  const spec = Object.assign({}, innerSpec, {
+    precondition: Q,
+    postcondition: R
+  })
+
+  return {
+    spec: spec,
+    prog: S,
+    ctx: context
+  }
 }
 
 
