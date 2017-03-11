@@ -1,34 +1,42 @@
-// TODO: 'impl' for bool expr of impliation
-// TODO: if negated is undefined, then int or bool expr isn't negated
+const { findLastIndex, flatten } = require('./utils')
 
-// TODO: This really is not implemented in Array.prototype :(
-function findLastIndex(predicate, arr) {
-  for (let i = arr.length - 1; i >= 0; --i) {
-    if (predicate(arr[i], i, arr)) {
-      return i
-    }
-  }
-  return -1
-}
-
-// TODO: This does not implemented in js library. Should I use
-// lodash or underscore? Or just create a 'utils.js' file?
-function flatten(arr) {
-  return arr.reduce((acc, subArr) => acc.concat(subArr), [])
-}
-
-
-
-function wp(spec) {
+/* Processes program and specification to get
+ * the list of predicates, prooving which will
+ * mean the program's validity.
+ * Here `program` is an object tree representation of
+ * the program being proven,
+ * `spec` is an object, that contains fields
+ *  - `precondition` with precondition predicate,
+ *  - `postcondition` with postcondition predicate,
+ *  - `invariants` with list of loop invariants (may be ommited),
+ *  - `boundaryFunctions` with list of boundary functions (may be ommited).
+ * `context` field is used by WP to propagate context through recursive calls.
+ * You don't need to specify it.
+ * WP returns an object of two fields:
+ *  - `predicates`, the list of predicates to proove,
+ *  - `context`, the that for each predicate of `predicates` provides
+ *    a list of context objects, collected while aquiring the predicate.
+*/
+function wp(program, spec, context) {
   const Q = spec.precondition
   const R = spec.postcondition
-  const S = spec.program.statements
+  const S = program
+  context = context || []
 
-  if (S.length == 0) {
-    throw new Error('Not implemented')  // wp for skip    
+  if (S.length === 0) {     // an empty program acts
+    const implication = {   // like a skip statement
+      type: 'implies',
+      left: Q,
+      right: R
+    }
+
+    return {
+      predicates: [implication],
+      context: context
+    }
   }
 
-  const lastLoopIndex = S.findLastIndex(({ type }) => type === 'do')
+  const lastLoopIndex = findLastIndex(S, st => st.type === 'do')
   if (lastLoopIndex > 0) {
     const DO = S[lastLoopIndex]
     const P = spec.invariants.pop()
@@ -36,18 +44,19 @@ function wp(spec) {
     const I = S.slice(0, lastLoopIndex)   // commands before the loop
     const J = S.slice(lastLoopIndex + 1)  // commands after the loop
 
-    return doTheorem(Q, R, P, t, I, DO, J, spec)
+    return doTheorem(Q, R, P, t, I, DO, J, spec, context)
   }
 
-  const firstIfIndex = S.findIndex(({ type }) => type === 'if')
+  const firstIfIndex = S.findIndex(st => st.type === 'if')
   if (firstIfIndex > 0) {
     const IF = S[firstIfIndex]
     const I = S.slice(0, firstIfIndex)    // commands before if
     const J = S.slice(firstIfIndex + 1)   // commands after if
 
-    return ifTheorem(Q, R, I, IF, J, spec)
+    return ifTheorem(Q, R, I, IF, J, spec, context)
   }
 
+  // TODO
   throw new Error('Not implemented')  // wp for elementary command seq
   return
 }
@@ -59,138 +68,109 @@ function wp(spec) {
  * specBase is used to keep track of context,
  * invariants and boundary functions.
 */
-function doTheorem(Q, R, P, t, I, DO, J, specBase) {
-  const BB = DO.guards.reduce((conj, g) => ({
-    type: 'and',
-    leftBool: conj,
-    rightBool: g
-  }))
+function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
+  const BB = conjunction(DO.guards)
   
-  const specs = [
-    doTheoremPt1(Q, I, P, specBase),
-    doTheoremPt2(P, DO, specBase),
+  const results = flatten([
+    doTheoremPt1(Q, I, P, innerSpec, context),
+    doTheoremPt2(P, DO, innerSpec, context),
     doTheoremPt3(P, R, BB, J),
-    doTheoremPt5(P, t, DO, specBase) ]
-  .map(wp)
+    doTheoremPt5(P, t, DO, innerSpec, context)
+  ]).map(wp)
 
-  specs.push(doTheoremPt4(P, t, BB, DO, specBase))  // pt. 4 returns predicate
+  // pt. 4 returns a predicate, so no wp call needed
+  results.push(doTheoremPt4(P, t, BB, DO, innerSpec))
 
-  return flatten(specs)
+  return combineResults(results)
 }
 
+// {Q} I {P}
+function doTheoremPt1(Q, I, P, innerSpec, context) {
+  const contextObject = createContext({ command: I, type: 'do', step: 1 })
 
-function doTheoremPt1(Q, I, P, specBase) {
-  const contextObject = Object.assign(getCommandsTextRange(I), {
-    cause: {
-      type: 'do',
-      step: 1
-    }
-  })
-
-  return Object.assign({}, specBase, {
+  return Object.assign({}, innerSpec, {
     precondition: Q,
     postcondition: P,
     program: I,
-    context: [contextObject, ... specBase.context]
+    context: [contextObject, ... context]
   })
 }
 
-
-function doTheoremPt2(P, DO, specBase) {
+// {P ^ Bi} Ci {P} for i = 1..n
+function doTheoremPt2(P, DO, innerSpec, context) {
   const subSpecs = DO.guards.map((guard, i) => {
-      const command = DO.commands[i]
-      const contextObject = Object.assign(getCommandsTextRange(command), {
-        cause: {
-          type: 'do',
-          step: 2,
-          branch: i + 1
-        }
-      })
-      
-      return Object.assign({}, specBase, {
-        precondition: {
-          type: 'and',
-          leftBool: P,
-          rightBool: guard,
-        },
-        postcondition: P,
-        program: command,
-        context: [contextObject, ... specBase.context]
-      })
+    const command = DO.commands[i]
+    const contextObject =
+      createContext({ command: command, type: 'do', step: 2, branch: i + 1})
+
+    return Object.assign({}, innerSpec, {
+      precondition: {
+        type: 'and',
+        left: P,
+        right: guard,
+      },
+      postcondition: P,
+      program: command,
+      context: [contextObject, ... context]
     })
-
-  return flatten(subSpecs)
-}
-
-
-function doTheoremPt3(P, R, BB, J, specBase) {
-  const contextObject = Object.assign(getCommandsTextRange(J), {
-    cause: {
-      type: 'do',
-      step: 3
-    }
   })
 
-  return Object.assign({}, specBase, {
+  return subSpecs
+}
+
+// {P ^ ~BB} J {R}
+function doTheoremPt3(P, R, BB, J, innerSpec, context) {
+  const contextObject = createContext({ command: J, type: 'do', step: 3})
+
+  return Object.assign({}, innerSpec, {
     precondition: {
       type: 'and',
-      leftBool: P,
-      rightBool: BB
+      left: P,
+      right: {
+        type: 'not',
+        inner: BB
+      }
     },
     postcondition: R,
     program: J,
-    context: [contextObject, ... specBase.context]
+    context: [contextObject, ... context]
   })
 }
 
-
-function doTheoremPt4(P, t, BB, DO, specBase) {
-  const contextObject = Object.assign({}, DO.textRange, {
-    cause: {
-      type: 'do',
-      step: 4
-    }
-  })
-  
-  const predicate = {
+// P ^ BB => t > 0
+function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
+  const contextObject = createContext({ command: DO, type: 'do', step: 4 })
+  const implication = {
     type: 'implies',
-    leftBool: {
-      type: 'and',
-      leftBool: P,
-      rightBool: BB
-    },
-    rightBool: {
+    left: { type: 'and', left: P, right: BB },
+    right: {
       type: 'comp',
       comp: '>',
       left: t,
-      right: {
-        type: 'const',
-        const: 0
-      }
+      right: { type: 'const', const: 0 }
     }
   }
-
   return {
-    predicates: [predicate],
-    context: [contextObject, ... specBase.context]
+    predicates: [implication],
+    context: [contextObject, ... context]
   }
 }
 
-
-function doTheoremPt5(P, t, DO, specBase) {
-  const stats = DO.guards.map((guard, i) => {
+// {P ^ Bi} @t := t; Ci {t < @t} for i = i..n
+function doTheoremPt5(P, t, DO, innerSpec, context) {
+  const specs = DO.guards.map((guard, i) => {
     const tInit = {
-      name: '@t_init',
-      selectors: []
+      type: 'name',
+      name: '@t_init',    // NOTE: here we use @ which might cause problems.
     }
-    const fakeCommand = {
-      textRange: command[0].textRange,
-      type: 'assign',
+    const fakeAssignment = {            // we reuse first command text range
+      textRange: command[0].textRange,  // so it would seem like our command
+      type: 'assign',                   // takes no space in source code.
       lvalues: [tInit],
       rvalues: [t]
     }
-    const command = [fakeCommand, ... DO.commands[i]]
-    const contextObject = Object.assign({}, getCommandsTextRange(command), {
+    const command = [fakeAssignment, ... DO.commands[i]]
+    const contextObject = Object.assign({}, getCommandsTextRange(command), { // TODO
       cause: {
         type: 'do',
         step: 5,
@@ -198,11 +178,11 @@ function doTheoremPt5(P, t, DO, specBase) {
       }
     })
 
-    return Object.assign({}, specBase, {
+    return Object.assign({}, innerSpec, {
       precondition: {
         type: 'and',
-        leftBool: P,
-        rightBool: guard
+        left: P,
+        right: guard
       },
       postcondition: {
         type: 'comp',
@@ -211,11 +191,11 @@ function doTheoremPt5(P, t, DO, specBase) {
         right: tInit
       },
       program: command,
-      context: [contextObject, ... specBase.context]
+      context: [contextObject, ... context]
     })
   })
 
-  return flatten(stats)
+  return specs
 }
 
 
@@ -225,68 +205,55 @@ function doTheoremPt5(P, t, DO, specBase) {
  * specBase is used to keep track of context,
  * invariants and boundary functions.
 */
-function ifTheorem(Q, R, I, IF, J, specBase) {
-  const BB = IF.guards.reduce((conj, g) => ({
-    type: 'and',
-    leftBool: conj,
-    rightBool: g
-  }))
+function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
+  const BB = conjunction(IF.guards)
   
-  const specs = [
-    ifTheoremPt1(Q, BB, I, specBase),
-    ifTheoremPt2(Q, R, I, IF, J, specBase) ]
-  .map(wp)
+  const results = flatten([
+    ifTheoremPt1(Q, BB, I, innerSpec, context),
+    ifTheoremPt2(Q, R, I, IF, J, innerSpec, context)
+  ]).map(wp)
 
-  return flatten(specs)
+  return combineResults(results)
 }
 
 
-function ifTheoremPt1(Q, BB, I, specBase) {
-  const context = Object.assign({}, getCommandsTextRange(I), {
-    cause: {
-      type: 'if',
-      step: 1
-    }
-  })
+function ifTheoremPt1(Q, BB, I, innerSpec, context) {
+  const context = createContext({ command: I, type: 'if', step: 1 })
 
-  return Object.assign({}, specBase, {
+  return Object.assign({}, innerSpec, {
     precondition: Q,
     postcondition: BB,
     program: I,
-    context: [contextObject, ... specBase.context]
+    context: [contextObject, ... context]
   })
 }
 
 
-function ifTheoremPt2(Q, R, I, IF, J, specBase) {
+function ifTheoremPt2(Q, R, I, IF, J, innerSpec, context) {
   const specs = IF.guards.map((guard, i) => {
     const commands = null // TODO
     const precondition = null // TODO
 
-    const contextObject = Object.assign({},
-      getCommandsTextRange(commands), {
-        cause: {
-          type: 'if',
-          step: 2,
-          branch: i
-        }
-    })
+    const contextObject =
+      createContext({ command: commands, type: 'if', step: 2, branch: i})
 
-    return Object.assign({}, specBase, {
+    return Object.assign({}, innerSpec, {
       precondition: precondition,
       postcondition: guard,
       program: commands,
-      context: [contextObject, ... specBase.context]
+      context: [contextObject, ... context]
     })
   })
 
-  return flatten(specs)
+  return specs
 }
 
 
-/* Generates proof of elementary command sequence.
+
+/* Generates a proof of elementary command sequence.
 */
-function elementarySequenceWp(Q, S, R, specBase) {
+function elementarySequenceWp(Q, S, R, context) {
+  // TODO: reduceRight ??
   const seqWp = S.reverse().reduce((predicate, command) => {
     switch (command.type) {
       case 'abort':
@@ -296,73 +263,170 @@ function elementarySequenceWp(Q, S, R, specBase) {
         return predicate
 
       case 'assign':
-       return substitute(predicate, command.lvalues, command.rvalues)
+       return substitutePredicate(predicate, command.lvalues, command.rvalues)
     }
   }, R)
 
-  if (seqWp === R) {               // in case there was
-    seqWp = Object.assign({}, R)   // nothing but skip's
+  if (seqWp === R) {               // copy R in case there
+    seqWp = Object.assign({}, R)   // was nothing but skip's
   }
 
+  const contextObject = createContext({ command: S, type: 'seq' })
+
   return {
-    predicates: null,
-    context: null
+    predicates: [seqWp],
+    context: [contextObject, ... context]
   }
 }
 
-/* Substitutes variables from `vars` by
+
+/* Substitutes variables from `names` by
  * expressions from `exprs` in predicate `pred`
  * and returns the result predicate.
 */
-function substitute(pred, vars, exprs) {
+function substitutePredicate(pred, names, exprs) {
   switch (pred.type) {
     case 'const':
       return pred
 
-    case 'var':
-      // TODO: what if it is bounded??
-      const varIndex = vars.findIndex(_var => _var.name == pred.name)
-      return varIndex < 0 ? pred : exprs[varIndex]  // TODO: should we copy expr
-
-    // TODO: the quantifiers
-
+    case 'not':
     case 'parets':
       return {
-        type: 'parets',
-        inner: substitute(pred.inner)
-      }
-
-    case 'and':
-      return {
-        type: 'and',
-        leftBool: substitute(pred.leftBool),
-        rightBool: substitute(pred.rightBool)
+        type: pred.type,
+        inner: substitutePredicate(pred.inner, names, exprs)
       }
 
     case 'or':
+    case 'implies':
+    case 'iff':
+    case 'and':
       return {
-        type: 'or',
-        leftBool: substitute(pred.leftBool),
-        rightBool: substitute(pred.rightBool)
+        type: pred.type,
+        left: substitutePredicate(pred.left, names, exprs),
+        right: substitutePredicate(pred.right, names, exprs)
+      }
+    
+    case 'comp':
+      return {
+        type: pred.type,
+        op: pred.op,
+        leftIntExpr: substituteIntExpr(pred.leftIntExpr, names, exprs),
+        rightIntExpr: substituteIntExpr(pred.rightIntExpr, names, exprs)
       }
 
-    case 'impl':
+    case 'exists':
+    case 'forall':
+      const filteredPairs = names
+        .map((n, i) => { 'var': name, expr: exprs[i] })
+        .filter(pair => pred.boundedVars.every(bn => bn.name !== pair.var.name))
+
+      const filteredNames = filteredPairs.map(p => p.var)
+      const filteredExprs = filteredPairs.map(p => p.expr)
+
       return {
-        type: 'impl',
-        leftBool: substitute(pred.leftBool),
-        rightBool: substitute(pred.rightBool)
+        type: pred.type,
+        boundedVars: pred.boundedVars,
+        condition: substitutePredicate(pred.condition, filteredNames, filteredExprs),
+        inner: substitutePredicate(pred.inner, filteredNames, filteredExprs)
       }
+
+    default:
+      throw new Error('WP error: unknown predicate type:', pred.type)
   }
 }
 
 
+function substituteIntExpr(intExpr, names, exprs) {
+  switch (intExpr.type) {
+    case 'const':
+      return intExpr
 
-function getCommandsTextRange(commands) {
-  // TODO: what if command is empty (this *can* happen)
-  return {
-    start: commands[0].textRange.start,
-    end: commands[commands.length - 1].textRange.end
+    case 'var':
+      return {
+        type: 'var',
+        var: substituteVariable(intExpr.var, names, exprs)
+      }
+    
+    case 'negare':
+    case 'parets':
+      return {
+        type: intExpr.type,
+        inner: substituteIntExpr(intExpr.inner, names, exprs)
+      }
+
+    case 'plus':
+    case 'minus':
+    case 'mult':
+      return {
+        type: intExpr.type,
+        leftIntExpr: substituteIntExpr(intExpr.leftIntExpr, names. exprs),
+        rightIntExpr: substituteIntExpr(intExpr.rightIntExpr, names. exprs)
+      }
+    
+    default:
+     throw new Error('WP error: unknown integer expression type:', intExpr.type)
+  }
+}
+
+function substituteVariable(variable, names, exprs) {
+  switch (variable.type) {
+    case 'name':
+      const nameIndex = names.findIndex(n => n.name === variable.name)
+      return nameIndex < 0 ? variable : exprs[nameIndex]
+
+    case 'select':
+      return {
+        type: 'select',
+        base: substituteVariable(variable.base, names, exprs),
+        selector: substituteIntExpr(variable.selector, names, exprs)
+      }
+
+    case 'store':
+      return {
+        type: 'store',
+        base: substituteVariable(variable.base, names, exprs),         // TODO: do we need
+        selector: substituteIntExpr(variable.selector, names, exprs),  // substitutions
+        value: substituteIntExpr(variable.value, names, exprs)         // in all of these??
+      }
+
+    default:
+      throw new Error('WP error: unknown variable type:', variable.type)
   }
 }
 
 
+function combineResults(results) {
+  // TOOD: is there a better way? (maybe concat without creating new array?)
+  return results.reduce((acc, res) => {
+    predicates: acc.predicates.concat(res.predicates),
+    context: acc.context.concat(res.context)
+  })
+}
+
+function conjunction(predicates) {
+  return predicates.reduce((conj, pred) => ({
+    type: 'and',
+    left: conj,
+    right: pred
+  }))
+}
+
+// You can omit step and branch
+function createContext({ command, type, step, branch }) {
+  // TODO: either change docs or return to what we had before
+  let context = { proofType: type, proofStep: step, proofBranch branch }
+
+  if (Array.isArray(command)) {
+    // TODO: what if command is empty (this *can* happen)
+    context.start = command[0].textRange.start
+    context.end = command[commands.length - 1].textRange.end
+  } else {
+    context.start = command.textRange.start
+    context.end = command.textRange.end
+  }
+
+  return context
+}
+
+
+module.exports = wp
