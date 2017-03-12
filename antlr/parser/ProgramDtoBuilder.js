@@ -161,10 +161,7 @@ ProgramDtoBuilder.prototype.visitVariable_expr = function(ctx) {
 
 
 ProgramDtoBuilder.prototype.visitParet_int_expr = function(ctx) {
-  const expr = {
-    type: 'parets',
-    inner: this.visit(ctx.int_expr())
-  }
+  const expr = this.visit(ctx.int_expr())
   return adjustForIntNegation(expr, ctx)
 }
 
@@ -205,10 +202,7 @@ ProgramDtoBuilder.prototype.visitBool_const_expr = function(ctx) {
 
 
 ProgramDtoBuilder.prototype.visitParet_bool_expr = function(ctx) {
-  const expr = {
-    type: 'parets',
-    inner: this.visit(ctx.bool_expr())
-  }
+  const expr = this.visit(ctx.bool_expr())
   return adjustForBoolNegation(expr, ctx)
 }
 
@@ -224,8 +218,8 @@ function adjustForBoolNegation(expr, ctx) {
 ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
   return {
     type: 'and',
-    leftBool: this.visit(ctx.bool_expr(0)),
-    rightBool: this.visit(ctx.bool_expr(1))
+    left: this.visit(ctx.bool_expr(0)),
+    right: this.visit(ctx.bool_expr(1))
   }
 }
 
@@ -233,8 +227,8 @@ ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
 ProgramDtoBuilder.prototype.visitOr_expr = function(ctx) {
   return {
     type: 'or',
-    leftBool: this.visit(ctx.bool_expr(0)),
-    rightBool: this.visit(ctx.bool_expr(1))
+    left: this.visit(ctx.bool_expr(0)),
+    right: this.visit(ctx.bool_expr(1))
   }
 }
 
@@ -243,8 +237,8 @@ ProgramDtoBuilder.prototype.visitComparison_expr = function(ctx) {
   return {
     type: 'comp',
     op: this.visit(ctx.comparison_op()),
-    leftInt: this.visit(ctx.int_expr(0)),
-    rightInt: this.visit(ctx.int_expr(1))
+    left: this.visit(ctx.int_expr(0)),
+    right: this.visit(ctx.int_expr(1))
   }
 }
 

@@ -141,22 +141,16 @@ There are several types of integer expressions.
 Note that `<store>` variable will not appear in
 integer expression, as its value is allways a map.
 
-### Negation and Parentheses
+### Negation
 
 There is only one unary operator, integer negation.
-Its representation has similar structure to parentheses representation.
-
 
 ```
 {
-  type: ('negate'|'parets'),
+  type: 'negate',
   inner: <int_expr>
 }
 ```
-
-Note that we keep parentheses in representation even though they
-loose their value with the tree way of struturing an expression.
-It will simplify tree-to-expression conversion, in case we ever need one.
 
 ### Binary Operators
 
