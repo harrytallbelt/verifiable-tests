@@ -1,3 +1,4 @@
+const deepEqual = require('deep-equal')
 const PseudocodeVisitor = require('./PseudocodeVisitor')
 
 function ProgramDtoBuilder() {
@@ -10,10 +11,8 @@ ProgramDtoBuilder.prototype.constructor = ProgramDtoBuilder
 
 
 ProgramDtoBuilder.prototype.visitProgram = function(ctx) {
-  // `ctx.statements()` fails when `ctx.children` is `null`,
-  // which does happen for an empty program.
-  // This is a bug. `children` should probably be an empty array.
-  // So do not replace `ctx.children` with `ctx.statements()`.
+  // Do not replace `ctx.children` with `ctx.statements()` until you
+  // have antlr4 runtime v4.7.0 or the freshest version from github.
   return { statements: ctx.children !== null ? this.visit(ctx.statements()) : [] }
 }
 
@@ -29,8 +28,7 @@ ProgramDtoBuilder.prototype.visitStatements = function(ctx) {
       },
       end: {
         row: sctx.stop.line,
-        col: sctx.stop.column 
-             + sctx.stop.text.length
+        col: sctx.stop.column + sctx.stop.text.length
       }
     }
 
@@ -52,6 +50,56 @@ ProgramDtoBuilder.prototype.visitSkip = function(ctx) {
 ProgramDtoBuilder.prototype.visitAssignment_statement = function(ctx) {
   const assignment = this.visit(ctx.assignment())
   assignment.type = 'assign'
+
+  // Throw an error if there is two same lvalues.
+  // This will trigger for x and x or a[i] and a[i],
+  // but not for a[i] and a[j].
+  for (let i = 0; i < assignment.lvalues.length; ++i) {
+    for (let j = i + 1; j < assignment.lvalues.length; ++j) {
+      if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
+        // TODO: Reuse antlr error format? If not, add source code coordinates.
+        throw new Error('Parsing error: an attempt to assign the'
+                      + ' same variable in parallel assignment.')
+      }
+    }
+  }
+
+  // If there's a map assignment, we would have to correct
+  // it so `a[i][j] := x` becomes `a := (a; i:(a[i]; j:x))`
+  // (see `docs/program-representation.md#Variables`).
+  for (let i = 0; i < assignment.lvalues.length; ++i) {
+    while (assignment.lvalues[i].type !== 'name') {
+      assignment.rvalues[i] = {
+        type: 'store',
+        base: assignment.lvalues[i].base,
+        selector: assignment.lvalues[i].selector,
+        value: assignment.rvalues[i]
+      }
+      assignment.lvalues[i] = assignment.lvalues[i].base
+    }
+  }
+
+  // After the previous step we might have repeating lvalues again.
+  // This is due to statements like `a[i], a[j] := a[j], a[i]`,
+  // which get converted to `a, a := (a; i:a[j]), (a; j:a[i])`.
+  // We now remove the excessive lvalues and combine the corresponding
+  // rvalues like this `a := ((a; i:a[j]); j:a[i])`.
+  for (let i = 0; i < assignment.lvalues.length; ++i) {
+    for (let j = i + 1; j < assignment.lvalues.length; ++j) {
+      if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
+        assignment.rvalues[i] = {
+          type: 'store',
+          base: assignment.rvalues[i],
+          selector: assignment.rvalues[j].selector,
+          value: assignment.rvalues[j].value
+        }
+        assignment.lvalues.splice(j, 1)
+        assignment.rvalues.splice(j, 1)
+        j -= 1
+      }
+    }
+  }
+
   return assignment
 }
 
@@ -95,29 +143,34 @@ ProgramDtoBuilder.prototype.visitGuarded_commands = function(ctx) {
 
 
 ProgramDtoBuilder.prototype.visitInt_const_expr = function(ctx) {
-  return {
+  const expr = {
     type: 'const',
-    negated: ctx.MINUS() != null,
     const: parseInt(ctx.INT().getText())
   }
+  return adjustForIntNegation(expr, ctx)
 }
 
 
 ProgramDtoBuilder.prototype.visitVariable_expr = function(ctx) {
-  return {
+  const expr = {
     type: 'var',
-    negated: ctx.MINUS() != null,
     var: this.visit(ctx.variable())
   }
+  return adjustForIntNegation(expr, ctx)
 }
 
 
 ProgramDtoBuilder.prototype.visitParet_int_expr = function(ctx) {
-  return {
-    type: 'parets',
-    negated: ctx.MINUS() != null,
-    inner: this.visit(ctx.int_expr())
+  const expr = this.visit(ctx.int_expr())
+  return adjustForIntNegation(expr, ctx)
+}
+
+
+function adjustForIntNegation(expr, ctx) {
+  if (ctx.MINUS()) {
+    expr = { type: 'negate', inner: expr }
   }
+  return expr
 }
 
 
@@ -140,28 +193,33 @@ ProgramDtoBuilder.prototype.visitAdd_expr = function(ctx) {
 
 
 ProgramDtoBuilder.prototype.visitBool_const_expr = function(ctx) {
-  return {
+  const expr = {
     type: 'const',
-    negated: ctx.NEGATION() != null,
     const: ctx.TRUE() != null
   }
+  return adjustForBoolNegation(expr, ctx)
 }
 
 
 ProgramDtoBuilder.prototype.visitParet_bool_expr = function(ctx) {
-  return {
-    type: 'parets',
-    negated: ctx.NEGATION() != null,
-    inner: this.visit(ctx.bool_expr())
+  const expr = this.visit(ctx.bool_expr())
+  return adjustForBoolNegation(expr, ctx)
+}
+
+
+function adjustForBoolNegation(expr, ctx) {
+  if (ctx.NEGATION()) {
+    expr = { type: 'not', inner: expr }
   }
+  return expr
 }
 
 
 ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
   return {
     type: 'and',
-    leftBool: this.visit(ctx.bool_expr(0)),
-    rightBool: this.visit(ctx.bool_expr(1))
+    left: this.visit(ctx.bool_expr(0)),
+    right: this.visit(ctx.bool_expr(1))
   }
 }
 
@@ -169,8 +227,8 @@ ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
 ProgramDtoBuilder.prototype.visitOr_expr = function(ctx) {
   return {
     type: 'or',
-    leftBool: this.visit(ctx.bool_expr(0)),
-    rightBool: this.visit(ctx.bool_expr(1))
+    left: this.visit(ctx.bool_expr(0)),
+    right: this.visit(ctx.bool_expr(1))
   }
 }
 
@@ -178,11 +236,12 @@ ProgramDtoBuilder.prototype.visitOr_expr = function(ctx) {
 ProgramDtoBuilder.prototype.visitComparison_expr = function(ctx) {
   return {
     type: 'comp',
-    leftInt: this.visit(ctx.int_expr(0)),
-    rightInt: this.visit(ctx.int_expr(1)),
-    comp: this.visit(ctx.comparison_op())
+    op: this.visit(ctx.comparison_op()),
+    left: this.visit(ctx.int_expr(0)),
+    right: this.visit(ctx.int_expr(1))
   }
 }
+
 
 ProgramDtoBuilder.prototype.visitLt  = ctx => '<'
 ProgramDtoBuilder.prototype.visitGt  = ctx => '>'
@@ -193,12 +252,24 @@ ProgramDtoBuilder.prototype.visitNeq = ctx => '<>'
 
 
 ProgramDtoBuilder.prototype.visitVariable = function(ctx) {
-  return {
-    name: ctx.NAME().getText(),
-    selectors: ctx.selectors()
-               ? this.visit(ctx.selectors())
-               : []
+  let variable = {
+    type: 'name',
+    name: ctx.NAME().getText()
   }
+
+  // builds a chain of `select` variables
+  if (ctx.selectors()) {
+    const selectors = this.visit(ctx.selectors())
+    for (let i = 0; i < selectors.length; ++i) { 
+      variable = {
+        type: 'select',
+        selector: selectors[i],
+        base: variable
+      }
+    }
+  }
+
+  return variable
 }
 
 

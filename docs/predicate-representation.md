@@ -19,21 +19,16 @@ A predicate can take different forms, all of which are described below.
 }
 ```
 
-## Negation and Parentheses
+## Negation
 
 There is only one unary operator, boolean negation.
-Its representation has similar structure to parentheses representation.
 
 ```
 {
-  type: ('not'|'parets'),
+  type: 'not',
   inner: <predicate>
 }
 ```
-
-Note that we keep parentheses in representation even though they
-loose their value with the tree way of struturing an expression.
-It will simplify tree-to-expression conversion, in case we ever need one.
 
 ## Binary Operators
 
@@ -65,8 +60,8 @@ Comparisons state one of six relations:
 {
   type: 'comp',
   op: ('<'|'>'|'<='|'>='|'='|'<>'),
-  leftIntExpr: <int_expr>,
-  rightIntExpr: <int_expr>
+  left: <int_expr>,
+  right: <int_expr>
 }
 ```
 
