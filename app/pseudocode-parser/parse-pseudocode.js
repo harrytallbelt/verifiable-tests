@@ -4,7 +4,7 @@ const PseudocodeParser = require('./PseudocodeParser')
 const ProgramDtoBuilder = require('./ProgramDtoBuilder')
 const ErrorListListener = require('./ErrorListListener')
 
-function parse(sourceCode) {
+function parsePseudocode(sourceCode) {
   const chars = new antlr4.InputStream(sourceCode)
   const lexer = new PseudocodeLexer.PseudocodeLexer(chars)
   const lexerErrorListKeeper = new ErrorListListener()  
@@ -32,7 +32,7 @@ function parse(sourceCode) {
   // TODO: what do we return??
 }
 
-module.exports = parse
+module.exports = parsePseudocode
 
 // Run as a script for testing purposes.
 if (!module.parent) {
@@ -44,7 +44,7 @@ if (!module.parent) {
     }
   })
   process.stdin.on('end', () => {
-    const result = parse(source)
+    const result = parsePseudocode(source)
     const json = JSON.stringify(result, null, 2)
     console.log(json)
   })
