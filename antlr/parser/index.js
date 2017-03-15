@@ -1,1 +1,1 @@
-module.exports.parseFile = require('./main')
+module.exports.parse = require('./parse')
