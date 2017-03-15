@@ -1,23 +1,24 @@
 const deepEqual = require('deep-equal')
 const PseudocodeVisitor = require('./PseudocodeVisitor')
 
-function ProgramDtoBuilder() {
-	PseudocodeVisitor.PseudocodeVisitor.call(this)
-	return this
+function ProgramRepresenatationBuilder() {
+  PseudocodeVisitor.PseudocodeVisitor.call(this)
+  this.errors = []
+  return this
 }
 
-ProgramDtoBuilder.prototype = Object.create(PseudocodeVisitor.PseudocodeVisitor.prototype)
-ProgramDtoBuilder.prototype.constructor = ProgramDtoBuilder
+ProgramRepresenatationBuilder.prototype = Object.create(PseudocodeVisitor.PseudocodeVisitor.prototype)
+ProgramRepresenatationBuilder.prototype.constructor = ProgramRepresenatationBuilder
 
 
-ProgramDtoBuilder.prototype.visitProgram = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitProgram = function(ctx) {
   // Do not replace `ctx.children` with `ctx.statements()` until you
   // have antlr4 runtime v4.7.0 or the freshest version from github.
   return { statements: ctx.children !== null ? this.visit(ctx.statements()) : [] }
 }
 
 
-ProgramDtoBuilder.prototype.visitStatements = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitStatements = function(ctx) {
   return ctx.statement().map(sctx => {
     const statement = this.visit(sctx)
 
@@ -37,31 +38,38 @@ ProgramDtoBuilder.prototype.visitStatements = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitAbort = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitAbort = function(ctx) {
   return { type: 'abort' }
 }
 
 
-ProgramDtoBuilder.prototype.visitSkip = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitSkip = function(ctx) {
   return { type: 'skip' }
 }
 
 
-ProgramDtoBuilder.prototype.visitAssignment_statement = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitAssignment_statement = function(ctx) {
   const assignment = this.visit(ctx.assignment())
   assignment.type = 'assign'
 
-  // Throw an error if there is two same lvalues.
+  // Throw an error if two lvalues are identical.
   // This will trigger for x and x or a[i] and a[i],
   // but not for a[i] and a[j].
+  const localErrors = []
   for (let i = 0; i < assignment.lvalues.length; ++i) {
     for (let j = i + 1; j < assignment.lvalues.length; ++j) {
       if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
-        // TODO: Reuse antlr error format? If not, add source code coordinates.
-        throw new Error('Parsing error: an attempt to assign the'
-                      + ' same variable in parallel assignment.')
+        const error = {
+          row: ctx.start.line,    // It is probably good
+          col: ctx.start.column,  // enough of a coordinate.
+          message: 'identical variables on the left hand side of a parallel assignment'
+        }
       }
     }
+  }
+  if (localErrors.length !== 0) {
+    this.errors.push(...localErrors)
+    return null   // We do not want to continue with this assignment.
   }
 
   // If there's a map assignment, we would have to correct
@@ -104,7 +112,7 @@ ProgramDtoBuilder.prototype.visitAssignment_statement = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitScalar_assignment = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitScalar_assignment = function(ctx) {
   return {
     lvalues: [this.visit(ctx.variable())],
     rvalues: [this.visit(ctx.int_expr())]
@@ -112,7 +120,7 @@ ProgramDtoBuilder.prototype.visitScalar_assignment = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitVector_assignment = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitVector_assignment = function(ctx) {
   const assignment = this.visit(ctx.assignment())
   assignment.lvalues.unshift(this.visit(ctx.variable()))
   assignment.rvalues.push(this.visit(ctx.int_expr()))
@@ -120,21 +128,21 @@ ProgramDtoBuilder.prototype.visitVector_assignment = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitIf_statement = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitIf_statement = function(ctx) {
   const guardedCommands = this.visit(ctx.guarded_commands())
   guardedCommands.type = 'if'
   return guardedCommands
 }
 
 
-ProgramDtoBuilder.prototype.visitDo_statement = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitDo_statement = function(ctx) {
   const guardedCommands = this.visit(ctx.guarded_commands())
   guardedCommands.type = 'do'
   return guardedCommands
 }
 
 
-ProgramDtoBuilder.prototype.visitGuarded_commands = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitGuarded_commands = function(ctx) {
   return {
     guards: ctx.guarded_command().map(gc => this.visit(gc.bool_expr())),
     commands: ctx.guarded_command().map(gc => this.visit(gc.statements()))
@@ -142,7 +150,7 @@ ProgramDtoBuilder.prototype.visitGuarded_commands = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitInt_const_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitInt_const_expr = function(ctx) {
   const expr = {
     type: 'const',
     const: parseInt(ctx.INT().getText())
@@ -151,7 +159,7 @@ ProgramDtoBuilder.prototype.visitInt_const_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitVariable_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitVariable_expr = function(ctx) {
   const expr = {
     type: 'var',
     var: this.visit(ctx.variable())
@@ -160,7 +168,7 @@ ProgramDtoBuilder.prototype.visitVariable_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitParet_int_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitParet_int_expr = function(ctx) {
   const expr = this.visit(ctx.int_expr())
   return adjustForIntNegation(expr, ctx)
 }
@@ -174,7 +182,7 @@ function adjustForIntNegation(expr, ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitMult_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitMult_expr = function(ctx) {
   return {
     type: 'mult',
     left: this.visit(ctx.int_expr(0)),
@@ -183,7 +191,7 @@ ProgramDtoBuilder.prototype.visitMult_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitAdd_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitAdd_expr = function(ctx) {
   return {
     type: ctx.PLUS() ? 'plus' : 'minus',
     left: this.visit(ctx.int_expr(0)),
@@ -192,7 +200,7 @@ ProgramDtoBuilder.prototype.visitAdd_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitBool_const_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitBool_const_expr = function(ctx) {
   const expr = {
     type: 'const',
     const: ctx.TRUE() != null
@@ -201,7 +209,7 @@ ProgramDtoBuilder.prototype.visitBool_const_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitParet_bool_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitParet_bool_expr = function(ctx) {
   const expr = this.visit(ctx.bool_expr())
   return adjustForBoolNegation(expr, ctx)
 }
@@ -215,7 +223,7 @@ function adjustForBoolNegation(expr, ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitAnd_expr = function(ctx) {
   return {
     type: 'and',
     left: this.visit(ctx.bool_expr(0)),
@@ -224,7 +232,7 @@ ProgramDtoBuilder.prototype.visitAnd_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitOr_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitOr_expr = function(ctx) {
   return {
     type: 'or',
     left: this.visit(ctx.bool_expr(0)),
@@ -233,7 +241,7 @@ ProgramDtoBuilder.prototype.visitOr_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitComparison_expr = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitComparison_expr = function(ctx) {
   return {
     type: 'comp',
     op: this.visit(ctx.comparison_op()),
@@ -243,15 +251,15 @@ ProgramDtoBuilder.prototype.visitComparison_expr = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitLt  = ctx => '<'
-ProgramDtoBuilder.prototype.visitGt  = ctx => '>'
-ProgramDtoBuilder.prototype.visitLeq = ctx => '<='
-ProgramDtoBuilder.prototype.visitGeq = ctx => '>='
-ProgramDtoBuilder.prototype.visitEq  = ctx => '='
-ProgramDtoBuilder.prototype.visitNeq = ctx => '<>'
+ProgramRepresenatationBuilder.prototype.visitLt  = ctx => '<'
+ProgramRepresenatationBuilder.prototype.visitGt  = ctx => '>'
+ProgramRepresenatationBuilder.prototype.visitLeq = ctx => '<='
+ProgramRepresenatationBuilder.prototype.visitGeq = ctx => '>='
+ProgramRepresenatationBuilder.prototype.visitEq  = ctx => '='
+ProgramRepresenatationBuilder.prototype.visitNeq = ctx => '<>'
 
 
-ProgramDtoBuilder.prototype.visitVariable = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitVariable = function(ctx) {
   let variable = {
     type: 'name',
     name: ctx.NAME().getText()
@@ -273,16 +281,16 @@ ProgramDtoBuilder.prototype.visitVariable = function(ctx) {
 }
 
 
-ProgramDtoBuilder.prototype.visitSelectors = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitSelectors = function(ctx) {
   return ctx.selector()
     ? ctx.selector().map(sctx => this.visit(sctx))
     : []
 }
 
 
-ProgramDtoBuilder.prototype.visitSelector = function(ctx) {
+ProgramRepresenatationBuilder.prototype.visitSelector = function(ctx) {
   return this.visit(ctx.int_expr())
 }
 
 
-module.exports = ProgramDtoBuilder
+module.exports = ProgramRepresenatationBuilder
