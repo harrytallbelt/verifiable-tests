@@ -5,7 +5,7 @@ let tasks = null
 
 function getTaskList() {
   if (tasks) {
-    return new Promise((resolve, reject) => resolve(tasks))
+    return Promise.resolve(tasks)
   }
 
   return fs
