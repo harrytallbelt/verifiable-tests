@@ -1,2 +1,2 @@
 // Exports parsing function `parsePseudocode`.
-module.exports = require('./parse-pseudocode')
+module.exports = require('./parse')

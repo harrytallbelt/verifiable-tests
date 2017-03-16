@@ -15,11 +15,9 @@ ErrorListListener.prototype.constructor = ErrorListListener
 
 ErrorListListener.prototype.syntaxError = function(recognizer, offendingSymbol, line, column, msg, e) {
   const error = {
-    offendingSymbol: offendingSymbol,
     row: line,
     col: column,
     message: msg,
-    innerError: e
   }
   this.errors.push(error)
 }
