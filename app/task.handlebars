@@ -44,15 +44,30 @@
     {{!-- If verification has been performed,
           we'll display its results. --}}
     {{#if verification}}
-      {{#if verification.errors}}
+      {{#if verification.parsingErrors}}
         <table>
           <tr>
             <th>Line:Column</th>
-            <th>Error description</th>
+            <th>Error Description</th>
           </tr>
-          {{#each verification.errors}}
+          {{#each verification.parsingErrors}}
             <tr>
               <td>{{row}}:{{col}}</td>
+              <td>{{message}}</td>
+            </tr>
+          {{/each}}
+        </table>
+      {{else if verification.semanticErrors}}
+        <table>
+          <tr>
+            <th>Start Line:Column</th>
+            <th>End Line:Column</th>
+            <th>Error Description</th>
+          </tr>
+          {{#each verification.semanticErrors}}
+            <tr>
+              <td>{{start.row}}:{{start.col}}</td>
+              <td>{{end.row}}:{{end.col}}</td>
               <td>{{message}}</td>
             </tr>
           {{/each}}

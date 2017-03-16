@@ -11,7 +11,7 @@ function getVerifiedTaskHtml(taskName, code) {
 
   return Promise
     .all([templateSourcePromise, taskPromise])
-    .then(([templateSource, task]) => {      
+    .then(([templateSource, task]) => {
       if (task === undefined) {
         throw new Error('Cannot find task with name: ' + taskName)
       }

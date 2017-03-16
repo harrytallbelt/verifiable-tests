@@ -2,21 +2,37 @@ const parsePseudocode = require('../pseudocode-parser')
 const parsePredicate = require('../predicate-parser')
 const prove = require('./prove')
 
-/* Given task description object and pseudocode program
+// TODO: implemented these
+const parseIntegerExpression = _ => {throw new Error('not implemented')}
+const convertWpContextToError = _ => {throw new Error('not implemented')}
+const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
+
+/* Given a task description object and a pseudocode program
  * source code, attemts to prove the program's validity.
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
  *  - `invariants`,
  *  - `boundaryFunctions`.
- * Returns a promise of an array of error objects with fields:
- *  - `row`,
+ * Returns a promise of an object with fields:
+ *  - `parsingErrors`,
+ *  - `semanticErrors`,
+ * where `parsingErrors` is an array of parsing error
+ * objects, that contain fields:
+ *  - `row`
  *  - `col`,
+ *  - `message`,
+ * and `semanticErrors` is an array of semantic
+ * error objects that contain fields:
+ *  - `start`,
+ *  - `end`,
  *  - `message`.
+ * Both `start` and `end` are objects with `row` and `col` fields.
 */
 function verify(task, code) {
   // TODO: The format we assume doesn't correspond
-  // to the current task format
+  // to the current task format.
+  // (correct the function description after solving)
   // TODO: verification-script.md also says
   // about a list of Simplify definitions.
   // (correct the function description after solving)
@@ -25,7 +41,6 @@ function verify(task, code) {
   const invariants = task.invariants
     .map(src => parsePredicate(src).predicate)
   const boundaryFunctions = task.boundaryFunctions
-    // TODO: where should `parseIntegerExpression` be implemented?
     .map(src => parseIntegerExpression(src).predicate)
 
   // TODO: should we throw an exception instead?
@@ -33,10 +48,10 @@ function verify(task, code) {
   assert(postcondition !== null)
   assert(invariants.every(inv => inv !== null))
   assert(boundaryFunctions.every(bf => bf !== null))
-  
+
   const { errors, program } = parsePseudocode(code)
   if (errors.length > 0) {
-    return Promise.resolve(errors)
+    return Promise.resolve({ parsingErrors: errors, semanticErrors: null })
   }
 
   const spec = { precondition, postcondition, invariants, boundaryFunctions }
@@ -47,18 +62,11 @@ function verify(task, code) {
     .join(' ')
 
   return prove(simplifyPredicateBatch)
-    .then(simplifyResults => {
+    .then(proofResults => {
       const errors = context
-        .filter((_, i) => simplifyResults[i])
-        .map(/* Form an error? */)
-
-      // TODO: is this a good return value format?
-      // (we have one more return statement above)
-      // TODO: Wp error gives as statement start and end,
-      // whereas parser errors only have one specific location of an error.
-      // So we have a mismathc of error types.
-      // (correct the function description after solving)
-      return errors
+        .filter((_, i) => proofResults[i])
+        .map(convertWpContextToError)
+      return { parsingErrors: null, semanticErrors: errors }
     })
 }
 
