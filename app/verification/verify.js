@@ -34,8 +34,9 @@ const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
 function verify(task, code) {
   const precondition = parsePredicate(task.precondition).predicate
   const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = task.invariant ? [task.invariant] : []
-  const boundaryFunctions = task.boundaryFunctions ? [task.boundaryFunctions] : []
+  const invariants = task.invariant ? [parsePredicate(task.invariant)] : []
+  const boundaryFunctions =
+    task.boundaryFunction ? [parseIntegerExpression(task.boundaryFunction)] : []
 
   // TODO: Replace lines above when we are ready to support multiple loops.
   // (correct the function description after solving)
