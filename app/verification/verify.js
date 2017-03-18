@@ -1,6 +1,7 @@
 const parsePseudocode = require('../pseudocode-parser')
 const parsePredicate = require('../predicate-parser')
 const prove = require('./prove')
+const wp = require('./wp')
 
 // TODO: implemented these
 const parseIntegerExpression = _ => {throw new Error('not implemented')}
