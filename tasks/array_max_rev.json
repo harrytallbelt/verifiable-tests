@@ -1,9 +1,9 @@
 {
     "name" : "max_rev",
-    "description" : "Програма повинна знайти найбільший елемент массиву b.",
+    "description" : "Програма повинна знайти найбільший елемент массиву b. В умові, Contains(a,b,m,A) - це тверження що зріз масиву A[a:b] включає в себе елемент m, тобто Contains(a,b,m,A) = (E k : a <= k <= b : A[k] = m).",
     "precondition" : "n > 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "(A k : 0 <= k < n : m >= B[k]) && EX(0, n - 1, m, B)",
-    "invariant" : "-1 <= i < n-1 && b[0:n-1] = B[0:n-1] && (A k : i < k < n : m >= B[k]) && EX(i, n - 1, m, B)",
+    "postcondition" : "(A k : 0 <= k < n : m >= B[k]) && Contains(0, n - 1, m, B)",
+    "invariant" : "-1 <= i < n-1 && b[0:n-1] = B[0:n-1] && (A k : i < k < n : m >= B[k]) && Contains(i, n - 1, m, B)",
     "boundaryFunction" : "i + 1",
-    "simplifyPrefix" : "(DEFPRED (EX a b m Arr)) (BG_PUSH (FORALL (a b m Arr) (PATS (EX a b m Arr)) (AND (IMPLIES (> a b) (IFF (EX a b m Arr) FALSE)) (IMPLIES (<= a b) (IFF (EX a b m Arr) (OR (EX (+ a 1) b m Arr) (EQ (select Arr a) m)))))))"
+    "simplifyPrefix" : "(DEFPRED (Contains a b m Arr)) (BG_PUSH (FORALL (a b m Arr) (PATS (Contains a b m Arr)) (AND (IMPLIES (> a b) (IFF (Contains a b m Arr) FALSE)) (IMPLIES (<= a b) (IFF (Contains a b m Arr) (OR (Contains (+ a 1) b m Arr) (EQ (select Arr a) m)))))))"
 }
