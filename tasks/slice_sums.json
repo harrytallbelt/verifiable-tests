@@ -2,7 +2,8 @@
     "name" : "slice sums",
     "description" : "Програма повинна записати у кожний елемент массиву суму цього та всіх попередніх елементів.",
     "precondition" : "n > 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "(A k : 0 <= k < n : b[k] = (S k : 0 <= j <= k : B[k]))",
-    "invariant" : "1 <= i <= n && (A k : 0 <= k < i : b[k] = (S k : 0 <= j <= k : B[k])) && (A k : i <= k < n : b[k] = B[k])",
-    "boundaryFunction" : "n - i"
+    "postcondition" : "(A k : 0 <= k < n : b[k] = sum(0, k, B))",
+    "invariant" : "1 <= i <= n && (A k : 0 <= k < i : b[k] = sum(0, k, B)) && (A k : i <= k < n : b[k] = B[k])",
+    "boundaryFunction" : "n - i",
+    "simplifyPrefix": "(BG_PUSH (FORALL (b i j) (PATS (sum b i j)) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
 }

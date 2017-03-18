@@ -2,7 +2,8 @@
     "name" : "min_rev",
     "description" : "Програма повинна знайти найбільший елемент массиву b.",
     "precondition" : "n > 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "(A k : 0 <= k < n : m <= B[k]) && (E k : 0 <= k < n : B[k] = m)",
-    "invariant" : "-1 <= i < n-1 && b[0:n-1] = B[0:n-1] && (A k : i < k < n : m <= B[k]) && (E k : i < k < n : B[k] = m)",
-    "boundaryFunction" : "i + 1"
+    "postcondition" : "(A k : 0 <= k < n : m <= B[k]) && EX(0, n - 1, m, B)",
+    "invariant" : "-1 <= i < n-1 && b[0:n-1] = B[0:n-1] && (A k : i < k < n : m <= B[k]) && EX(i, n - 1, m, B)",
+    "boundaryFunction" : "i + 1",
+    "simplifyPrefix" : "(DEFPRED (EX a b m Arr)) (BG_PUSH (FORALL (a b m Arr) (PATS (EX a b m Arr)) (AND (IMPLIES (> a b) (IFF (EX a b m Arr) FALSE)) (IMPLIES (<= a b) (IFF (EX a b m Arr) (OR (EX (+ a 1) b m Arr) (EQ (select Arr a) m)))))))"
 }

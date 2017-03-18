@@ -2,7 +2,8 @@
     "name" : "sum",
     "description" : "Програма повинна обчислювати суму всіх елементів масиву b.",
     "precondition" : "n >= 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "s = (S k : 0 <= k < n : B[k])",
-    "invariant" : "0 <= i <= n && b[0:n-1] = B[0:n-1] && s = (S k : 0 <= k < i : B[k])",
-    "boundaryFunction" : "n - i"
+    "postcondition" : "s = sum(0, n - 1, B)",
+    "invariant" : "0 <= i <= n && b[0:n-1] = B[0:n-1] && s = sum(0, i - 1, B)",
+    "boundaryFunction" : "n - i",
+    "simplifyPrefix" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
 }

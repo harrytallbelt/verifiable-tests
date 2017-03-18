@@ -2,7 +2,8 @@
     "name" : "prod_rev",
     "description" : "Програма повинна обчислювати добуток всіх елементів масиву b. (Зауважте, що добуток нуля элементів дорівнює 1.)",
     "precondition" : "n >= 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "p = (P k : 0 <= k < n : B[k])",
-    "invariant" : "-1 <= i < n && b[0:n-1] = B[0:n-1] && p = (P k : i < k < n : B[k])",
-    "boundaryFunction" : "i + 1"
+    "postcondition" : "p = prod(0, n - 1, B)",
+    "invariant" : "-1 <= i < n && b[0:n-1] = B[0:n-1] && p = prod(i + 1, n - 1, B)",
+    "boundaryFunction" : "i + 1",
+    "simplifyPrefix": "(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a)))) (BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1) ) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b i) (prod b (+ i 1) j)))))))"
 }

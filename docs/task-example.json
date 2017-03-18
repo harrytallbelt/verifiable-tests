@@ -4,5 +4,6 @@
     "precondition" : "T",
     "postcondition" : "0 < x",
     "loopInvariant" : "a + b = 0",
-    "boundaryFunction" : "a"
+    "boundaryFunction" : "a",
+    "simplifyPrefix" : "(BG_PUSH TRUE)"
 }

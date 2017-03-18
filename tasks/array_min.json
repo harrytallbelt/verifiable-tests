@@ -2,7 +2,8 @@
     "name" : "min",
     "description" : "Програма повинна знайти найменший елемент массиву b.",
     "precondition" : "n > 0 && b[0:n-1] = B[0:n-1]",
-    "postcondition" : "(A k : 0 <= k < n : m <= B[k]) && (E k : 0 <= k < n : B[k] = m)",
-    "invariant" : "1 <= i <= n && b[0:n-1] = B[0:n-1] && (A k : 0 <= k < i : m <= B[k]) && (E k : 0 <= k < i : B[k] = m)",
-    "boundaryFunction" : "n - i"
+    "postcondition" : "(A k : 0 <= k < n : m <= B[k]) && EX(0, n - 1, m, B)",
+    "invariant" : "1 <= i <= n && b[0:n-1] = B[0:n-1] && (A k : 0 <= k < i : m <= B[k]) && EX(0, i - 1, m, B)",
+    "boundaryFunction" : "n - i",
+    "simplifyPrefix" : "(DEFPRED (EX a b m Arr)) (BG_PUSH (FORALL (a b m Arr) (PATS (EX a b m Arr)) (AND (IMPLIES (> a b) (IFF (EX a b m Arr) FALSE)) (IMPLIES (<= a b) (IFF (EX a b m Arr) (OR (EX a (- b 1) m Arr) (EQ (select Arr b) m)))))))"
 }

@@ -13,8 +13,9 @@ const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
- *  - `invariant`,
- *  - `boundaryFunction`.
+ *  - `invariant` (might be omited),
+ *  - `boundaryFunction` (might be omited),
+ *  - `simplifyPrefix` (might be omited).
  * Returns a promise of an object with fields:
  *  - `parsingErrors`,
  *  - `semanticErrors`,
@@ -31,13 +32,10 @@ const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
  * Both `start` and `end` are objects with `row` and `col` fields.
 */
 function verify(task, code) {
-  // TODO: verification-script.md also says
-  // about a list of Simplify definitions.
-  // (correct the function description after solving)
   const precondition = parsePredicate(task.precondition).predicate
   const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = [task.invariant]
-  const boundaryFunctions = [task.boundaryFunctions]
+  const invariants = task.invariant ? [task.invariant] : []
+  const boundaryFunctions = task.boundaryFunctions ? [task.boundaryFunctions] : []
 
   // TODO: Replace lines above when we are ready to support multiple loops.
   // (correct the function description after solving)
@@ -59,11 +57,10 @@ function verify(task, code) {
   const spec = { precondition, postcondition, invariants, boundaryFunctions }
   const { predicates, context } = wp(spec, program)
 
-  const simplifyPredicateBatch = predicates
-    .map(convertToSimplifyPredicate)
-    .join(' ')
+  const simplifyString = task.simplifyPrefix != null ? task.simplifyPrefix : ''
+  simplifyString = predicates.map(convertToSimplifyPredicate).join(' ')
 
-  return prove(simplifyPredicateBatch)
+  return prove(simplifyString)
     .then(proofResults => {
       const errors = context
         .filter((_, i) => !proofResults[i])
