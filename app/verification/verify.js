@@ -12,8 +12,8 @@ const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
- *  - `invariants`,
- *  - `boundaryFunctions`.
+ *  - `invariant`,
+ *  - `boundaryFunction`.
  * Returns a promise of an object with fields:
  *  - `parsingErrors`,
  *  - `semanticErrors`,
@@ -30,20 +30,21 @@ const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
  * Both `start` and `end` are objects with `row` and `col` fields.
 */
 function verify(task, code) {
-  // TODO: The format we assume doesn't correspond
-  // to the current task format.
-  // (correct the function description after solving)
   // TODO: verification-script.md also says
   // about a list of Simplify definitions.
   // (correct the function description after solving)
   const precondition = parsePredicate(task.precondition).predicate
   const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = task.invariants
-    .map(src => parsePredicate(src).predicate)
-  const boundaryFunctions = task.boundaryFunctions
-    .map(src => parseIntegerExpression(src).predicate)
+  const invariants = [task.invariant]
+  const boundaryFunctions = [task.boundaryFunctions]
 
-  // TODO: should we throw an exception instead?
+  // TODO: Replace lines above when we are ready to support multiple loops.
+  // (correct the function description after solving)
+  // const invariants = task.invariants
+  //   .map(src => parsePredicate(src).predicate)
+  // const boundaryFunctions = task.boundaryFunctions
+  //   .map(src => parseIntegerExpression(src).predicate)
+
   assert(precondition !== null)
   assert(postcondition !== null)
   assert(invariants.every(inv => inv !== null))
@@ -64,7 +65,7 @@ function verify(task, code) {
   return prove(simplifyPredicateBatch)
     .then(proofResults => {
       const errors = context
-        .filter((_, i) => proofResults[i])
+        .filter((_, i) => !proofResults[i])
         .map(convertWpContextToError)
       return { parsingErrors: null, semanticErrors: errors }
     })

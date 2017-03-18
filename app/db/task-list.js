@@ -10,10 +10,11 @@ function getTaskList() {
 
   return fs
     .readdir('tasks')
-    .then(filenames => {
-      const readFile = fname => fs.readFile('tasks/' + fname)
-      return Promise.all(filenames.map(readFile))
-    })
+    .then(fnames => Promise.all(
+      fnames
+        .filter(fname => fname.endsWith('.json'))
+        .map(fname => fs.readFile(`tasks/${fname}`, 'utf-8'))
+    ))
     .then(files => {
       tasks = files.map(JSON.parse) // cache the tasks
       return tasks

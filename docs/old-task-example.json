@@ -1,0 +1,13 @@
+{
+    "name" : "example",
+    "description" : "lorem ipsum",
+    "human_readable_precondition" : "T",
+    "simplify_precondition" : "TRUE",
+    "human_readable_postcondition" : "0 < x",
+    "simplify_postcondition" : "(< 0 x)",    
+    "human_readable_loop_invariant" : null,
+    "simplify_loop_invariant" : null,
+    "human_readable_boundary_function" : null,
+    "simplify_boundary_function" : null,
+    "simplify_definitions" : null
+}

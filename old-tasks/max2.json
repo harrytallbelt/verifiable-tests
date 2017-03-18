@@ -1,0 +1,8 @@
+{
+    "name" : "max(x,y)",
+    "description" : "Програма повинна знайти максимальне серед x та y значення та записати його в z.",
+    "human_readable_precondition" : "x = X ∧ y = Y",
+    "simplify_precondition" : "(AND (EQ x X) (EQ y Y))",
+    "human_readable_postcondition" : "z = X ∧ X ≥ Y ∨ z = Y ∧ Y ≥ X",
+    "simplify_postcondition" : "(OR (AND (EQ z X) (<= Y X)) (AND (EQ z Y) (<= X Y)))"
+}

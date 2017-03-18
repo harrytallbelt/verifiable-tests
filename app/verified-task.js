@@ -15,16 +15,13 @@ function getVerifiedTaskHtml(taskName, code) {
       if (task === undefined) {
         throw new Error('Cannot find task with name: ' + taskName)
       }
-
       const verificationResults = verify(task, code)
-
-      const templateSource = res[0]
-      const template = handlebars.compile(templateSource)
       
+      const template = handlebars.compile(templateSource)
       const context = task
       context.verification = verificationResults
       context.code = code
-
+      
       return template(context)
     })
 }
