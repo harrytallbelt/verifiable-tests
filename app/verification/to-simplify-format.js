@@ -26,7 +26,7 @@ function convertToSimplifyPredicate(predicate) {
       const condition = convertToSimplifyPredicate(predicate.condition)
       const inner = convertToSimplifyPredicate(predicate.inner)
       return `(${quantifier} (${boundedVars.join(' ')}) (IMPLIES ${condition} ${inner}))`
-    default: throw new Error(`Unsupported predicate type '${predicate.type}`)
+    default: throw new Error(`Unsupported predicate type '${predicate.type}'`)
   }
 }
 
@@ -67,7 +67,7 @@ function convertToSimplifyIntExpr(intExpr) {
       const left = convertToSimplifyIntExpr(intExpr.left)
       const right = convertToSimplifyIntExpr(intExpr.right)
       return `(${op} ${left} ${right})`
-    default: throw new Error(`Unsupported integer expression type '${intExpr.type}`)
+    default: throw new Error(`Unsupported integer expression type '${intExpr.type}'`)
   }
 }
 
@@ -95,7 +95,7 @@ function convertToSimplifyVar(variable) {
       const value = convertToSimplifyIntExpr(variable.value)
       return `(store ${base} ${selector} ${value})`
     }
-    default: throw new Error(`Unsupported variable type '${variable.type}`)
+    default: throw new Error(`Unsupported variable type '${variable.type}'`)
   }
 }
 

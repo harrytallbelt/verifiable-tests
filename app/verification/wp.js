@@ -1,3 +1,4 @@
+const assert = require('assert')
 const { findLastIndex, flatten } = require('./utils')
 
 /* Processes program and specification to get
@@ -264,10 +265,8 @@ function elementarySequenceWp(Q, S, R, context) {
     switch (command.type) {
       case 'abort':
         return { type: 'const', const: false }
-
       case 'skip':
         return predicate
-
       case 'assign':
        return substitutePredicate(predicate, command.lvalues, command.rvalues)
     }
@@ -318,15 +317,15 @@ function substitutePredicate(pred, names, exprs) {
       return {
         type: pred.type,
         op: pred.op,
-        leftIntExpr: substituteIntExpr(pred.leftIntExpr, names, exprs),
-        rightIntExpr: substituteIntExpr(pred.rightIntExpr, names, exprs)
+        left: substituteIntExpr(pred.left, names, exprs),
+        right: substituteIntExpr(pred.right, names, exprs)
       }
 
     case 'exists':
     case 'forall':
       const filteredPairs = names
-        .map((n, i) => ({ var: name, expr: exprs[i] }))
-        .filter(pair => pred.boundedVars.every(bn => bn.name !== pair.var.name))
+        .map((n, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
+        .filter(pair => pred.boundedVars.every(bounded => bounded.name !== pair.var.name))
 
       const filteredNames = filteredPairs.map(p => p.var)
       const filteredExprs = filteredPairs.map(p => p.expr)
@@ -350,7 +349,12 @@ function substituteIntExpr(intExpr, names, exprs) {
       return intExpr
 
     case 'var':
-      return substituteVariable(intExpr.var, names, exprs)
+      // TODO: this looks hacky :(
+      let newValue = substituteVariable(intExpr.var, names, exprs)
+      if (newValue.type !== 'var') {
+        newValue = { type: 'var', var: newValue }
+      }
+      return newValue
     
     case 'negare':
     case 'parets':
@@ -374,6 +378,9 @@ function substituteIntExpr(intExpr, names, exprs) {
 }
 
 function substituteVariable(variable, names, exprs) {
+  
+  // TODO: but exprs contain integer expressions!
+
   switch (variable.type) {
     case 'name':
       const nameIndex = names.findIndex(n => n.name === variable.name)
