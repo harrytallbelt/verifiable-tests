@@ -1,12 +1,12 @@
 const parsePseudocode = require('../pseudocode-parser')
 const parsePredicate = require('../predicate-parser')
+const convertToSimplifyPredicate = require('./to-simplify-format')
 const prove = require('./prove')
 const wp = require('./wp')
 
 // TODO: implemented these
 const parseIntegerExpression = _ => {throw new Error('not implemented')}
 const convertWpContextToError = _ => {throw new Error('not implemented')}
-const convertToSimplifyPredicate = _ => {throw new Error('not implemented')}
 
 /* Given a task description object and a pseudocode program
  * source code, attemts to prove the program's validity.
