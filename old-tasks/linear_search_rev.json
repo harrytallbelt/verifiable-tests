@@ -1,0 +1,12 @@
+{
+    "name" : "linear_search_rev",
+    "description" : "Програма повинна або знайти індекс елементу x у масиві b[0:n-1] або, якщо такого елементу не існує, повернути -1.",
+    "human_readable_precondition" : "n ≥ 0 ∧ b[0:n-1] = B[0:n-1]",
+    "simplify_precondition" : "(AND (<= 0 n) (EQ b B))",
+    "human_readable_postcondition" : "0 ≤ i < n ∧ B[i] = x ∨ i = -1 ∧ (∀ k : 0 ≤ k < n : x ≠ B[k])",
+    "simplify_postcondition" : "(OR (AND (<= 0 i) (< i n) (EQ (select B i) x)) (AND (EQ i (- 0 1)) (FORALL (k) (IMPLIES (AND (<= 0 k) (< k n)) (NEQ (select B k) x)))))",
+    "human_readable_loop_invariant" : "-1 ≤ i < n ∧ b[0:n-1] = B[0:n-1] ∧ (∀ k : i < k < n : x ≠ B[k])",
+    "simplify_loop_invariant" : "(AND (<= (- 0 1) i) (< i n) (EQ b B) (FORALL (k) (IMPLIES (AND (< i k) (< k n)) (NEQ (select B k) x))))",
+    "human_readable_boundary_function" : "i + 1",
+    "simplify_boundary_function" : "i + 1"
+}

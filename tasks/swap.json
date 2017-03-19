@@ -1,8 +1,6 @@
 {
     "name" : "swap(x,y)",
     "description" : "Програма повинна \"змінювати місцями\" значення двох змінних x та y.",
-    "human_readable_precondition" : "x = X ∧ y = Y",
-    "simplify_precondition" : "(AND (EQ x X) (EQ y Y))",
-    "human_readable_postcondition" : "x = Y ∧ y = X",
-    "simplify_postcondition" : "(AND (EQ x Y) (EQ y X))"
+    "precondition" : "x = X && y = Y",
+    "postcondition" : "x = Y && y = X"
 }

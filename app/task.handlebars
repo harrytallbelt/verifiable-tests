@@ -13,20 +13,20 @@
       </tr>
       <tr>
         <td>Передумова:</td>
-        <td>{{human_readable_precondition}}</td>
+        <td>{{precondition}}</td>
       </tr>
       <tr>
         <td>Постумова:</td>
-        <td>{{human_readable_postcondition}}</td>
+        <td>{{postcondition}}</td>
       </tr>
-      {{#if human_readable_loop_invariant}}
+      {{#if invariant}}
         <tr>
           <td>Інваріант циклу:</td>
-          <td>{{human_readable_loop_invariant}}</td>
+          <td>{{invariant}}</td>
         </tr>
         <tr>
           <td>Обмежуюча функція циклу:</td>
-          <td>{{human_readable_boundary_function}}</td>
+          <td>{{boundaryFunction}}</td>
         </tr>
       {{/if}}
     </table>
@@ -44,15 +44,30 @@
     {{!-- If verification has been performed,
           we'll display its results. --}}
     {{#if verification}}
-      {{#if verification.errors}}
+      {{#if verification.parsingErrors}}
         <table>
           <tr>
             <th>Line:Column</th>
-            <th>Error description</th>
+            <th>Error Description</th>
           </tr>
-          {{#each verification.errors}}
+          {{#each verification.parsingErrors}}
             <tr>
               <td>{{row}}:{{col}}</td>
+              <td>{{message}}</td>
+            </tr>
+          {{/each}}
+        </table>
+      {{else if verification.semanticErrors}}
+        <table>
+          <tr>
+            <th>Start Line:Column</th>
+            <th>End Line:Column</th>
+            <th>Error Description</th>
+          </tr>
+          {{#each verification.semanticErrors}}
+            <tr>
+              <td>{{start.row}}:{{start.col}}</td>
+              <td>{{end.row}}:{{end.col}}</td>
               <td>{{message}}</td>
             </tr>
           {{/each}}

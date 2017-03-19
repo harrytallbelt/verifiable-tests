@@ -446,5 +446,4 @@ function wrapWpArguments(Q, S, R, innerSpec, context) {
   }
 }
 
-
 module.exports = wp
