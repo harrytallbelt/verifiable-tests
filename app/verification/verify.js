@@ -34,38 +34,81 @@ function verify(task, code) {
   // const precondition = parsePredicate(task.precondition).predicate
   // const postcondition = parsePredicate(task.postcondition).predicate
 
-  // swap: "x = X && y = Y"
+  // // swap: "x = X && y = Y"
+  // const precondition = {
+  //   type: 'and',
+  //   left: {
+  //     type: 'comp',
+  //     op: '=',
+  //     left: { type: 'var', var: { type: 'name', name: 'x' } },
+  //     right: { type: 'var', var: { type: 'name', name: 'X' } }
+  //   },
+  //   right: {
+  //     type: 'comp',
+  //     op: '=',
+  //     left: { type: 'var', var: { type: 'name', name: 'y' } },
+  //     right: { type: 'var', var: { type: 'name', name: 'Y' } }
+  //   }
+  // }
+  // // swap: "x = Y && y = X"
+  // const postcondition = {
+  //   type: 'and',
+  //   left: {
+  //     type: 'comp',
+  //     op: '=',
+  //     left: { type: 'var', var: { type: 'name', name: 'x' } },
+  //     right: { type: 'var', var: { type: 'name', name: 'Y' } }
+  //   },
+  //   right: {
+  //     type: 'comp',
+  //     op: '=',
+  //     left: { type: 'var', var: { type: 'name', name: 'y' } },
+  //     right: { type: 'var', var: { type: 'name', name: 'X' } }
+  //   }
+  // }
+
+  // abs: x = X
   const precondition = {
-    type: 'and',
-    left: {
-      type: 'comp',
-      op: '=',
-      left: { type: 'var', var: { type: 'name', name: 'x' } },
-      right: { type: 'var', var: { type: 'name', name: 'X' } }
-    },
-    right: {
-      type: 'comp',
-      op: '=',
-      left: { type: 'var', var: { type: 'name', name: 'y' } },
-      right: { type: 'var', var: { type: 'name', name: 'Y' } }
-    }
+    type: 'comp',
+    op: '=',
+    left: { type: 'var', var: { type: 'name', name: 'x' } },
+    right: { type: 'var', var: { type: 'name', name: 'X' } }
   }
-  // swap: "x = Y && y = X"
+  // abs: x = X && X >= 0 || x = -X && X <= 0
   const postcondition = {
-    type: 'and',
+    type: 'or',
     left: {
-      type: 'comp',
-      op: '=',
-      left: { type: 'var', var: { type: 'name', name: 'x' } },
-      right: { type: 'var', var: { type: 'name', name: 'Y' } }
+      type: 'and',
+      left: {
+        type: 'comp',
+        op: '=',
+        left: { type: 'var', var: { type: 'name', name: 'x' } },
+        right: { type: 'var', var: { type: 'name', name: 'X' } }
+      },
+      right: {
+        type: 'comp',
+        op: '>=',
+        left: { type: 'var', var: { type: 'name', name: 'X' } },
+        right: { type: 'const', const: 0 }
+      }
     },
     right: {
-      type: 'comp',
-      op: '=',
-      left: { type: 'var', var: { type: 'name', name: 'y' } },
-      right: { type: 'var', var: { type: 'name', name: 'X' } }
+      type: 'and',
+      left: {
+        type: 'comp',
+        op: '=',
+        left: { type: 'var', var: { type: 'name', name: 'x' } },
+        right: { type: 'negate', inner: { type: 'var', var: { type: 'name', name: 'X' } } }
+      },
+      right: {
+        type: 'comp',
+        op: '<=',
+        left: { type: 'var', var: { type: 'name', name: 'X' } },
+        right: { type: 'const', const: 0 }
+      }
     }
   }
+
 
   const invariants = task.invariant ? [parsePredicate(task.invariant)] : []
   const boundaryFunctions =

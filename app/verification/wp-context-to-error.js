@@ -1,6 +1,6 @@
 function convertWpContextToError(context) {
   // stub
-  return Object.assign(context[0], { message: 'ERROR!' })
+  return Object.assign(context[context.length - 1], { message: JSON.stringify(context[context.length - 1]) })
   throw new Error('Not implemented')
 }
 

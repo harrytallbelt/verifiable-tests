@@ -76,7 +76,7 @@ function wp(spec, program, context) {
  * invariants and boundary functions.
 */
 function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
-  const BB = conjunction(DO.guards)
+  const BB = disjunction(DO.guards)
   
   if (I.length === 0) {
     I.push({
@@ -113,7 +113,7 @@ function doTheoremPt1(Q, I, P, innerSpec, context) {
 
 // {P ^ Bi} Ci {P} for i = 1..n
 function doTheoremPt2(P, DO, innerSpec, context) {
-  const subSpecs = DO.guards.map((guard, i) => {
+  const wrappedWpArgs = DO.guards.map((guard, i) => {
     const command = DO.commands[i]
     const precondition = { type: 'and', left: P, right: guard }
     const contextObject =
@@ -122,7 +122,7 @@ function doTheoremPt2(P, DO, innerSpec, context) {
     return wrapWpArguments(precondition, command, P, newContext)
   })
 
-  return subSpecs
+  return wrappedWpArgs
 }
 
 // {P ^ ~BB} J {R}
@@ -160,7 +160,7 @@ function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
 
 // {P ^ Bi} @t := t; Ci {t < @t} for i = i..n
 function doTheoremPt5(P, t, DO, innerSpec, context) {
-  const specs = DO.guards.map((guard, i) => {
+  const wrappedWpArgs = DO.guards.map((guard, i) => {
     const tInit = {
       type: 'name',
       name: '@t_init'     // NOTE: here we use @ which might cause problems.
@@ -193,7 +193,7 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
     return wrapWpArguments(precondition, command, postcondition, innerSpec, newContext)
   })
 
-  return specs
+  return wrappedWpArgs
 }
 
 
@@ -204,7 +204,7 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
  * invariants and boundary functions.
 */
 function ifTheorem(Q, R, I, IF, J, innerSpec, context) {
-  const BB = conjunction(IF.guards)
+  const BB = disjunction(IF.guards)
   
   if (I.length === 0) {
     I.push({
@@ -236,7 +236,7 @@ function ifTheoremPt1(Q, BB, I, innerSpec, context) {
 
 
 function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
-  const specs = IF.guards.map((guard, i) => {
+  const wrappedWpArgs = IF.guards.map((guard, i) => {
     const commands = I.concat(IF.commands[i]).concat(J)
     const precondition = {
       type: 'and',
@@ -253,7 +253,7 @@ function ifTheoremPt2(Q, R, BB, I, IF, J, innerSpec, context) {
     const newContext = [contextObject, ... context]
     return wrapWpArguments(precondition, commands, R, innerSpec, newContext)
   })
-  return specs
+  return wrappedWpArgs
 }
 
 
@@ -368,8 +368,8 @@ function substituteIntExpr(intExpr, names, exprs) {
         newValue = { type: 'var', var: newValue }
       }
       return newValue
-    
-    case 'negare':
+
+    case 'negate':
     case 'parets':
       return {
         type: intExpr.type,
@@ -384,7 +384,7 @@ function substituteIntExpr(intExpr, names, exprs) {
         left: substituteIntExpr(intExpr.left, names, exprs),
         right: substituteIntExpr(intExpr.right, names, exprs)
       }
-    
+
     default:
      throw new Error('WP error: unknown integer expression type:', intExpr.type)
   }
@@ -424,9 +424,9 @@ function combineResults(results) {
   }))
 }
 
-function conjunction(predicates) {
+function disjunction(predicates) {
   return predicates.reduce((conj, pred) => ({
-    type: 'and',
+    type: 'or',
     left: conj,
     right: pred
   }))
