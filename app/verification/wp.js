@@ -349,9 +349,22 @@ function substituteIntExpr(intExpr, names, exprs) {
       return intExpr
 
     case 'var':
-      // TODO: this looks hacky :(
       let newValue = substituteVariable(intExpr.var, names, exprs)
-      if (newValue.type !== 'var') {
+      
+      // The way parser builds the tree, this must never happen.
+      assert(newValue.type !== 'store')
+
+      // `substituteVariable` might return:
+      //  - an integer expression, which is the corresponding rvalue
+      //    to the name being substituted,
+      //  - the same `name` or `select` variable it was given
+      //    (if it shouldn't be substituted),
+      //  - the `select` variable with some substitutions inside
+      //    (either in its base or selector).
+      // The last two should be wrapped in 'var' integer expression node.
+      // This is the right place to do it, because `substituteVariable`'s
+      // result sometimes has to be just a name or select (or store) variable.
+      if (newValue.type === 'name' || newValue.type === 'select') {
         newValue = { type: 'var', var: newValue }
       }
       return newValue
@@ -378,9 +391,6 @@ function substituteIntExpr(intExpr, names, exprs) {
 }
 
 function substituteVariable(variable, names, exprs) {
-  
-  // TODO: but exprs contain integer expressions!
-
   switch (variable.type) {
     case 'name':
       const nameIndex = names.findIndex(n => n.name === variable.name)
