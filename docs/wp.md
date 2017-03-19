@@ -51,8 +51,8 @@ where `BB` is a shorhand for `B_1 v B_2 v ... v B_m`.
 
 As one can notice, all the generated Hoare triples can be fed to the same
 algorithm recursively (removing the last loop invariant and boundary function
-and to specification context object list a context object that marks the
-triples as used to prove `DO_n` on some specific step).
+and adding to context list a context object that marks the triples as used
+to prove `DO_n` on some specific step).
 After all the sub-calls are finished, we get a set of lists with predicates and
 corresponding context objects. We merge all the predicate and context lists
 into two list and return this result wrapped into a result object.
@@ -128,13 +128,11 @@ The structure of a context object can be seen below.
 
 ```
 {
-  start: { row: <int>, col: <int> }, // the start and the end of 
-  end: { row: <int>, col: <int> },   // the statemets being proven
-  cause: {
-    type: ('seq' | 'if' | 'do'),
-    step: <int>,  // step of the theorem proof
-    branch: <int> // branch of the if or do statement
-  }
+  type: ('seq' | 'if' | 'do'),
+  step: <int>,   // step of the theorem proof
+  branch: <int>  // branch of the if or do statement
+  start: { row: <int>, col: <int> },  // the start and the end of 
+  end: { row: <int>, col: <int> },    // the statemets being proven
 }
 ```
 
