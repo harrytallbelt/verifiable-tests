@@ -33,6 +33,17 @@ function verify(task, code) {
   // TODO: Uncomment!
   // const precondition = parsePredicate(task.precondition).predicate
   // const postcondition = parsePredicate(task.postcondition).predicate
+  // const invariants = task.invariant ? [parsePredicate(task.invariant)] : []
+  // const boundaryFunctions =
+  //   task.boundaryFunction ? [parseIntegerExpression(task.boundaryFunction)] : []
+
+  // TODO: Replace lines above when we are ready to support multiple loops.
+  // (correct the function description after solving)
+  // const invariants = task.invariants
+  //   .map(src => parsePredicate(src).predicate)
+  // const boundaryFunctions = task.boundaryFunctions
+  //   .map(src => parseIntegerExpression(src).predicate)
+
 
   // // swap: "x = X && y = Y"
   // const precondition = {
@@ -67,59 +78,250 @@ function verify(task, code) {
   //   }
   // }
 
-  // abs: x = X
+  // // abs: x = X
+  // const precondition = {
+  //   type: 'comp',
+  //   op: '=',
+  //   left: { type: 'var', var: { type: 'name', name: 'x' } },
+  //   right: { type: 'var', var: { type: 'name', name: 'X' } }
+  // }
+  // // abs: x = X && X >= 0 || x = -X && X <= 0
+  // const postcondition = {
+  //   type: 'or',
+  //   left: {
+  //     type: 'and',
+  //     left: {
+  //       type: 'comp',
+  //       op: '=',
+  //       left: { type: 'var', var: { type: 'name', name: 'x' } },
+  //       right: { type: 'var', var: { type: 'name', name: 'X' } }
+  //     },
+  //     right: {
+  //       type: 'comp',
+  //       op: '>=',
+  //       left: { type: 'var', var: { type: 'name', name: 'X' } },
+  //       right: { type: 'const', const: 0 }
+  //     }
+  //   },
+  //   right: {
+  //     type: 'and',
+  //     left: {
+  //       type: 'comp',
+  //       op: '=',
+  //       left: { type: 'var', var: { type: 'name', name: 'x' } },
+  //       right: { type: 'negate', inner: { type: 'var', var: { type: 'name', name: 'X' } } }
+  //     },
+  //     right: {
+  //       type: 'comp',
+  //       op: '<=',
+  //       left: { type: 'var', var: { type: 'name', name: 'X' } },
+  //       right: { type: 'const', const: 0 }
+  //     }
+  //   }
+  // }
+
+  // invert: n >= 0 && b[0:n-1] = B[0:n-1]
+  //         n >= 0 && (A k : 0 <= k < n : b[k] = B[k])
   const precondition = {
-    type: 'comp',
-    op: '=',
-    left: { type: 'var', var: { type: 'name', name: 'x' } },
-    right: { type: 'var', var: { type: 'name', name: 'X' } }
+    type: 'and',
+    left: {
+      type: 'comp',
+      op: '>=',
+      left: { type: 'var', var: { type: 'name', name: 'n' } },
+      right: { type: 'const', const: 0 }
+    },
+    right: {
+      type: 'forall',
+      boundedVars: [ { type: 'name', name: 'k' } ],
+      condition: {
+        type: 'and',
+        left: {
+          type: 'comp',
+          op: '<=',
+          left: { type: 'const', const: 0 },
+          right: { type: 'var', var: { type: 'name', name: 'k' } }
+        },
+        right: {
+          type: 'comp',
+          op: '<',
+          left: { type: 'var', var: { type: 'name', name: 'k' } },
+          right: { type: 'var', var: { type: 'name', name: 'n' } }
+        }
+      },
+      inner: {
+        type: 'comp',
+        op: '=',
+        left: {
+          type: 'var',
+          var: {
+            type: 'select',
+            base: { type: 'name', name: 'b' },
+            selector: { type: 'var', var: { type: 'name', name: 'k' } }
+          }
+        },
+        right: {
+          type: 'var',
+          var: {
+            type: 'select',
+            base: { type: 'name', name: 'B' },
+            selector: { type: 'var', var: { type: 'name', name: 'k' } }
+          }
+        }
+      }
+    }
   }
-  // abs: x = X && X >= 0 || x = -X && X <= 0
+  // invert: (A k : 0 <= k < n : b[k] = -B[k])
   const postcondition = {
-    type: 'or',
+    type: 'forall',
+    boundedVars: [ { type: 'name', name: 'k' } ],
+    condition: {
+      type: 'and',
+      left: {
+        type: 'comp',
+        op: '<=',
+        left: { type: 'const', const: 0 },
+        right: { type: 'var', var: { type: 'name', name: 'k' } }
+      },
+      right: {
+        type: 'comp',
+        op: '<',
+        left: { type: 'var', var: { type: 'name', name: 'k' } },
+        right: { type: 'var', var: { type: 'name', name: 'n' } }
+      }
+    },
+    inner: {
+      type: 'comp',
+      op: '=',
+      left: {
+        type: 'var',
+        var: {
+          type: 'select',
+          base: { type: 'name', name: 'b' },
+          selector: { type: 'var', var: { type: 'name', name: 'k' } }
+        }
+      },
+      right: {
+        type: 'negate',
+        inner: {
+          type: 'var',
+          var: {
+            type: 'select',
+            base: { type: 'name', name: 'B' },
+            selector: { type: 'var', var: { type: 'name', name: 'k' } }
+          }
+        }
+      }
+    }
+  }
+  // invert: 0 <= i <= n && (A k : 0 <= k < i : b[k] = -B[k]) && (A k : i <= k < n : b[k] = B[k])
+  const invariants = [{
+    type: 'and',
     left: {
       type: 'and',
       left: {
         type: 'comp',
-        op: '=',
-        left: { type: 'var', var: { type: 'name', name: 'x' } },
-        right: { type: 'var', var: { type: 'name', name: 'X' } }
+        op: '<=',
+        left: { type: 'const', const: 0 },
+        right: { type: 'var', var: { type: 'name', name: 'i' } }
       },
       right: {
         type: 'comp',
-        op: '>=',
-        left: { type: 'var', var: { type: 'name', name: 'X' } },
-        right: { type: 'const', const: 0 }
+        op: '<=',
+        left: { type: 'var', var: { type: 'name', name: 'i' } },
+        right: { type: 'var', var: { type: 'name', name: 'n' } }
       }
     },
     right: {
       type: 'and',
       left: {
-        type: 'comp',
-        op: '=',
-        left: { type: 'var', var: { type: 'name', name: 'x' } },
-        right: { type: 'negate', inner: { type: 'var', var: { type: 'name', name: 'X' } } }
+        type: 'forall',
+        boundedVars: [ { type: 'name', name: 'k' } ],
+        condition: {
+          type: 'and',
+          left: {
+            type: 'comp',
+            op: '<=',
+            left: { type: 'const', const: 0 },
+            right: { type: 'var', var: { type: 'name', name: 'k' } }
+          },
+          right: {
+            type: 'comp',
+            op: '<',
+            left: { type: 'var', var: { type: 'name', name: 'k' } },
+            right: { type: 'var', var: { type: 'name', name: 'i' } }
+          }
+        },
+        inner: {
+          type: 'comp',
+          op: '=',
+          left: {
+            type: 'var',
+            var: {
+              type: 'select',
+              base: { type: 'name', name: 'b' },
+              selector: { type: 'var', var: { type: 'name', name: 'k' } }
+            }
+          },
+          right: {
+            type: 'negate',
+            inner: {
+              type: 'var',
+              var: {
+                type: 'select',
+                base: { type: 'name', name: 'B' },
+                selector: { type: 'var', var: { type: 'name', name: 'k' } }
+              }
+            }
+          }
+        }
       },
       right: {
-        type: 'comp',
-        op: '<=',
-        left: { type: 'var', var: { type: 'name', name: 'X' } },
-        right: { type: 'const', const: 0 }
+        type: 'forall',
+        boundedVars: [ { type: 'name', name: 'k' } ],
+        condition: {
+          type: 'and',
+          left: {
+            type: 'comp',
+            op: '<=',
+            left: { type: 'var', var: { type: 'name', name: 'i' } },
+            right: { type: 'var', var: { type: 'name', name: 'k' } }
+          },
+          right: {
+            type: 'comp',
+            op: '<',
+            left: { type: 'var', var: { type: 'name', name: 'k' } },
+            right: { type: 'var', var: { type: 'name', name: 'n' } }
+          }
+        },
+        inner: {
+          type: 'comp',
+          op: '=',
+          left: {
+            type: 'var',
+            var: {
+              type: 'select',
+              base: { type: 'name', name: 'b' },
+              selector: { type: 'var', var: { type: 'name', name: 'k' } }
+            }
+          },
+          right: {
+            type: 'var',
+            var: {
+              type: 'select',
+              base: { type: 'name', name: 'B' },
+              selector: { type: 'var', var: { type: 'name', name: 'k' } }
+            }
+          }
+        }
       }
     }
-  }
-
-
-  const invariants = task.invariant ? [parsePredicate(task.invariant)] : []
-  const boundaryFunctions =
-    task.boundaryFunction ? [parseIntegerExpression(task.boundaryFunction)] : []
-
-  // TODO: Replace lines above when we are ready to support multiple loops.
-  // (correct the function description after solving)
-  // const invariants = task.invariants
-  //   .map(src => parsePredicate(src).predicate)
-  // const boundaryFunctions = task.boundaryFunctions
-  //   .map(src => parseIntegerExpression(src).predicate)
+  }]
+  // invert: n - i
+  const boundaryFunctions = [{
+    type: 'minus',
+    left: { type: 'var', var: { type: 'name', name: 'n' } },
+    right: { type: 'var', var: { type: 'name', name: 'i' } }
+  }]
 
   // TODO: why do we compare with null? (And why strictly?)
   assert(precondition !== null)

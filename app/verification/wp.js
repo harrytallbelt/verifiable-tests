@@ -95,12 +95,12 @@ function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
   const results = flatten([
     doTheoremPt1(Q, I, P, innerSpec, context),
     doTheoremPt2(P, DO, innerSpec, context),
-    doTheoremPt3(P, R, BB, J),
+    doTheoremPt3(P, R, BB, J, innerSpec, context),
     doTheoremPt5(P, t, DO, innerSpec, context)
   ]).map(args => wp(args.spec, args.prog, args.ctx))
 
   // pt. 4 returns a predicate, so no wp call needed
-  results.push(doTheoremPt4(P, t, BB, DO, innerSpec))
+  results.push(doTheoremPt4(P, t, BB, DO, innerSpec, context))
 
   return combineResults(results)
 }
@@ -119,7 +119,7 @@ function doTheoremPt2(P, DO, innerSpec, context) {
     const contextObject =
       createContext({ command: command, type: 'do', step: 2, branch: i + 1})
     const newContext = [contextObject, ... context]
-    return wrapWpArguments(precondition, command, P, newContext)
+    return wrapWpArguments(precondition, command, P, innerSpec, newContext)
   })
 
   return wrappedWpArgs
@@ -147,7 +147,7 @@ function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
     left: { type: 'and', left: P, right: BB },
     right: {
       type: 'comp',
-      comp: '>',
+      op: '>',
       left: t,
       right: { type: 'const', const: 0 }
     }
@@ -161,6 +161,7 @@ function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
 // {P ^ Bi} @t := t; Ci {t < @t} for i = i..n
 function doTheoremPt5(P, t, DO, innerSpec, context) {
   const wrappedWpArgs = DO.guards.map((guard, i) => {
+    const command = DO.commands[i]
     const tInit = {
       type: 'name',
       name: '@t_init'     // NOTE: here we use @ which might cause problems.
@@ -171,7 +172,7 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
       lvalues: [tInit],
       rvalues: [t]
     }
-    const command = [fakeAssignment, ... DO.commands[i]]
+    command.unshift(fakeAssignment)
     const precondition = {
       type: 'and',
       left: P,
@@ -179,9 +180,9 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
     }
     const postcondition = {
       type: 'comp',
-      comp: '<',
+      op: '<',
       left: t,
-      right: tInit
+      right: { type: 'var', var: tInit }
     }
     const contextObject = createContext({
       command: command,
@@ -324,7 +325,7 @@ function substitutePredicate(pred, names, exprs) {
     case 'exists':
     case 'forall':
       const filteredPairs = names
-        .map((n, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
+        .map((name, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
         .filter(pair => pred.boundedVars.every(bounded => bounded.name !== pair.var.name))
 
       const filteredNames = filteredPairs.map(p => p.var)
