@@ -6,26 +6,26 @@
   </head>
   <body>
     <h3>{{name}}</h3>
-    <table border="0">
+    <table border="1">
       <tr>
-        <td>Опис завдання:</td>
+        <td><b>Опис завдання:</b></td>
         <td>{{description}}</td>
       </tr>
       <tr>
-        <td>Передумова:</td>
+        <td><b>Передумова:</b></td>
         <td>{{precondition}}</td>
       </tr>
       <tr>
-        <td>Постумова:</td>
+        <td><b>Постумова:</b></td>
         <td>{{postcondition}}</td>
       </tr>
       {{#if invariant}}
         <tr>
-          <td>Інваріант циклу:</td>
+          <td><b>Інваріант циклу:</b></td>
           <td>{{invariant}}</td>
         </tr>
         <tr>
-          <td>Обмежуюча функція циклу:</td>
+          <td><b>Обмежуюча функція циклу:</b></td>
           <td>{{boundaryFunction}}</td>
         </tr>
       {{/if}}
@@ -45,10 +45,11 @@
           we'll display its results. --}}
     {{#if verification}}
       {{#if verification.parsingErrors}}
-        <table>
+        <p>У програмі присутні синтаксичні помилки.</p>
+        <table border="1">
           <tr>
-            <th>Line:Column</th>
-            <th>Error Description</th>
+            <th>Координати</th>
+            <th>Опис помилки</th>
           </tr>
           {{#each verification.parsingErrors}}
             <tr>
@@ -58,11 +59,12 @@
           {{/each}}
         </table>
       {{else if verification.semanticErrors}}
-        <table>
+        <p>У програмі присутні семантичні помилки.</p>
+        <table border="1">
           <tr>
-            <th>Start Line:Column</th>
-            <th>End Line:Column</th>
-            <th>Error Description</th>
+            <th>З</th>
+            <th>До</th>
+            <th>Опис помилки</th>
           </tr>
           {{#each verification.semanticErrors}}
             <tr>
