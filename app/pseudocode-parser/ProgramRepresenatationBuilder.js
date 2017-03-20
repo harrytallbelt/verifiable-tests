@@ -59,17 +59,18 @@ ProgramRepresenatationBuilder.prototype.visitAssignment_statement = function(ctx
   for (let i = 0; i < assignment.lvalues.length; ++i) {
     for (let j = i + 1; j < assignment.lvalues.length; ++j) {
       if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
-        const error = {
+        localErrors.push({
           row: ctx.start.line,    // It is probably good
           col: ctx.start.column,  // enough of a coordinate.
           message: 'identical variables on the left hand side of a parallel assignment'
-        }
+        })
       }
     }
   }
   if (localErrors.length !== 0) {
     this.errors.push(...localErrors)
-    return null   // We do not want to continue with this assignment.
+    return {}   // We do not want to continue to parse this assignment,
+                // but we also do not want to break code above.
   }
 
   // If there's a map assignment, we would have to correct
