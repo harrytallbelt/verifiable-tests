@@ -30,12 +30,14 @@ const convertWpContextToError = require('./wp-context-to-error')
  * Both `start` and `end` are objects with `row` and `col` fields.
 */
 function verify(task, code) {
-  // TODO: Uncomment!
-  // const precondition = parsePredicate(task.precondition).predicate
-  // const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = task.invariant ? [parsePredicate(task.invariant)] : []
-  const boundaryFunctions =
-    task.boundaryFunction ? [parseIntegerExpression(task.boundaryFunction)] : []
+  const precondition = parsePredicate(task.precondition).predicate
+  const postcondition = parsePredicate(task.postcondition).predicate
+  const invariants = task.invariant
+    ? [parsePredicate(task.invariant).predicate]
+    : []
+  const boundaryFunctions = task.boundaryFunction
+    ? [parseIntegerExpression(task.boundaryFunction).expression]
+    : []
 
   // TODO: Replace lines above when we are ready to support multiple loops.
   // (correct the function description after solving)
@@ -44,6 +46,11 @@ function verify(task, code) {
   // const boundaryFunctions = task.boundaryFunctions
   //   .map(src => parseIntegerExpression(src).predicate)
 
+  // TODO: For now we consider an error in a task to be a programming error.
+  assert(precondition !== null)
+  assert(postcondition !== null)
+  assert(invariants.every(inv => inv !== null))
+  assert(boundaryFunctions.every(bf => bf !== null))
 
   // // swap: "x = X && y = Y"
   // const precondition = {
@@ -923,13 +930,6 @@ function verify(task, code) {
   //     right: { type: 'var', var: { type: 'name', name: 'i' } }
   //   }
   // }]
-
-
-  // TODO: why do we compare with null? (And why strictly?)
-  assert(precondition !== null)
-  assert(postcondition !== null)
-  assert(invariants.every(inv => inv !== null))
-  assert(boundaryFunctions.every(bf => bf !== null))
 
   const { errors, program } = parsePseudocode(code)
   if (errors.length > 0) {
