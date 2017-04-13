@@ -1,6 +1,6 @@
 {
     "name" : "swap(x,y)",
-    "description" : "Програма повинна \"змінювати місцями\" значення двох змінних x та y.",
+    "description" : "The program should \"swap\" the values bound to variables x and y.",
     "precondition" : "x = X && y = Y",
     "postcondition" : "x = Y && y = X"
 }

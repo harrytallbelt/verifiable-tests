@@ -1,8 +1,8 @@
 {
     "name" : "reverse",
-    "description" : "Програма повинна \"розвернути\" масив \"задом на перед\", тобто задовольнити таку умову: якщо до виконнаянн программи b[(n - 1) - i] = x, то після виконання программи елемент b[i] = x для всіх i у границях масиву.",
-    "precondition" : "n > 0 && b[0:n-1] = B[0:n-1]",
+    "description" : "The program should \"reverse\" the array, i.e., if before the program runs b[i] = x, then after it is executed b[(n - 1) - i] = x for all i in the array boundaries.",
+    "precondition" : "n => 0 && (A k : 0 <= k < n : b[k] = B[k])",
     "postcondition" : "(A k : 0 <= k < n : b[k] = B[(n - 1) - k])",
-    "invariant" : "0 <= i <= n/2 && (A k : 0 <= k < i ^ n-i < k < n : b[k] = B[(n - 1) - k]) && (A k : i <= k < n-i : b[k] = B[k])",
-    "boundaryFunction" : "n/2 - i"
+    "invariant" : "0 <= 2*i <= n + 1 && (A k : 0 <= k < i || n-i <= k < n : b[k] = B[(n - 1) - k]) && (A k : i <= k < n-i : b[k] = B[k])",
+    "boundaryFunction" : "n - 2*i"
 }

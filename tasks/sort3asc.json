@@ -1,6 +1,6 @@
 {
     "name" : "sort(x,y,z) by <=",
-    "description" : "Програма повинна відсортувати значення x, y та z за неспаданням. Предикат perm(a,b) означає що список a є перестановкою списку b.",
+    "description" : "The program should sort the values bound to x, y and z in ascending order. Predicate perm(a,b) means that the list a is a permutation of the list b.",
     "precondition" : "x, y, z = X, Y, Z",
-    "postcondition" : "x <= y <= z && perm((x,y,z), (X,Y,Z))"
+    "postcondition" : "x <= y <= z && perm(x,y,z, X,Y,Z)"
 }

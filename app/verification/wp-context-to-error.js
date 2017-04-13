@@ -14,7 +14,7 @@ function convertWpContextToError(context) {
           errorMessage = 'An unsatisfactory set of if statement guards: the precondition does not imply the disjunction of all the guards.'
           break
         case 2:
-          errorMessage = `The branch #${leastRecentContext.branch} of an if statement does not ensure the postcondition is ture.`
+          errorMessage = `The branch #${leastRecentContext.branch} of an if statement does not ensure the postcondition is true.`
           break
         default:
           throw new Error(`Unknown WP 'if' context step '${leastRecentContext.step}'.`)
@@ -23,19 +23,19 @@ function convertWpContextToError(context) {
     case 'do':
       switch (leastRecentContext.step) {
         case 1:
-          errorMessage = 'The loop initialization commands do not set the invariant to be ture.'
+          errorMessage = 'The loop initialization commands do not set the invariant to be true.'
           break
         case 2:
-          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not ensure the loop invariant is true. `
+          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not ensure the loop invariant is true.`
           break
         case 3:
-          errorMessage = 'An unsatisfactory set of loop guards: the loop invarian together with all the guard negations do not imply the postcondition.'
+          errorMessage = 'An unsatisfactory set of loop guards: the loop invariant together with negation of all the guards does not imply the postcondition.'
           break
         case 4:
-          errorMessage = 'An unsatisfactory set of loop guards: the loop invariant together with truth of some of the guards do not lead to the boundary function being positive.'
+          errorMessage = 'An unsatisfactory set of loop guards: the loop invariant together with truth of some of the guards does not lead to the bound function being positive.'
           break
         case 5:
-          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not decrease the loop boundary function.`
+          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not decrease the loop bound function.`
           break
         default:
           throw new Error(`Unknown WP 'do' context step '${leastRecentContext.step}'.`)

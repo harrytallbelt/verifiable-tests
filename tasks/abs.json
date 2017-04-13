@@ -1,6 +1,6 @@
 {
     "name" : "abs(x)",
-    "description" : "Програма повинна обчислити абсолютне значення x.",
+    "description" : "The program should assign to x its absolute value.",
     "precondition" : "x = X",
     "postcondition" : "x = X && X >= 0 || x = -X && X <= 0"
 }
