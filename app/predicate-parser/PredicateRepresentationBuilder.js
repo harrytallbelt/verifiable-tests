@@ -51,6 +51,98 @@ PredicateRepresentationBuilder.prototype.visitGeq = ctx => '>='
 PredicateRepresentationBuilder.prototype.visitEq  = ctx => '='
 PredicateRepresentationBuilder.prototype.visitNeq = ctx => '<>'
 
+
+PredicatesVisitor.prototype.visitVector_eq_pred = function(ctx) {
+  const { left, right } = this.visit(ctx.vector_equality())
+  return formVectorEqualityConjunction(left, right)
+}
+
+
+function formVectorEqualityConjunction(leftVars, rightVars) {
+  const conjuncts = leftVars.map((leftVar, i) => ({
+    type: 'comp',
+    op: '=',
+    left: leftVar,
+    right: rightVars[i]
+  }))
+  const conjunction = conjuncts.reduce((conj, res) => ({
+    type: 'and',
+    left: conj,
+    right: res
+  }))
+  return conjunction
+}
+
+
+PredicatesVisitor.prototype.visitVector_eq_base = function(ctx) {
+  return {
+    left: [this.visit(ctx.int_expr(0))],
+    right: [this.visit(ctx.int_expr(1))]
+  }
+}
+
+
+PredicatesVisitor.prototype.visitVector_eq_rec = function(ctx) {
+  const inner = this.visit(ctx.vector_equality())
+  inner.left.unshift(this.visit(ctx.int_expr(0)))
+  inner.right.push(this.visit(ctx.int_expr(1)))
+  return inner
+}
+
+
+PredicatesVisitor.prototype.visitPerm_pred = function(ctx) {
+  return this.visit(ctx.perm())
+}
+
+
+PredicatesVisitor.prototype.visitPerm = function(ctx) {
+  const { left, right } = this.visit(ctx.even_var_list())
+  const disjuncts = []
+  for (const rightPerm of generatePermutations(right)) {
+    const conj = formVectorEqualityConjunction(left, rightPerm)
+    disjuncts.push(conj)
+  }
+  const disjunction = disjuncts.reduce((disj, res) => ({
+    type: 'or',
+    left: disj,
+    right: res
+  }))
+  return disjunction
+}
+
+
+function* generatePermutations(list) {
+  if (list.length == 0) {
+    yield []
+    return
+  }
+  for (let i = 0; i < list.length; ++i) {
+    const sublist = list.slice(0,i).concat(list.slice(i+1))
+    const subpermutations = generatePermutations(sublist)
+    for (const subpermutation of subpermutations) {
+      subpermutation.push(list[i])
+      yield subpermutation
+    }
+  }
+}
+
+
+PredicatesVisitor.prototype.visitEven_var_list_base = function(ctx) {
+  return {
+    left: [this.visit(ctx.int_expr(0))],
+    right: [this.visit(ctx.int_expr(1))]
+  }
+}
+
+
+PredicatesVisitor.prototype.visitEven_var_list_rec = function(ctx) {
+  const inner = this.visit(ctx.even_var_list())
+  inner.left.unshift(this.visit(ctx.int_expr(0)))
+  inner.right.push(this.visit(ctx.int_expr(1)))
+  return inner
+}
+
+
 PredicateRepresentationBuilder.prototype.visitAnd_expr = function(ctx) {
   return {
     type: 'and',

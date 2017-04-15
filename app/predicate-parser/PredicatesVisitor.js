@@ -18,6 +18,12 @@ PredicatesVisitor.prototype.visitBool_const_expr = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#vector_eq_pred.
+PredicatesVisitor.prototype.visitVector_eq_pred = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by PredicatesParser#and_expr.
 PredicatesVisitor.prototype.visitAnd_expr = function(ctx) {
   return this.visitChildren(ctx);
@@ -50,6 +56,42 @@ PredicatesVisitor.prototype.visitOr_expr = function(ctx) {
 
 // Visit a parse tree produced by PredicatesParser#implies_expr.
 PredicatesVisitor.prototype.visitImplies_expr = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#perm_pred.
+PredicatesVisitor.prototype.visitPerm_pred = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#vector_eq_base.
+PredicatesVisitor.prototype.visitVector_eq_base = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#vector_eq_rec.
+PredicatesVisitor.prototype.visitVector_eq_rec = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#perm.
+PredicatesVisitor.prototype.visitPerm = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#even_var_list_base.
+PredicatesVisitor.prototype.visitEven_var_list_base = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#even_var_list_rec.
+PredicatesVisitor.prototype.visitEven_var_list_rec = function(ctx) {
   return this.visitChildren(ctx);
 };
 
