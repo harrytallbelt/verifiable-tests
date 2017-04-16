@@ -32,11 +32,13 @@ descending_chain_cmp : int_expr (GREATER | GREATER_EQ) int_expr             # de
                      | descending_chain_cmp (GREATER | GREATER_EQ) int_expr # desc_chain_cmp_rec
                      ;
 
-int_expr : MINUS? INT                        # int_const_expr
-         | MINUS? variable                   # variable_expr
-         | MINUS? '(' int_expr ')'           # paret_int_expr
-         | int_expr '*' int_expr             # mult_expr
-         | int_expr (PLUS | MINUS) int_expr  # add_expr
+int_expr : MINUS? INT                                                   # int_const_expr
+         | MINUS? variable                                              # variable_expr
+         | MINUS? '(' int_expr ')'                                      # paret_int_expr
+         | MINUS? '(' (SUM | PROD) NAME ':' predicate ':' int_expr ')'  # sum_prod_quantifier
+         | MINUS? '(' 'N' NAME ':' predicate ':' predicate ')'          # quantity_quantifier
+         | int_expr '*' int_expr                                        # mult_expr
+         | int_expr (PLUS | MINUS) int_expr                             # add_expr
          ;
 
 comparison_op : '<'  # lt
@@ -59,6 +61,9 @@ GREATER_EQ : '>=' ;
 
 FORALL : 'A' ;
 EXISTS : 'E' ;
+
+SUM : 'SUM' ;
+PROD : 'PROD' ;
 
 NEGATION : '~' ;
 

@@ -273,6 +273,30 @@ function adjustForIntNegation(expr, ctx) {
 }
 
 
+PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
+  // TODO: WP and Simplify translator do not know this type of int expr
+  const expr = {
+    type: ctx.SUM() ? 'sum' : 'prod',
+    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    condition: this.visit(ctx.predicate()),
+    inner: this.visit(ctx.int_expr())
+  }
+  return adjustForIntNegation(expr, ctx)
+}
+
+
+PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
+  // TODO: WP and Simplify translator do not know this type of int expr
+  const expr = {
+    type: 'count',
+    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    condition: this.visit(ctx.predicate(0)),
+    inner: this.visit(ctx.predicate(1))
+  }
+  return adjustForIntNegation(expr, ctx)
+}
+
+
 PredicateRepresentationBuilder.prototype.visitMult_expr = function(ctx) {
   return {
     type: 'mult',

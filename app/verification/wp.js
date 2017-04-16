@@ -324,13 +324,8 @@ function substitutePredicate(pred, names, exprs) {
 
     case 'exists':
     case 'forall':
-      const filteredPairs = names
-        .map((name, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
-        .filter(pair => pred.boundedVars.every(bounded => bounded.name !== pair.var.name))
-
-      const filteredNames = filteredPairs.map(p => p.var)
-      const filteredExprs = filteredPairs.map(p => p.expr)
-
+      const { filteredNames, filteredExprs } =
+        filterSubstitutionsForQuantifier(pred, names, exprs)
       return {
         type: pred.type,
         boundedVars: pred.boundedVars,
@@ -360,7 +355,7 @@ function substituteIntExpr(intExpr, names, exprs) {
       //    to the name being substituted,
       //  - the same `name` or `select` variable it was given
       //    (if it shouldn't be substituted),
-      //  - the `select` variable with some substitutions inside
+      //  - a `select` variable with some substitutions inside
       //    (either in its base or selector).
       // The last two should be wrapped in 'var' integer expression node.
       // This is the right place to do it, because `substituteVariable`'s
@@ -386,8 +381,40 @@ function substituteIntExpr(intExpr, names, exprs) {
         right: substituteIntExpr(intExpr.right, names, exprs)
       }
 
+    case 'sum':
+    case 'prod': {
+      const { filteredNames, filteredExprs } =
+        filterSubstitutionsForQuantifier(intExpr, names, exprs)
+      return {
+        type: intExpr.type,
+        boundedVars: intExpr.boundedVars,
+        condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
+        inner: substituteIntExpr(intExpr.inner, filteredNames, filteredExprs)
+      }
+    }
+    case 'count': {
+      const { filteredNames, filteredExprs } =
+        filterSubstitutionsForQuantifier(intExpr, names, exprs)
+      return {
+        type: intExpr.type,
+        boundedVars: intExpr.boundedVars,
+        condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
+        inner: substitutePredicate(intExpr.inner, filteredNames, filteredExprs)
+      }
+    }
     default:
      throw new Error('WP error: unknown integer expression type:', intExpr.type)
+  }
+}
+
+function filterSubstitutionsForQuantifier(quantifier, names, exprs) {
+  const filteredPairs = names
+    .map((name, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
+    .filter(pair =>
+      quantifier.boundedVars.every(bounded => bounded.name !== pair.var.name))
+  return {
+    filteredNames: filteredPairs.map(p => p.var),
+    filteredExprs: filteredPairs.map(p => p.expr)
   }
 }
 

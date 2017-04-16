@@ -144,8 +144,20 @@ PredicatesVisitor.prototype.visitParet_int_expr = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#sum_prod_quantifier.
+PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by PredicatesParser#add_expr.
 PredicatesVisitor.prototype.visitAdd_expr = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#quantity_quantifier.
+PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
   return this.visitChildren(ctx);
 };
 

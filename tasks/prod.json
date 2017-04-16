@@ -3,7 +3,7 @@
     "description" : "The program should calculate the product of all the elements of the array b and store it in p. Note that the product of 0 elements is equal to 1.",
     "precondition" : "n >= 0 && (A k : 0 <= k < n : b[k] = B[k])",
     "postcondition" : "p = (PROD k : 0 <= k < n  : B[k])",
-    "invariant" : "0 <= i <= n && (A k : 0 <= k < n : b[k] = B[k]) && p = (PROD k : a <= k < i : B[k])",
+    "invariant" : "0 <= i <= n && (A k : 0 <= k < n : b[k] = B[k]) && p = (PROD k : 0 <= k < i : B[k])",
     "boundaryFunction" : "n - i",
     "simplifyPrefix": "(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a)))) (BG_PUSH (FORALL (b i j)  (AND (IMPLIES (> i j) (EQ (prod b i j) 1) ) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b j) (prod b i (- j 1))))))))"
 }
