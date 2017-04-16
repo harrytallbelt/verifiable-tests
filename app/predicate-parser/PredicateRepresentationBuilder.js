@@ -90,6 +90,61 @@ PredicatesVisitor.prototype.visitVector_eq_rec = function(ctx) {
 }
 
 
+PredicatesVisitor.prototype.visitAsc_chain_pred = function(ctx) {
+  return this.visit(ctx.ascending_chain_cmp())
+}
+
+
+PredicatesVisitor.prototype.visitAsc_chain_cmp_base = function(ctx) {
+  return {
+    type: 'comp',
+    op: ctx.LESS() ? '<' : '<=',
+    left: this.visit(ctx.int_expr(0)),
+    right: this.visit(ctx.int_expr(1))
+  }
+}
+
+
+PredicatesVisitor.prototype.visitAsc_chain_cmp_rec = function(ctx) {
+  const chain = this.visit(ctx.ascending_chain_cmp())
+  const lastExpr = chain.type === 'and' ? chain.right.right : chain.right
+  const cmp = {
+    type: 'comp',
+    op: ctx.LESS() ? '<' : '<=',
+    left: lastExpr,
+    right: this.visit(ctx.int_expr())
+  }
+  return { type: 'and', left: chain, right: cmp }
+}
+
+
+PredicatesVisitor.prototype.visitDesc_chain_pred = function(ctx) {
+  return this.visit(ctx.descending_chain_cmp())
+}
+
+PredicatesVisitor.prototype.visitDesc_chain_cmp_base = function(ctx) {
+  return {
+    type: 'comp',
+    op: ctx.GREATER() ? '>' : '>=',
+    left: this.visit(ctx.int_expr(0)),
+    right: this.visit(ctx.int_expr(1))
+  }
+}
+
+
+PredicatesVisitor.prototype.visitDesc_chain_cmp_rec = function(ctx) {
+  const chain = this.visit(ctx.descending_chain_cmp())
+  const lastExpr = chain.type === 'and' ? chain.right.right : chain.right
+  const cmp = {
+    type: 'comp',
+    op: ctx.GREATER() ? '>' : '>=',
+    left: lastExpr,
+    right: this.visit(ctx.int_expr())
+  }
+  return { type: 'and', left: chain, right: cmp }
+}
+
+
 PredicatesVisitor.prototype.visitPerm_pred = function(ctx) {
   return this.visit(ctx.perm())
 }

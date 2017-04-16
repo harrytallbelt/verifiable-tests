@@ -24,6 +24,12 @@ PredicatesVisitor.prototype.visitVector_eq_pred = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#asc_chain_pred.
+PredicatesVisitor.prototype.visitAsc_chain_pred = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by PredicatesParser#and_expr.
 PredicatesVisitor.prototype.visitAnd_expr = function(ctx) {
   return this.visitChildren(ctx);
@@ -38,6 +44,12 @@ PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
 
 // Visit a parse tree produced by PredicatesParser#comparison_expr.
 PredicatesVisitor.prototype.visitComparison_expr = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#desc_chain_pred.
+PredicatesVisitor.prototype.visitDesc_chain_pred = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -92,6 +104,30 @@ PredicatesVisitor.prototype.visitEven_var_list_base = function(ctx) {
 
 // Visit a parse tree produced by PredicatesParser#even_var_list_rec.
 PredicatesVisitor.prototype.visitEven_var_list_rec = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#asc_chain_cmp_base.
+PredicatesVisitor.prototype.visitAsc_chain_cmp_base = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#asc_chain_cmp_rec.
+PredicatesVisitor.prototype.visitAsc_chain_cmp_rec = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#desc_chain_cmp_base.
+PredicatesVisitor.prototype.visitDesc_chain_cmp_base = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by PredicatesParser#desc_chain_cmp_rec.
+PredicatesVisitor.prototype.visitDesc_chain_cmp_rec = function(ctx) {
   return this.visitChildren(ctx);
 };
 
