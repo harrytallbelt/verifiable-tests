@@ -36,6 +36,12 @@ PredicatesVisitor.prototype.visitAnd_expr = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#quantifier_pred.
+PredicatesVisitor.prototype.visitQuantifier_pred = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by PredicatesParser#iff_expr.
 PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
   return this.visitChildren(ctx);

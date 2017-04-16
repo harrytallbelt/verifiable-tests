@@ -231,6 +231,16 @@ PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
 }
 
 
+PredicatesVisitor.prototype.visitQuantifier_pred = function(ctx) {
+  return {
+    type: ctx.FORALL() ? 'forall' : 'exists',
+    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    condition: this.visit(ctx.predicate(0)),
+    inner: this.visit(ctx.predicate(1))
+  }
+}
+
+
 PredicateRepresentationBuilder.prototype.visitInt_const_expr = function(ctx) {
   const expr = {
     type: 'const',

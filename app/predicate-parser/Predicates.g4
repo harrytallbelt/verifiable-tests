@@ -1,16 +1,17 @@
 grammar Predicates;
 
-predicate : NEGATION? (TRUE | FALSE)         # bool_const_expr
-          | NEGATION? '(' predicate ')'      # paret_predicate
-          | int_expr comparison_op int_expr  # comparison_expr
-          | vector_equality                  # vector_eq_pred
-          | ascending_chain_cmp              # asc_chain_pred
-          | descending_chain_cmp             # desc_chain_pred
-          | perm                             # perm_pred
-          | predicate '&&' predicate         # and_expr
-          | predicate '||' predicate         # or_expr
-          | predicate '=>' predicate         # implies_expr
-          | predicate '<=>' predicate        # iff_expr
+predicate : NEGATION? (TRUE | FALSE)                                   # bool_const_expr
+          | NEGATION? '(' predicate ')'                                # paret_predicate
+          | int_expr comparison_op int_expr                            # comparison_expr
+          | vector_equality                                            # vector_eq_pred
+          | ascending_chain_cmp                                        # asc_chain_pred
+          | descending_chain_cmp                                       # desc_chain_pred
+          | perm                                                       # perm_pred
+          | predicate '&&' predicate                                   # and_expr
+          | predicate '||' predicate                                   # or_expr
+          | predicate '=>' predicate                                   # implies_expr
+          | predicate '<=>' predicate                                  # iff_expr
+          | '(' (FORALL | EXISTS) NAME ':' predicate ':' predicate ')' # quantifier_pred
           ;
 
 vector_equality : int_expr '=' int_expr                       # vector_eq_base
@@ -55,6 +56,9 @@ LESS : '<' ;
 LESS_EQ : '<=' ;
 GREATER : '>' ;
 GREATER_EQ : '>=' ;
+
+FORALL : 'A' ;
+EXISTS : 'E' ;
 
 NEGATION : '~' ;
 
