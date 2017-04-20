@@ -234,5 +234,11 @@ PredicatesVisitor.prototype.visitSelector = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#name.
+PredicatesVisitor.prototype.visitName = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 
 exports.PredicatesVisitor = PredicatesVisitor;

@@ -234,7 +234,7 @@ PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
 PredicatesVisitor.prototype.visitQuantifier_pred = function(ctx) {
   return {
     type: ctx.FORALL() ? 'forall' : 'exists',
-    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
     condition: this.visit(ctx.predicate(0)),
     inner: this.visit(ctx.predicate(1))
   }
@@ -277,7 +277,7 @@ PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
   // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: ctx.SUM() ? 'sum' : 'prod',
-    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
     condition: this.visit(ctx.predicate()),
     inner: this.visit(ctx.int_expr())
   }
@@ -289,7 +289,7 @@ PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
   // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: 'count',
-    boundedVars: [ { type: 'name', name: ctx.NAME().getText() } ],
+    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
     condition: this.visit(ctx.predicate(0)),
     inner: this.visit(ctx.predicate(1))
   }
@@ -319,7 +319,7 @@ PredicateRepresentationBuilder.prototype.visitAdd_expr = function(ctx) {
 PredicateRepresentationBuilder.prototype.visitVariable = function(ctx) {
   let variable = {
     type: 'name',
-    name: ctx.NAME().getText()
+    name: this.visit(ctx.name())
   }
 
   // builds a chain of `select` variables
@@ -348,6 +348,18 @@ PredicateRepresentationBuilder.prototype.visitSelectors = function(ctx) {
 PredicateRepresentationBuilder.prototype.visitSelector = function(ctx) {
   // Default implementation
   return this.visit(ctx.int_expr())
+}
+
+
+PredicateRepresentationBuilder.prototype.visitName = function(ctx) {
+  if (ctx.NAME())   return ctx.NAME().getText()
+  if (ctx.EXISTS()) return ctx.EXISTS().getText()
+  if (ctx.FORALL()) return ctx.FORALL().getText()
+  if (ctx.SUM())    return ctx.SUM().getText()
+  if (ctx.PROD())   return ctx.PROD().getText()
+  if (ctx.NUM())    return ctx.NUM().getText()
+  if (ctx.PERM())   return ctx.PERM().getText()
+  assert(false, 'visitName has exhausted all the options. Check if it is up to date with the grammar.')
 }
 
 

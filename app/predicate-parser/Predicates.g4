@@ -11,14 +11,14 @@ predicate : NEGATION? (TRUE | FALSE)                                   # bool_co
           | predicate '||' predicate                                   # or_expr
           | predicate '=>' predicate                                   # implies_expr
           | predicate '<=>' predicate                                  # iff_expr
-          | '(' (FORALL | EXISTS) NAME ':' predicate ':' predicate ')' # quantifier_pred
+          | '(' (FORALL | EXISTS) name ':' predicate ':' predicate ')' # quantifier_pred
           ;
 
 vector_equality : int_expr '=' int_expr                       # vector_eq_base
                 | int_expr ',' vector_equality ',' int_expr   # vector_eq_rec
                 ;
 
-perm : 'perm' '(' even_var_list ')' ;
+perm : PERM '(' even_var_list ')' ;
 
 even_var_list : int_expr ',' int_expr                    # even_var_list_base
               | int_expr ',' even_var_list ',' int_expr  # even_var_list_rec
@@ -35,8 +35,8 @@ descending_chain_cmp : int_expr (GREATER | GREATER_EQ) int_expr             # de
 int_expr : MINUS? INT                                                   # int_const_expr
          | MINUS? variable                                              # variable_expr
          | MINUS? '(' int_expr ')'                                      # paret_int_expr
-         | MINUS? '(' (SUM | PROD) NAME ':' predicate ':' int_expr ')'  # sum_prod_quantifier
-         | MINUS? '(' 'N' NAME ':' predicate ':' predicate ')'          # quantity_quantifier
+         | MINUS? '(' (SUM | PROD) name ':' predicate ':' int_expr ')'  # sum_prod_quantifier
+         | MINUS? '(' NUM name ':' predicate ':' predicate ')'        # quantity_quantifier
          | int_expr '*' int_expr                                        # mult_expr
          | int_expr (PLUS | MINUS) int_expr                             # add_expr
          ;
@@ -49,10 +49,16 @@ comparison_op : '<'  # lt
               | '<>' # neq
               ;
 
-variable : NAME selectors? ;
+variable : name selectors? ;
 
 selectors : selector+ ;
 selector : '[' int_expr ']' ;
+
+// Allows for creating variables with some keyword names.
+// TURE and FALSE are intentionally not used.
+// They actually might be, as the variables will only be used in place
+// of integer expressions, not booleans, but I think this would be too unnatural.
+name : EXISTS | FORALL | SUM | PROD | NUM | PERM | NAME ;
 
 LESS : '<' ;
 LESS_EQ : '<=' ;
@@ -64,16 +70,19 @@ EXISTS : 'E' ;
 
 SUM : 'SUM' ;
 PROD : 'PROD' ;
+NUM : 'N' ;
+
+PERM : 'perm' ;
 
 NEGATION : '~' ;
 
 MINUS : '-' ;
 PLUS : '+' ;
 
-TRUE : 'T';
-FALSE : 'F';
+TRUE : 'T' ;
+FALSE : 'F' ;
 
-NAME : [a-zA-Z_] [0-9a-zA-Z_]* ;
+NAME : [a-zA-Z] [0-9a-zA-Z_]* ;
 INT : '0' | [1-9] [0-9]* ;
 
 WS : [ \t\r\n] + -> skip ;   // Skipping all the whitespaces.
