@@ -19,14 +19,19 @@ function convertToSimplifyPredicate(predicate) {
       const right = convertToSimplifyIntExpr(predicate.right)
       return `(${op} ${left} ${right})`
     }
-    case 'exists':
-    case 'forall':
-      const quantifier = predicate.type === 'exists' ? 'EXISTS' : 'FORALL'
-      const boundedVars = predicate.boundedVars.map(convertToSimplifyVar)
+    case 'exists': {
+      const boundVar = convertToSimplifyVar(predicate.boundVar)
       const condition = convertToSimplifyPredicate(predicate.condition)
       const inner = convertToSimplifyPredicate(predicate.inner)
-      return `(${quantifier} (${boundedVars.join(' ')}) (IMPLIES ${condition} ${inner}))`
-    default: throw new Error(`Unsupported predicate type '${predicate.type}'`)
+      return `(EXISTS (${boundVar}) (AND ${condition} ${inner}))`
+    }
+    case 'forall': {
+      const boundVar = convertToSimplifyVar(predicate.boundVar)
+      const condition = convertToSimplifyPredicate(predicate.condition)
+      const inner = convertToSimplifyPredicate(predicate.inner)
+      return `(FORALL (${boundVar}) (IMPLIES ${condition} ${inner}))`
+    }
+    default: throw new Error(`Unsupported predicate type '${predicate.type}'.`)
   }
 }
 
@@ -48,7 +53,7 @@ function comparisonOperation(opName) {
     case '>=': return '>='
     case '=':  return 'EQ'
     case '<>': return 'NEQ'
-    default: throw new Error(`Unsupported comparison operation '${opName}'`)
+    default: throw new Error(`Unsupported comparison operation '${opName}'.`)
   }
 }
 
@@ -67,7 +72,7 @@ function convertToSimplifyIntExpr(intExpr) {
       const left = convertToSimplifyIntExpr(intExpr.left)
       const right = convertToSimplifyIntExpr(intExpr.right)
       return `(${op} ${left} ${right})`
-    default: throw new Error(`Unsupported integer expression type '${intExpr.type}'`)
+    default: throw new Error(`Unsupported integer expression type '${intExpr.type}'.`)
   }
 }
 
@@ -76,7 +81,7 @@ function integerOperaion(opName) {
     case 'plus':  return '+'
     case 'minus': return '-'
     case 'mult':  return '*'
-    default: throw new Error(`Unsupported integer operation '${opName}'`)
+    default: throw new Error(`Unsupported integer operation '${opName}'.`)
   }
 }
 
@@ -95,7 +100,7 @@ function convertToSimplifyVar(variable) {
       const value = convertToSimplifyIntExpr(variable.value)
       return `(store ${base} ${selector} ${value})`
     }
-    default: throw new Error(`Unsupported variable type '${variable.type}'`)
+    default: throw new Error(`Unsupported variable type '${variable.type}'.`)
   }
 }
 

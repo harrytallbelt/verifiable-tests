@@ -234,7 +234,7 @@ PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
 PredicatesVisitor.prototype.visitQuantifier_pred = function(ctx) {
   return {
     type: ctx.FORALL() ? 'forall' : 'exists',
-    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
+    boundVar: { type: 'name', name: this.visit(ctx.name()) },
     condition: this.visit(ctx.predicate(0)),
     inner: this.visit(ctx.predicate(1))
   }
@@ -277,7 +277,7 @@ PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
   // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: ctx.SUM() ? 'sum' : 'prod',
-    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
+    boundVar: { type: 'name', name: this.visit(ctx.name()) },
     condition: this.visit(ctx.predicate()),
     inner: this.visit(ctx.int_expr())
   }
@@ -289,7 +289,7 @@ PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
   // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: 'count',
-    boundedVars: [ { type: 'name', name: this.visit(ctx.name()) } ],
+    boundVar: { type: 'name', name: this.visit(ctx.name()) },
     condition: this.visit(ctx.predicate(0)),
     inner: this.visit(ctx.predicate(1))
   }

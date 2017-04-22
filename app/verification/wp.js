@@ -328,13 +328,13 @@ function substitutePredicate(pred, names, exprs) {
         filterSubstitutionsForQuantifier(pred, names, exprs)
       return {
         type: pred.type,
-        boundedVars: pred.boundedVars,
+        boundVar: pred.boundVar,
         condition: substitutePredicate(pred.condition, filteredNames, filteredExprs),
         inner: substitutePredicate(pred.inner, filteredNames, filteredExprs)
       }
 
     default:
-      throw new Error('WP error: unknown predicate type:', pred.type)
+      throw new Error(`WP error: unknown predicate type: ${pred.type}.`)
   }
 }
 
@@ -387,7 +387,7 @@ function substituteIntExpr(intExpr, names, exprs) {
         filterSubstitutionsForQuantifier(intExpr, names, exprs)
       return {
         type: intExpr.type,
-        boundedVars: intExpr.boundedVars,
+        boundVar: intExpr.boundVar,
         condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
         inner: substituteIntExpr(intExpr.inner, filteredNames, filteredExprs)
       }
@@ -397,21 +397,19 @@ function substituteIntExpr(intExpr, names, exprs) {
         filterSubstitutionsForQuantifier(intExpr, names, exprs)
       return {
         type: intExpr.type,
-        boundedVars: intExpr.boundedVars,
+        boundVar: intExpr.boundVar,
         condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
         inner: substitutePredicate(intExpr.inner, filteredNames, filteredExprs)
       }
     }
     default:
-     throw new Error('WP error: unknown integer expression type:', intExpr.type)
+     throw new Error(`WP error: unknown integer expression type: ${intExpr.type}.`)
   }
 }
 
 function filterSubstitutionsForQuantifier(quantifier, names, exprs) {
-  const filteredPairs = names
-    .map((name, i) => ({ var: name, expr: exprs[i] }))  // zip names and exprs
-    .filter(pair =>
-      quantifier.boundedVars.every(bounded => bounded.name !== pair.var.name))
+  const pairs = names.map((name, i) => ({ var: name, expr: exprs[i] }))
+  const filteredPairs = pairs.filter(pair => quantifier.boundVar.name !== pair.var.name)
   return {
     filteredNames: filteredPairs.map(p => p.var),
     filteredExprs: filteredPairs.map(p => p.expr)
@@ -440,7 +438,7 @@ function substituteVariable(variable, names, exprs) {
       }
 
     default:
-      throw new Error('WP error: unknown variable type:', variable.type)
+      throw new Error(`WP error: unknown variable type: ${variable.type}.`)
   }
 }
 

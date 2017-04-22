@@ -71,30 +71,30 @@ see [program representation docs](./program-representation.md).
 ## Quantifiers
 
 There are two types of quantifiers: universal (for all)
-and existential (exists). A quantifier bounds some of the
-variables of the inner predicate and is applied only to those
-values of the variables that meet the condition, described by the
+and existential (exists). A quantifier binds a variable
+of the inner predicate and is applied only to those
+values of the variable that meet the condition, described by the
 condition predicate.
 
 Here are some equivalent notations used in logic, so you can get
-a better intuition.
+a better intuition:
 
 ```
- (∀ v1, ... , vn : Q(v1, ... , vn) : P(v1, ... , vn))
-= ∀ Q(v1, ... , vn) P(v1, ... , vn)
-= ∀ v1, ... , vn [Q(v1, ... , vn) => P(v1, ... , vn)]
+ (∀ x : Q(x) : P(x))
+= ∀ Q(x) P(x)
+= ∀ x [Q(x) => P(x)]
 
- (∃ v1, ... , vn : Q(v1, ... , vn) : P(v1, ... , vn))
-= ∃ Q(v1, ... , vn) P(v1, ... , vn)
-= ∃ v1, ... , vn [Q(v1, ... , vn) ^ P(v1, ... , vn)]
+ (∃ x : Q(x) : P(x))
+= ∃ Q(x) P(x)
+= ∃ x [Q(x) ^ P(x)]
 ```
 
-And finally our quantifier representation format looks like this.
+And, finally, our quantifier representation format looks like this:
 
 ```
 {
   type: ('exists'|'forall'),
-  boundedVars: [<name>, <name>, ...],
+  boundVar: <name>,
   condition: <predicate>,
   inner: <predicate>
 }
@@ -102,4 +102,3 @@ And finally our quantifier representation format looks like this.
 
 `<name>` refears to the simplest class of variables. To read more about
 it see [program representation docs](./program-representation.md).
-  
