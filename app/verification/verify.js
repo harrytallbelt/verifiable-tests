@@ -1,8 +1,7 @@
 const assert = require('assert')
 const parsePseudocode = require('../pseudocode-parser')
 const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
-const convertToSimplifyPredicate = require('./to-simplify-format')
-const prove = require('./prove')
+const { prove, convertToSimplifySyntax, Axioms } = require('../simplify')
 const wp = require('./wp')
 const convertWpContextToError = require('./wp-context-to-error')
 
@@ -38,6 +37,9 @@ function verify(task, code) {
   const boundaryFunctions = task.boundaryFunction
     ? [parseIntegerExpression(task.boundaryFunction).expression]
     : []
+  const axioms = task.axioms
+    .map(ax => Axioms[ax])
+    .reduce((res, ax) => res | ax, 0)
 
   // TODO: Replace lines above when we are ready to support multiple loops.
   // (correct the function description after solving)
@@ -939,10 +941,8 @@ function verify(task, code) {
   const spec = { precondition, postcondition, invariants, boundaryFunctions }
   const { predicates, context } = wp(spec, program)
 
-  let simplifyString = task.simplifyPrefix ? task.simplifyPrefix : ''
-  simplifyString = predicates.map(convertToSimplifyPredicate).join(' ')
-
-  return prove(simplifyString)
+  return convertToSimplifySyntax(predicates, axioms)
+    .then(prove)
     .then(proofResults => {
       const errors = context
         .filter((_, i) => !proofResults[i])

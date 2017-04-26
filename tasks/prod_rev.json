@@ -5,5 +5,5 @@
     "postcondition" : "p = (PROD k : 0 <= k < N : B[k])",
     "invariant" : "-1 <= i < N && n = N && (A k : 0 <= k < N : b[k] = B[k]) && p = (PROD k : i < k < N : B[k])",
     "boundaryFunction" : "i + 1",
-    "simplifyPrefix": "(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a)))) (BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1) ) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b i) (prod b (+ i 1) j)))))))"
+    "axioms": [ "ARRAY_PROD_REV", "MULT_COMMUT" ]
 }

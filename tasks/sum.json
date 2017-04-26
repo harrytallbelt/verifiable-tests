@@ -5,5 +5,5 @@
     "postcondition" : "s = (SUM k : 0 <= k < N : B[k])",
     "invariant" : "0 <= i <= N && n = N && (A k : 0 <= k < N : b[k] = B[k]) && s = (SUM k : 0 <= k < i : B[k])",
     "boundaryFunction" : "N - i",
-    "simplifyPrefix" : "(BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
+    "axioms" : [ "ARRAY_SUM" ]
 }

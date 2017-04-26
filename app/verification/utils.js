@@ -1,5 +1,5 @@
 // If you ever find yourself adding 10th
-// function here, consider lodash.
+// function here, consider using lodash instead.
 
 function findLastIndex(arr, predicate) {
   for (let i = arr.length - 1; i >= 0; --i) {

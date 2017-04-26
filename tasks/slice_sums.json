@@ -1,9 +1,9 @@
 {
     "name" : "slice sums",
-    "description" : "Програма повинна записати у кожний елемент массиву суму цього та всіх попередніх елементів. В умові, sum(a,b,A) - це сума зрізу масиву A[a:b], тобто sum(a,b,A) = (Σ k : a <= k <= b : A[k]).",
+    "description" : "The program should assign to each of the array elements the sum of this element and all the previous elements.",
     "precondition" : "N > 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
-    "postcondition" : "(A k : 0 <= k < N : b[k] = sum(0, k, B))",
-    "invariant" : "1 <= i <= N && n = N && (A k : 0 <= k < i : b[k] = sum(0, k, B)) && (A k : i <= k < N : b[k] = B[k])",
+    "postcondition" : "(A k : 0 <= k < N : b[k] = (SUM k : 0 <= j <= k : B[j]))",
+    "invariant" : "1 <= i <= N && n = N && (A k : 0 <= k < i : b[k] = (SUM k : 0 <= j <= k : B[j])) && (A k : i <= k < N : b[k] = B[k])",
     "boundaryFunction" : "N - i",
-    "simplifyPrefix": "(BG_PUSH (FORALL (b i j) (PATS (sum b i j)) (AND (IMPLIES (> i j) (EQ (sum b i j) 0)) (IMPLIES (<= i j) (EQ (sum b i j) (+ (select b j) (sum b i (- j 1))))))))"
+    "axioms" : [ "ARRAY_SUM" ]
 }

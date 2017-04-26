@@ -1,0 +1,2 @@
+(BG_PUSH
+  (FORALL (a b) (EQ (* a b) (* b a))) )
