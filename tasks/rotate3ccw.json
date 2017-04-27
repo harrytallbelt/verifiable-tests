@@ -1,6 +1,6 @@
 {
     "name" : "rotateCCW(x,y,z)",
-    "description" : "Програма повинна циклічно переставити значення змінних проти годинникової стрілки. (Тобто x, y та z приймуть значення y, z та x.)",
+    "description" : "The program should cyclically \"swap\" the value bound to x, y and z in a counterclockwise fashion. (So x becomes z, y becomes x, and z becomes y.)",
     "precondition" : "x, y, z = X, Y, Z",
     "postcondition" : "x, y, z = Y, Z, X"
 }
