@@ -1,13 +1,9 @@
 {
     "name" : "example",
     "description" : "lorem ipsum",
-    "human_readable_precondition" : "T",
-    "simplify_precondition" : "TRUE",
-    "human_readable_postcondition" : "0 < x",
-    "simplify_postcondition" : "(< 0 x)",    
-    "human_readable_loop_invariant" : null,
-    "simplify_loop_invariant" : null,
-    "human_readable_boundary_function" : null,
-    "simplify_boundary_function" : null,
-    "simplify_definitions" : null
+    "precondition" : "T",
+    "postcondition" : "0 < x",
+    "loopInvariant" : "a + b = 0",
+    "boundaryFunction" : "a",
+    "simplifyPrefix" : "(BG_PUSH TRUE)"
 }

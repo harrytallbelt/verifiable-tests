@@ -52,7 +52,7 @@ PLUS : '+' ;
 TRUE : 'T';
 FALSE : 'F';
 
-NAME : [a-zA-Z_] [0-9a-zA-Z_]* ;
+NAME : [a-z] [0-9a-zA-Z_]* ;
 INT : '0' | [1-9] [0-9]* ;
 
 WS : [ \t\r\n] + -> skip ;   // Skipping all the whitespaces.

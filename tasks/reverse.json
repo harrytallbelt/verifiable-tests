@@ -1,12 +1,8 @@
 {
     "name" : "reverse",
-    "description" : "Програма повинна \"розвернути\" масив \"задом на перед\", тобто задовольнити таку умову: якщо до виконнаянн программи b[(n - 1) - i] = x, то після виконання программи елемент b[i] = x для всіх i у границях масиву.",
-    "human_readable_precondition" : "n > 0 ∧ b[0:n-1] = B[0:n-1]",
-    "simplify_precondition" : "(AND (< 0 n) (EQ b B) (OR (EQ n (* 2 m)) (EQ n (+ (* 2 m) 1))))",
-    "human_readable_postcondition" : "(∀ k : 0 ≤ k < n : b[k] = B[(n - 1) - k])",
-    "simplify_postcondition" : "(FORALL (k) (IMPLIES (AND (<= 0 k) (< k n)) (EQ (select b k) (select B (- (- n 1) k)))))",
-    "human_readable_loop_invariant" : "0 ≤ i ≤ n/2 ∧ (∀ k : 0 ≤ k < i ^ n-i < k < n : b[k] = B[(n - 1) - k]) ∧ (∀ k : i ≤ k < n-i : b[k] = B[k])",
-    "simplify_loop_invariant" : "(AND (OR (EQ n (* 2 m)) (EQ n (+ (* 2 m) 1))) (<= 0 i) (<= i m) (FORALL (k) (IMPLIES (OR (AND (<= 0 k) (< k i)) (AND (< (- n i) k) (< k n))) (EQ (select b k) (select B (- (- n 1) k))))) (FORALL (k) (IMPLIES (AND (<= i k) (<= k (- n i))) (EQ (select b k) (select B k)))))",
-    "human_readable_boundary_function" : "n/2 - i",
-    "simplify_boundary_function" : "(- m i)"
+    "description" : "The program should \"reverse\" the array, i.e., if before the program runs b[i] = x, then after it is executed b[(n - 1) - i] = x for all i in the array boundaries.",
+    "precondition" : "N >= 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
+    "postcondition" : "(A k : 0 <= k < N : b[k] = B[(N - 1) - k])",
+    "invariant" : "0 <= 2*i <= N + 1 && n = N && (A k : 0 <= k < i || N-i <= k < N : b[k] = B[(N - 1) - k]) && (A k : i <= k < N-i : b[k] = B[k])",
+    "boundaryFunction" : "N - 2*i"
 }

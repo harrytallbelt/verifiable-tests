@@ -1,6 +1,6 @@
 (DEFPRED (Q n m b B)
   (AND
-    (< 0 n)
+    (<= 0 n)
     (EQ b B)
     (OR
       (EQ n (* 2 m))

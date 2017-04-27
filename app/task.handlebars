@@ -6,60 +6,116 @@
   </head>
   <body>
     <h3>{{name}}</h3>
-    <table border="0">
+    <table border="1">
       <tr>
-        <td>Опис завдання:</td>
+        <td><b>Task description:</b></td>
         <td>{{description}}</td>
       </tr>
       <tr>
-        <td>Передумова:</td>
-        <td>{{human_readable_precondition}}</td>
+        <td><b>Precondition:</b></td>
+        <td>{{precondition}}</td>
       </tr>
       <tr>
-        <td>Постумова:</td>
-        <td>{{human_readable_postcondition}}</td>
+        <td><b>Postcondition:</b></td>
+        <td>{{postcondition}}</td>
       </tr>
-      {{#if human_readable_loop_invariant}}
+      {{#if invariant}}
         <tr>
-          <td>Інваріант циклу:</td>
-          <td>{{human_readable_loop_invariant}}</td>
+          <td><b>Loop invariant:</b></td>
+          <td>{{invariant}}</td>
         </tr>
         <tr>
-          <td>Обмежуюча функція циклу:</td>
-          <td>{{human_readable_boundary_function}}</td>
+          <td><b>Loop boundary function:</b></td>
+          <td>{{boundaryFunction}}</td>
         </tr>
       {{/if}}
     </table>
     <form action="./{{name}}" method="POST">
       <input type="hidden" name="name" value="{{name}}" />
-      <p>Введіть код рішення задачі у текстове поле:</p>
+      <p>Input your program code into the text area below.</p>
       <p>
         {{!-- We might have no code in context. This is fine. --}}
         <textarea name="code" rows="15" cols="80">{{code}}</textarea>
       </p>
       <p>
-        <input type="submit" value="Перевірити" />
+        <input type="submit" value="Verify" />
       </p>
     </form>
     {{!-- If verification has been performed,
           we'll display its results. --}}
     {{#if verification}}
-      {{#if verification.errors}}
-        <table>
+      {{#if verification.parsingErrors}}
+        <p>The program contains syntax errors.</p>
+        <table border="1">
           <tr>
-            <th>Line:Column</th>
+            <th>Coordinates</th>
             <th>Error description</th>
           </tr>
-          {{#each verification.errors}}
+          {{#each verification.parsingErrors}}
             <tr>
               <td>{{row}}:{{col}}</td>
               <td>{{message}}</td>
             </tr>
           {{/each}}
         </table>
+      {{else if verification.semanticErrors}}
+        <p>The program contains semantic errors.</p>
+        <table border="1">
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Error description</th>
+          </tr>
+          {{#each verification.semanticErrors}}
+            <tr>
+              <td>{{start.row}}:{{start.col}}</td>
+              <td>{{end.row}}:{{end.col}}</td>
+              <td>{{message}}</td>
+            </tr>
+          {{/each}}
+        </table>
       {{else}}
-        <p>Рішення вірне!</p>
+        <p>The solution is correct!</p>
       {{/if}}
     {{/if}}
+
+        {{!--<p>The solution is correct!</p>--}}
+
+        {{!--<p>The program contains semantic errors.</p>
+        <table border="1">
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Error description</th>
+          </tr>
+          <tr>
+            <td>1:0</td>
+            <td>1:6</td>
+            <td>The loop initialization commands do not set the invariant to be true.</td>
+          </tr>
+          <tr>
+            <td>2:13</td>
+            <td>2:26</td>
+            <td>The branch #1 of a loop does not ensure the loop invariant is true.</td>
+          </tr>
+          <tr>
+            <td>2:0</td>
+            <td>2:29</td>
+            <td>An unsatisfactory set of loop guards: the loop invariant together
+                with negation of all the guards does not imply the postcondition.</td>
+          </tr>
+          <tr>
+            <td>2:0</td>
+            <td>2:29</td>
+            <td>An unsatisfactory set of loop guards: the loop invariant together with truth
+              of some of the guards does not lead to the bound function being positive.</td>
+          </tr>
+          <tr>
+            <td>2:13</td>
+            <td>2:26</td>
+            <td>The branch #1 of a loop does not decrease the loop bound function.</td>
+          </tr>
+        </table>--}}
+
   </body>
 </html>

@@ -1,0 +1,11 @@
+(BG_PUSH
+  (FORALL (i j b) (PATS (sum i j b))
+    (AND
+      (IMPLIES
+        (> i j)
+        (EQ (sum i j b) 0) )
+      (IMPLIES
+        (<= i j)
+        (EQ
+          (sum i j b)
+          (+ (select b i) (sum (+ i 1) j) b) )))))

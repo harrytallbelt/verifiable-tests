@@ -1,12 +1,9 @@
 {
     "name" : "min_rev",
-    "description" : "Програма повинна знайти найбільший елемент массиву b.",
-    "human_readable_precondition" : "n > 0 ∧ b[0:n-1] = B[0:n-1]",
-    "simplify_precondition" : "(AND (< 0 n) (EQ b B))",
-    "human_readable_postcondition" : "(∀ k : 0 ≤ k < n : m ≤ B[k]) ∧ (∃ k : 0 ≤ k < n : B[k] = m)",
-    "simplify_postcondition" : "(AND (FORALL (k) (IMPLIES (AND (<= 0 k) (< k n)) (>= (select B k) m))) (EXISTS (k) (AND (<= 0 k) (< k n) (EQ (select B k) m))))",
-    "human_readable_loop_invariant" : "-1 ≤ i < n-1 ∧ b[0:n-1] = B[0:n-1] ∧ (∀ k : i < k < n : m ≤ B[k]) ∧ (∃ k : i < k < n : B[k] = m)",
-    "simplify_loop_invariant" : "(AND (<= (- 0 1) i) (< i (- n 1)) (EQ b B) (FORALL (k) (IMPLIES (AND (< i k) (< k n)) (>= (select B k) m))) (EXISTS (k) (AND (< i k) (< k n) (EQ (select B k) m))))",
-    "human_readable_boundary_function" : "i + 1",
-    "simplify_boundary_function" : "(+ i 1)"
+    "description" : "The program should find the min element of the array b and assign it to m.",
+    "precondition" : "N > 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
+    "postcondition" : "(A k : 0 <= k < N : m <= B[k]) && (E k : 0 <= k < N : B[k] = m)",
+    "invariant" : "-1 <= i < N-1 && n = N && (A k : 0 <= k < N : b[k] = B[k]) && (A k : i < k < N : m <= B[k]) && (E k : i < k < N : B[k] = m)",
+    "boundaryFunction" : "i + 1",
+    "axioms": [ "ARRAY_CONTAINS_REV" ]
 }

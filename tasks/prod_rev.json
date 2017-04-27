@@ -1,13 +1,9 @@
 {
     "name" : "prod_rev",
-    "description" : "Програма повинна обчислювати добуток всіх елементів масиву b. (Зауважте, що добуток нуля элементів дорівнює 1.)",
-    "human_readable_precondition" : "n ≥ 0 ∧ b[0:n-1] = B[0:n-1]",
-    "simplify_precondition" : "(AND (<= 0 n) (EQ b B))",
-    "human_readable_postcondition" : "p = (Π k : 0 ≤ k < n : B[k])",
-    "simplify_postcondition" : "(EQ p (prod B 0 (- n 1)))",
-    "human_readable_loop_invariant" : "-1 ≤ i < n ∧ b[0:n-1] = B[0:n-1] ∧ p = (Π k : i < k < n : B[k])",
-    "simplify_loop_invariant" : "(AND (<= (- 0 1) i) (< i n) (EQ b B) (EQ p (prod B (+ i 1) (- n 1))))",
-    "human_readable_boundary_function" : "i + 1",
-    "simplify_boundary_function" : "(+ i 1)",
-    "simplify_definitions" : "(BG_PUSH (FORALL (a b) (EQ (* a b) (* b a)))) (BG_PUSH (FORALL (b i j) (AND (IMPLIES (> i j) (EQ (prod b i j) 1)) (IMPLIES (<= i j) (EQ (prod b i j) (* (select b j) (prod b i (- j 1))))))))"
+    "description" : "The program should calculate the product of all the elements of the array b and store it in p. Note that the product of 0 elements is equal to 1.",
+    "precondition" : "N >= 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
+    "postcondition" : "p = (PROD k : 0 <= k < N : B[k])",
+    "invariant" : "-1 <= i < N && n = N && (A k : 0 <= k < N : b[k] = B[k]) && p = (PROD k : i < k < N : B[k])",
+    "boundaryFunction" : "i + 1",
+    "axioms": [ "ARRAY_PROD_REV", "MULT_COMMUT" ]
 }

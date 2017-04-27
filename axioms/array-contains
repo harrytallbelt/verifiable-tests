@@ -1,0 +1,15 @@
+(DEFPRED (contains a b arr m))
+
+(BG_PUSH
+  (FORALL (a b arr m) (PATS (contains a b arr m))
+    (AND
+      (IMPLIES
+        (> a b)
+        (IFF (contains a b arr m) FALSE) )
+      (IMPLIES
+        (<= a b)
+        (IFF
+          (contains a b arr m)
+          (OR
+            (contains a (- b 1) arr m)
+            (EQ (select arr b) m) ))))))
