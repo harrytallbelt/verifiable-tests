@@ -274,7 +274,6 @@ function adjustForIntNegation(expr, ctx) {
 
 
 PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
-  // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: ctx.SUM() ? 'sum' : 'prod',
     boundVar: { type: 'name', name: this.visit(ctx.name()) },
@@ -286,7 +285,6 @@ PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
 
 
 PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
-  // TODO: WP and Simplify translator do not know this type of int expr
   const expr = {
     type: 'count',
     boundVar: { type: 'name', name: this.visit(ctx.name()) },

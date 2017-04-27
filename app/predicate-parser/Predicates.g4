@@ -36,7 +36,7 @@ int_expr : MINUS? INT                                                   # int_co
          | MINUS? variable                                              # variable_expr
          | MINUS? '(' int_expr ')'                                      # paret_int_expr
          | MINUS? '(' (SUM | PROD) name ':' predicate ':' int_expr ')'  # sum_prod_quantifier
-         | MINUS? '(' NUM name ':' predicate ':' predicate ')'        # quantity_quantifier
+         | MINUS? '(' NUM name ':' predicate ':' predicate ')'          # quantity_quantifier
          | int_expr '*' int_expr                                        # mult_expr
          | int_expr (PLUS | MINUS) int_expr                             # add_expr
          ;

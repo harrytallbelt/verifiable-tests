@@ -83,7 +83,6 @@ function comparisonOperation(opName) {
   }
 }
 
-// TODO: add the argument to each call
 function convertToSimplifyIntExpr(intExpr, axioms) {
   switch (intExpr.type) {
     case 'const':
