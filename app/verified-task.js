@@ -18,9 +18,10 @@ function getVerifiedTaskHtml(taskName, code) {
     })
     .then(([task, verificationResults, templateSource]) => {
       const template = handlebars.compile(templateSource)
-      const context = task
-      context.verification = verificationResults
-      context.code = code
+      const context = Object.assign({}, task, {
+        verification: verificationResults,
+        code: code
+      })
       return template(context)
     })
 }
