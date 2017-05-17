@@ -23,20 +23,19 @@ server.post('/tasks/:taskName', urlencodedBodyParser, (req, res) => {
   if (!req.body) {
     return res.sendStatus(400)
   }
-
   app.getVerifiedTaskHtml(req.params.taskName, req.body.code)
      .then(answerHtml => res.send(answerHtml))
      .catch(err => res.status(500).send('Server error: ' + err))
 })
 
-server.post('/api/verify', urlencodedBodyParser, (req, res) => {
-  if (!req.body) {
-    return res.sendStatus(400)
-  }
-  
-  app.getVerificationApiAnswer(req.body.name, req.body.code)
-     .then(answerObject => res.json(answerObject))
-     .catch(err => res.status(500).json(err))
-})
+// server.post('/api/verify', urlencodedBodyParser, (req, res) => {
+//   if (!req.body) {
+//     return res.sendStatus(400)
+//   }
+//   app.getVerificationApiAnswer(req.body.name, req.body.code)
+//      .then(answerObject => res.json(answerObject))
+//      .catch(err => res.status(500).json(err))
+// })
 
-server.listen(3000, () => console.log('Listening on port 3000'))
+let port = 3000
+server.listen(port, () => console.log(`Listening on port ${port}`))

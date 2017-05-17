@@ -13,20 +13,20 @@
       </tr>
       <tr>
         <td><b>Precondition:</b></td>
-        <td>{{precondition}}</td>
+        <td><pre>{{precondition}}</pre></td>
       </tr>
       <tr>
         <td><b>Postcondition:</b></td>
-        <td>{{postcondition}}</td>
+        <td><pre>{{postcondition}}</pre></td>
       </tr>
       {{#if invariant}}
         <tr>
           <td><b>Loop invariant:</b></td>
-          <td>{{invariant}}</td>
+          <td><pre>{{invariant}}</pre></td>
         </tr>
         <tr>
           <td><b>Loop boundary function:</b></td>
-          <td>{{boundaryFunction}}</td>
+          <td><pre>{{boundaryFunction}}</pre></td>
         </tr>
       {{/if}}
     </table>
@@ -78,44 +78,5 @@
         <p>The solution is correct!</p>
       {{/if}}
     {{/if}}
-
-        {{!--<p>The solution is correct!</p>--}}
-
-        {{!--<p>The program contains semantic errors.</p>
-        <table border="1">
-          <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Error description</th>
-          </tr>
-          <tr>
-            <td>1:0</td>
-            <td>1:6</td>
-            <td>The loop initialization commands do not set the invariant to be true.</td>
-          </tr>
-          <tr>
-            <td>2:13</td>
-            <td>2:26</td>
-            <td>The branch #1 of a loop does not ensure the loop invariant is true.</td>
-          </tr>
-          <tr>
-            <td>2:0</td>
-            <td>2:29</td>
-            <td>An unsatisfactory set of loop guards: the loop invariant together
-                with negation of all the guards does not imply the postcondition.</td>
-          </tr>
-          <tr>
-            <td>2:0</td>
-            <td>2:29</td>
-            <td>An unsatisfactory set of loop guards: the loop invariant together with truth
-              of some of the guards does not lead to the bound function being positive.</td>
-          </tr>
-          <tr>
-            <td>2:13</td>
-            <td>2:26</td>
-            <td>The branch #1 of a loop does not decrease the loop bound function.</td>
-          </tr>
-        </table>--}}
-
   </body>
 </html>
