@@ -10,8 +10,8 @@ const convertWpContextToError = require('./wp-context-to-error')
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
- *  - `invariant` (might be omited),
- *  - `boundaryFunction` (might be omited),
+ *  - `invariants` (might be omited),
+ *  - `variants` (might be omited),
  *  - `axioms` (might be omited).
  * Returns a promise of an object with fields:
  *  - `parsingErrors`,
@@ -31,42 +31,27 @@ const convertWpContextToError = require('./wp-context-to-error')
 function verify(task, code) {
   const precondition = parsePredicate(task.precondition).predicate
   const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = task.invariant
-    ? [parsePredicate(task.invariant).predicate]
-    : []
-  const boundaryFunctions = task.boundaryFunction
-    ? [parseIntegerExpression(task.boundaryFunction).expression]
-    : []
+  const invariants = task.invariants
+    .map(src => parsePredicate(src).predicate)
+  const variants = task.variants
+    .map(src => parseIntegerExpression(src).expression)
   const axioms = (task.axioms ? task.axioms : [])
     .map(ax => Axioms[ax])
     .reduce((res, ax) => res | ax, 0)
-
-  // TODO: Replace lines above when we are ready to support multiple loops.
-  // (correct the function description after solving)
-  // const invariants = task.invariants
-  //   .map(src => parsePredicate(src).predicate)
-  // const boundaryFunctions = task.boundaryFunctions
-  //   .map(src => parseIntegerExpression(src).predicate)
-
-  if (!precondition) {
-    return Promise.reject(new Error('Invalid precondition.'))
-  }
-  if (!postcondition) {
-    return Promise.reject(new Error('Invalid postcondition.'))
-  }
-  if (invariants.some(inv => !inv)) {
-    return Promise.reject(new Error('Invalid invariants.'))
-  }
-  if (boundaryFunctions.some(bf => !bf)) {
-    return Promise.reject(new Error('Invalid boundary functions.'))
-  }
-
+  
+  let err = ''
+  if (!precondition)                err += 'Invalid precondition.'
+  if (!postcondition)               err += 'Invalid postcondition.'
+  if (invariants.some(inv => !inv)) err += 'Invalid invariants.'
+  if (variants.some(v => !v))       err += 'Invalid boundary functions.'
+  if (err) return Promise.reject(new Error(err))
+  
   const { errors, program } = parsePseudocode(code)
   if (errors.length > 0) {
     return Promise.resolve({ parsingErrors: errors, semanticErrors: null })
   }
 
-  const spec = { precondition, postcondition, invariants, boundaryFunctions }
+  const spec = { precondition, postcondition, invariants, variants }
   const { predicates, context } = wp(spec, program)
 
   return convertToSimplifySyntax(predicates, axioms)

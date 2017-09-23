@@ -1,9 +1,17 @@
 {
-    "name" : "example",
-    "description" : "lorem ipsum",
-    "precondition" : "T",
-    "postcondition" : "0 < x",
-    "loopInvariant" : "a + b = 0",
-    "boundaryFunction" : "a",
-    "simplifyPrefix" : "(BG_PUSH TRUE)"
+    "name" : "example",             // (*) These are 
+    "description" : "lorem ipsum",  // (*) the only four
+    "precondition" : "T",           // (*) fields that
+    "postcondition" : "0 < x",      // (*) cannot be omitted.
+    "invariants" : [ "a + b = 0" /* , ... */ ],
+    "variants" : [ "a" /* , ... */ ],
+    "axioms" : [  // Some combination of the following:
+        "ARRAY_SUM",
+        "ARRAY_SUM_REV",
+        "ARRAY_PROD",
+        "ARRAY_PROD_REV",
+        "ARRAY_CONTAINS",
+        "ARRAY_CONTAINS_REV",
+        "MULT_COMMUT"
+    ]
 }

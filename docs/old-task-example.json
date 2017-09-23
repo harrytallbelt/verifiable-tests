@@ -1,13 +1,17 @@
 {
-    "name" : "example",
-    "description" : "lorem ipsum",
-    "human_readable_precondition" : "T",
-    "simplify_precondition" : "TRUE",
-    "human_readable_postcondition" : "0 < x",
-    "simplify_postcondition" : "(< 0 x)",    
-    "human_readable_loop_invariant" : null,
-    "simplify_loop_invariant" : null,
-    "human_readable_boundary_function" : null,
-    "simplify_boundary_function" : null,
-    "simplify_definitions" : null
+    "name" : "example",             // (*) These are 
+    "description" : "lorem ipsum",  // (*) the only four
+    "precondition" : "T",           // (*) fields that
+    "postcondition" : "0 < x",      // (*) cannot be omitted.
+    "loopInvariant" : "a + b = 0",
+    "boundaryFunction" : "a",
+    "axioms" : [  // Some combination of the following:
+        "ARRAY_SUM",
+        "ARRAY_SUM_REV",
+        "ARRAY_PROD",
+        "ARRAY_PROD_REV",
+        "ARRAY_CONTAINS",
+        "ARRAY_CONTAINS_REV",
+        "MULT_COMMUT"
+    ]
 }

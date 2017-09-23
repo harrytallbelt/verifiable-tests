@@ -1,12 +1,8 @@
 {
-    "name" : "invert",
-    "description" : "Програма повинна замінити всі єлементи массиву їх оберненими значеннями (x змінюється на -x).",
-    "human_readable_precondition" : "n ≥ 0 ∧ b[0:n-1] = B[0:n-1]",
-    "simplify_precondition" : "(AND (<= 0 n) (EQ b B))",
-    "human_readable_postcondition" : "(∀ k : 0 ≤ k < n : b[k] = -B[k])",
-    "simplify_postcondition" : "(FORALL (k) (IMPLIES (AND (<= 0 k) (< k n)) (EQ (select b k) (- 0 (select B k)))))",
-    "human_readable_loop_invariant" : "0 ≤ i ≤ n ∧ (∀ k : 0 ≤ k < i : b[k] = -B[k]) ∧ (∀ k : i ≤ k < n : b[k] = B[k])",
-    "simplify_loop_invariant" : "(AND (<= 0 i) (<= i n) (FORALL (k) (IMPLIES (AND (<= 0 k) (< k i)) (EQ (select b k) (- 0 (select B k))))) (FORALL (k) (IMPLIES (AND (<= i k) (< k n)) (EQ (select b k) (select B k)))))",
-    "human_readable_boundary_function" : "n - i",
-    "simplify_boundary_function" : "(- n i)"
+    "name" : "negate_array",
+    "description" : "The program has to replace all the array elements with their values negated (so x becomes -x).",
+    "precondition" : "N >= 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
+    "postcondition" : "(A k : 0 <= k < N : b[k] = -B[k])",
+    "invariant" : "0 <= i <= N && n = N && (A k : 0 <= k < i : b[k] = -B[k]) && (A k : i <= k < N : b[k] = B[k])",
+    "boundaryFunction" : "N - i"
 }

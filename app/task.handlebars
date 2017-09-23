@@ -19,16 +19,16 @@
         <td><b>Postcondition:</b></td>
         <td><pre>{{postcondition}}</pre></td>
       </tr>
-      {{#if invariant}}
+      {{#each loops}}
         <tr>
-          <td><b>Loop invariant:</b></td>
+          <td><b>Loop #{{@index}} invariant:</b></td>
           <td><pre>{{invariant}}</pre></td>
         </tr>
         <tr>
-          <td><b>Loop boundary function:</b></td>
-          <td><pre>{{boundaryFunction}}</pre></td>
+          <td><b>Loop #{{@index}} variant:</b></td>
+          <td><pre>{{variant}}</pre></td>
         </tr>
-      {{/if}}
+      {{/each}}
     </table>
     <form action="./{{name}}" method="POST">
       <input type="hidden" name="name" value="{{name}}" />

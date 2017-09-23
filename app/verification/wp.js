@@ -10,7 +10,7 @@ const { findLastIndex, flatten } = require('./utils')
  *  - `precondition` with precondition predicate,
  *  - `postcondition` with postcondition predicate,
  *  - `invariants` with list of loop invariants (may be ommited),
- *  - `boundaryFunctions` with list of boundary functions (may be ommited).
+ *  - `variants` with list of loop variants (bound functions) (may be ommited).
  * `context` field is used by WP to propagate context through recursive calls.
  * You don't need to specify it.
  * WP returns an object of two fields:
@@ -49,7 +49,7 @@ function wp(spec, program, context) {
   if (lastLoopIndex >= 0) {
     const DO = S[lastLoopIndex]
     const P = spec.invariants.pop()
-    const t = spec.boundaryFunctions.pop()
+    const t = spec.variants.pop()
     const I = S.slice(0, lastLoopIndex)   // commands before the loop
     const J = S.slice(lastLoopIndex + 1)  // commands after the loop
 

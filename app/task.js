@@ -15,8 +15,24 @@ function getTaskHtml(taskName) {
         throw new Error('Cannot find task with name: ' + taskName)
       }
       const template = handlebars.compile(templateSource)
-      return template(task)
+      const taskContext = createHandlebarsTaskContext(task)
+      return template(taskContext)
     })
+}
+
+function createHandlebarsTaskContext(task) {
+  let taskContext = {
+    name: task.name,
+    description: task.description,
+    precondition: task.precondition,
+    postcondition: task.postcondition
+  }
+  if (task.invariants) {
+    taskContext.loops = task.invariants
+      .map((inv, i) =>
+        ({ invariant: inv, variant: task.variants[i] }))
+  }
+  return taskContext
 }
 
 module.exports = getTaskHtml

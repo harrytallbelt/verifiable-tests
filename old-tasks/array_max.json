@@ -1,12 +1,9 @@
 {
     "name" : "max",
-    "description" : "Програма повинна знайти найбільший елемент массиву b.",
-    "human_readable_precondition" : "n > 0 ∧ b[0:n-1] = B[0:n-1]",
-    "simplify_precondition" : "(AND (< 0 n) (EQ b B))",
-    "human_readable_postcondition" : "(∀ k : 0 ≤ k < n : m ≥ B[k]) ∧ (∃ k : 0 ≤ k < n : B[k] = m)",
-    "simplify_postcondition" : "(AND (FORALL (k) (IMPLIES (AND (<= 0 k) (< k n)) (<= (select B k) m))) (EXISTS (k) (AND (<= 0 k) (< k n) (EQ (select B k) m))))",
-    "human_readable_loop_invariant" : "1 ≤ i ≤ n ∧ b[0:n-1] = B[0:n-1] ∧ (∀ k : 0 ≤ k < i : m ≥ B[k]) ∧ (∃ k : 0 ≤ k < i : B[k] = m)",
-    "simplify_loop_invariant" : "(AND (<= 1 i) (<= i n) (EQ b B) (FORALL (k) (IMPLIES (AND (<= 0 k) (< k i)) (<= (select B k) m))) (EXISTS (k) (AND (<= 0 k) (< k i) (EQ (select B k) m))))",
-    "human_readable_boundary_function" : "n - i",
-    "simplify_boundary_function" : "(- n i)"
+    "description" : "The program should find the max element of the array b and assign it to m.",
+    "precondition" : "N > 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
+    "postcondition" : "(A k : 0 <= k < N : m >= B[k]) && (E k : 0 <= k < N : B[k] = m)",
+    "invariant" : "1 <= i <= n && n = N && (A k : 0 <= k < N : b[k] = B[k]) && (A k : 0 <= k < i : m >= B[k]) && (E k : 0 <= k < i : B[k] = m)",
+    "boundaryFunction" : "N - i",
+    "axioms": [ "ARRAY_CONTAINS" ]
 }

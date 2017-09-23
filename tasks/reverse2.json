@@ -3,6 +3,6 @@
     "description" : "The program should \"reverse\" the array, i.e., if before the program runs b[i] = x, then after it is executed b[(n - 1) - i] = x for all i in the array boundaries.",
     "precondition" : "N >= 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
     "postcondition" : "(A k : 0 <= k < N : b[k] = B[(N - 1) - k])",
-    "invariant" : "0 <= l <= r+1 <= N && n = N && r = N-1-l\n && (A k : 0 <= k < l : b[k] = B[(N - 1) - k] && B[k] = b[N-1-k])\n && (A k : l <= k <= r : b[k] = B[k])",
-    "boundaryFunction" : "r - l"
+    "invariants" : [ "0 <= l <= r+1 <= N && n = N && r = N-1-l\n && (A k : 0 <= k < l : b[k] = B[(N - 1) - k] && B[k] = b[N-1-k])\n && (A k : l <= k <= r : b[k] = B[k])" ],
+    "variants" : [ "r - l" ]
 }

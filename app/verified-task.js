@@ -18,12 +18,29 @@ function getVerifiedTaskHtml(taskName, code) {
     })
     .then(([task, verificationResults, templateSource]) => {
       const template = handlebars.compile(templateSource)
-      const context = Object.assign({}, task, {
+      const taskContext = createHandlebarsTaskContext(task)
+      const context = Object.assign({}, taskContext, {
         verification: verificationResults,
         code: code
       })
       return template(context)
     })
+}
+
+
+function createHandlebarsTaskContext(task) {
+  let taskContext = {
+    name: task.name,
+    description: task.description,
+    precondition: task.precondition,
+    postcondition: task.postcondition
+  }
+  if (task.invariants) {
+    taskContext.loops = task.invariants
+      .map((inv, i) =>
+        ({ invariant: inv, variant: task.variants[i] }))
+  }
+  return taskContext
 }
 
 module.exports = getVerifiedTaskHtml
