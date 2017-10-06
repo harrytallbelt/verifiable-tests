@@ -1,6 +1,0 @@
-{
-    "name" : "max(x,y)",
-    "description" : "The program should find maximum of x and y, and assign it to z.",
-    "precondition" : "x = X && y = Y",
-    "postcondition" : "z = X && X >= Y || z = Y && Y >= X"
-}

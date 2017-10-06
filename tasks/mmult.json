@@ -1,0 +1,17 @@
+{
+  "name" : "mmult",
+  "description" : "The program should multiply matrices a and b and save the result in matrix c.",
+  "precondition" : "0 < N && 0 < M && 0 < L && n = N && m = M && l = L && (A qi : 0 <= qi < N : (A qj : 0 <= qj < L : a[qi][qj] = A[qi][qj])) && (A qi : 0 <= qi < L : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))",
+  "postcondition" : "(A i : 0 <= i < N : (A j : 0 <= j < M : c[i][j] = (SUM k : 0 <= k < L : A[i][k] * B[k][j])))",
+  "invariants" : [
+    "n = N && m = M && l = L && 0 < M && 0 < L && 0 <= i <= N && (A qi : 0 <= qi < i : (A qj : 0 <= qj < M : c[qi][qj] = (SUM qk : 0 <= qk < L : A[qi][qk] * B[qk][qj]))) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < L : a[qi][qj] = A[qi][qj])) && (A qi : 0 <= qi < L : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))",
+    "n = N && m = M && l = L && 0 < L && 0 < M && 0 <= i < N && 0 <= j <= M && (A qi : 0 <= qi < i : (A qj : 0 <= qj < M : c[qi][qj] = (SUM qk : 0 <= qk < L : A[qi][qk] * B[qk][qj]))) && (A qj : 0 <= qj < j : c[i][qj] = (SUM qk : 0 <= qk < L : A[i][qk] * B[qk][qj])) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < L : a[qi][qj] = A[qi][qj])) && (A qi : 0 <= qi < L : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))",
+    "n = N && m = M && l = L && 0 < L && 0 < M && 0 <= i < N && 0 <= j < M && (A qi : 0 <= qi < i : (A qj : 0 <= qj < M : c[qi][qj] = (SUM qk : 0 <= qk < L : A[qi][qk] * B[qk][qj]))) && (A qj : 0 <= qj < j : c[i][qj] = (SUM qk : 0 <= qk < L : A[i][qk] * B[qk][qj])) && 0 <= k <= L && c[i][j] = (SUM qk : 0 <= qk < k : A[i][qk] * B[qk][j]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < L : a[qi][qj] = A[qi][qj])) && (A qi : 0 <= qi < L : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))"
+  ],
+  "variants" : [
+    "N - i",
+    "M - j",
+    "L - k"
+  ],
+  "axioms" : ["ROW_ON_COL_DOTPROD", "MULT_COMMUT"]
+}

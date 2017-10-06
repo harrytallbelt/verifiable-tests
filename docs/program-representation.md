@@ -220,6 +220,6 @@ Store-variables represent a map, changed in one place `(a: i:x)`.
   type: 'store',
   base: <var>,
   selector: <int_expr>,
-  value: <int_expr>
+  value: (<store> | <int_expr>)
 }
 ```

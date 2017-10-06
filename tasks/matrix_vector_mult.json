@@ -1,0 +1,15 @@
+{
+  "name" : "matrix_vector_mult",
+  "description" : "The program should multiply matrix A by vector x and save the result vector y.",
+  "precondition" : "0 < N && 0 < M && n = N && m = M && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])",
+  "postcondition" : "(A i : 0 <= i < N : y[i] = (SUM j : 0 <= j < M : A[i][j] * X[j]))",
+  "invariants" : [
+    "n = N && m = M && 0 < M && 0 <= i <= N && (A qi : 0 <= qi < i : y[qi] = (SUM qj : 0 <= qj < M : A[qi][qj] * X[qj])) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])",
+    "n = N && m = M && 0 < M && 0 <= i < N && 0 <= j <= M && (A qi : 0 <= qi < i : y[qi] = (SUM qj : 0 <= qj < M : A[qi][qj] * X[qj])) && y[i] = (SUM qj : 0 <= qj < j : A[i][qj] * X[qj]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])"
+  ],
+  "variants" : [
+    "N - i",
+    "M - j"
+  ],
+  "axioms" : ["ROW_ON_VEC_DOTPROD", "MULT_COMMUT"]
+}

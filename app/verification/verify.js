@@ -31,19 +31,19 @@ const convertWpContextToError = require('./wp-context-to-error')
 function verify(task, code) {
   const precondition = parsePredicate(task.precondition).predicate
   const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = task.invariants
+  const invariants = (task.invariants ? task.invariants : [])
     .map(src => parsePredicate(src).predicate)
-  const variants = task.variants
+  const variants = (task.variants ? task.variants : [])
     .map(src => parseIntegerExpression(src).expression)
   const axioms = (task.axioms ? task.axioms : [])
     .map(ax => Axioms[ax])
     .reduce((res, ax) => res | ax, 0)
   
   let err = ''
-  if (!precondition)                err += 'Invalid precondition.'
-  if (!postcondition)               err += 'Invalid postcondition.'
-  if (invariants.some(inv => !inv)) err += 'Invalid invariants.'
-  if (variants.some(v => !v))       err += 'Invalid boundary functions.'
+  if (!precondition)                err += 'Invalid precondition. '
+  if (!postcondition)               err += 'Invalid postcondition. '
+  if (invariants.some(inv => !inv)) err += 'Invalid invariants. '
+  if (variants.some(v => !v))       err += 'Invalid variants. '
   if (err) return Promise.reject(new Error(err))
   
   const { errors, program } = parsePseudocode(code)

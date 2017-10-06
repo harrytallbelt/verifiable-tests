@@ -1,0 +1,5 @@
+(BG_PUSH
+  (FORALL (a b c)
+    (EQ
+      (* a (+ b c))
+      (+ (* a b) (* a c)) )))

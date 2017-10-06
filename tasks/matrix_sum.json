@@ -1,0 +1,15 @@
+{
+  "name" : "matrix_sum",
+  "description" : "The program should compute the sum of all the elements of matrix a and store it in s.",
+  "precondition" : "n = N && m = M && 0 <= N && 0 <= M && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))",
+  "postcondition" : "s = (SUM qi : 0 <= qi < N : (SUM qj : 0 <= qj < M : A[qi][qj]))",
+  "invariants" : [
+    "n = N && m = M && 0 <= M && 0 <= i <= N && s = (SUM qi : 0 <= qi < i : (SUM qj : 0 <= qj < M : A[qi][qj])) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))",
+    "n = N && m = M && 0 <= i < N && 0 <= j <= M && s = (SUM qi : 0 <= qi < i : (SUM qj : 0 <= qj < M : A[qi][qj])) + (SUM qj : 0 <= qj < j : A[i][qj]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))"
+  ],
+  "variants" : [
+    "N - i",
+    "M - j"
+  ],
+  "axioms": ["MATRIX_SUM", "ARRAY_SUM"]
+}

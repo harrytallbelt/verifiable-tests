@@ -68,6 +68,20 @@ Comparisons state one of six relations:
 To read more about integer expressions,
 see [program representation docs](./program-representation.md).
 
+## Array Permutation Predicate
+
+States that two arrays (arr1[0:n-1] and arr2[0:n-1]) contain
+all the same elements, but, possibly, in a different order.
+
+```
+{
+  type: 'perm',
+  arr1: <var>,
+  arr2: <var>,
+  n: <int_expr>
+}
+```
+
 ## Quantifiers
 
 There are two types of quantifiers: universal (for all)

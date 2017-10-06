@@ -1,0 +1,15 @@
+{
+  "name" : "ssort",
+  "description" : "The program should sort the array a in nondecreasing order.",
+  "precondition" : "0 < N && n = N && (A qi : 0 <= qi < N : a[qi] = A[qi])",
+  "postcondition" : "(A i : 0 <= i < N-1 : a[i] <= a[i+1]) && perm(a,A,N)",
+  "invariants" : [
+    "n = N && perm(a,A,N) && 0 <= i <= N-1 && (A qi : 0 <= qi < i-1 : a[qi] <= a[qi+1]) && (i > 0 => (A qi : i <= qi < N : a[i-1] <= a[qi]))",
+    "n = N && perm(a,A,N) && 0 <= i < N-1 && i <= j <= N && i <= imin < N && (A qi : i <= qi < j : a[imin] <= a[qi]) && (A qi : 0 <= qi < i-1 : a[qi] <= a[qi+1]) && (i > 0 => (A qi : i <= qi < N : a[i-1] <= a[qi]))"
+  ],
+  "variants" : [
+    "N - 1 - i",
+    "N - j"
+  ],
+  "axioms" : ["ARRAY_PERM"]
+}

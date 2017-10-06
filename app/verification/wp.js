@@ -48,8 +48,8 @@ function wp(spec, program, context) {
   const lastLoopIndex = findLastIndex(S, st => st.type === 'do')
   if (lastLoopIndex >= 0) {
     const DO = S[lastLoopIndex]
-    const P = spec.invariants.pop()
-    const t = spec.variants.pop()
+    const P = spec.invariants.shift()
+    const t = spec.variants.shift()
     const I = S.slice(0, lastLoopIndex)   // commands before the loop
     const J = S.slice(lastLoopIndex + 1)  // commands after the loop
 
@@ -96,7 +96,8 @@ function doTheorem(Q, R, P, t, I, DO, J, innerSpec, context) {
     doTheoremPt1(Q, I, P, innerSpec, context),
     doTheoremPt2(P, DO, innerSpec, context),
     doTheoremPt3(P, R, BB, J, innerSpec, context),
-    doTheoremPt5(P, t, DO, innerSpec, context)
+    doTheoremPt5(P, t, DO, innerSpec, context),
+    doTheoremPt6(t, DO, context)
   ]).map(args => wp(args.spec, args.prog, args.ctx))
 
   // pt. 4 returns a predicate, so no wp call needed
@@ -158,15 +159,16 @@ function doTheoremPt4(P, t, BB, DO, innerSpec, context) {
   }
 }
 
-// {P ^ Bi} @t := t; Ci {t < @t} for i = i..n
+// {P ^ Bi} @t := t; Ci' {t < @t} for i = i..n,
+// where Ci' is Ci without loops.
 function doTheoremPt5(P, t, DO, innerSpec, context) {
   const wrappedWpArgs = DO.guards.map((guard, i) => {
-    const command = DO.commands[i]
+    const command = withoutLoops(DO.commands[i])
     const tInit = {
-      type: 'name',
-      name: '@t_init'     // NOTE: here we use @ which might cause problems.
+      type: 'name',       // This '@' symbol does not make it
+      name: '@t_init'     // to simplify. It is only used in wp.
     }
-    const fakeAssignment = {            // we reuse first command text range
+    const fakeAssignment = {            // We reuse first command's text range
       textRange: command[0].textRange,  // so it would seem like our command
       type: 'assign',                   // takes no space in source code.
       lvalues: [tInit],
@@ -196,6 +198,32 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
 
   return wrappedWpArgs
 }
+
+// {T = t} Xi {T = t},
+// where Xi are the branches of all the nested loops
+// with their loops cut out.
+function doTheoremPt6(t, DO, context) {
+  const QR = {
+    type: 'comp',
+    op: '=',
+    left: {                            // Usage of var name T is safe,
+      type: 'var',                     // as the proof does not use 
+      var: { type: 'name', name: 'T' } // any of spec predicates
+    },                                 // that might contain T.
+    right: t
+  }
+  const contextFor = S =>
+    [createContext({ command: S, type: 'do', step: 6, loop: DO }), ... context]
+  const wpArgumentsFor = S => wrapWpArguments(QR, S, QR, null, contextFor(S))
+  return subloopsBranches(DO).map(wpArgumentsFor)
+}
+
+const loops = S => S.filter(s => s.type === 'do')
+const withoutLoops = S => S.filter(s => s.type !== 'do')
+const loopSubloops = DO => flatten(DO.commands.map(loops))
+const loopOwnBranches = DO => DO.commands.map(withoutLoops)
+const subloopsBranches = DO => flatten(loopSubloops(DO).map(allLoopBranches))
+const allLoopBranches = DO => loopOwnBranches(DO).concat(subloopsBranches(DO))
 
 
 
@@ -296,14 +324,12 @@ function substitutePredicate(pred, names, exprs) {
   switch (pred.type) {
     case 'const':
       return pred
-
     case 'not':
     case 'parets':
       return {
         type: pred.type,
         inner: substitutePredicate(pred.inner, names, exprs)
       }
-
     case 'or':
     case 'implies':
     case 'iff':
@@ -313,7 +339,6 @@ function substitutePredicate(pred, names, exprs) {
         left: substitutePredicate(pred.left, names, exprs),
         right: substitutePredicate(pred.right, names, exprs)
       }
-    
     case 'comp':
       return {
         type: pred.type,
@@ -321,9 +346,15 @@ function substitutePredicate(pred, names, exprs) {
         left: substituteIntExpr(pred.left, names, exprs),
         right: substituteIntExpr(pred.right, names, exprs)
       }
-
+    case 'perm':
+      return {
+        type: 'perm',
+        arr1: substituteVariable(pred.arr1, names, exprs),
+        arr2: substituteVariable(pred.arr2, names, exprs),
+        n: substituteIntExpr(pred.n, names, exprs)
+      }
     case 'exists':
-    case 'forall':
+    case 'forall': {
       const { filteredNames, filteredExprs } =
         filterSubstitutionsForQuantifier(pred, names, exprs)
       return {
@@ -332,7 +363,7 @@ function substitutePredicate(pred, names, exprs) {
         condition: substitutePredicate(pred.condition, filteredNames, filteredExprs),
         inner: substitutePredicate(pred.inner, filteredNames, filteredExprs)
       }
-
+    }
     default:
       throw new Error(`WP error: unknown predicate type: ${pred.type}.`)
   }
@@ -347,20 +378,19 @@ function substituteIntExpr(intExpr, names, exprs) {
     case 'var':
       let newValue = substituteVariable(intExpr.var, names, exprs)
       
-      // The way parser builds the tree, this must never happen.
-      assert(newValue.type !== 'store')
+      // WTF ?
+      // // The way parser builds the tree, this must never happen.
+      // assert(newValue.type !== 'store')
 
-      // `substituteVariable` might return:
-      //  - an integer expression, which is the corresponding rvalue
-      //    to the name being substituted,
-      //  - the same `name` or `select` variable it was given
-      //    (if it shouldn't be substituted),
-      //  - a `select` variable with some substitutions inside
-      //    (either in its base or selector).
-      // The last two should be wrapped in 'var' integer expression node.
-      // This is the right place to do it, because `substituteVariable`'s
-      // result sometimes has to be just a name or select (or store) variable.
-      if (newValue.type === 'name' || newValue.type === 'select') {
+      // `substituteVariable` sometimes return an integer expression
+      // and sometimes a variable. In the second case, the variables should
+      // be wrapped in a 'var' integer expression node before proceeding.
+      // This is the right place to do it, because `substituteVariable`
+      // is recursive, so its result sometimes has to be just a variable.
+      if (newValue.type === 'name'
+       || newValue.type === 'select'
+       || newValue.type === 'store')
+      {
         newValue = { type: 'var', var: newValue }
       }
       return newValue
@@ -434,7 +464,9 @@ function substituteVariable(variable, names, exprs) {
         type: 'store',
         base: substituteVariable(variable.base, names, exprs),
         selector: substituteIntExpr(variable.selector, names, exprs),
-        value: substituteIntExpr(variable.value, names, exprs)
+        value: variable.value.type === 'store'
+          ? substituteVariable(variable.value, names, exprs)
+          : substituteIntExpr(variable.value, names, exprs)
       }
 
     default:
@@ -459,7 +491,7 @@ function disjunction(predicates) {
 }
 
 // You can omit step and branch
-function createContext({ command, type, step, branch }) {
+function createContext({ command, type, step, branch, loop }) {
   let context = { type, step, branch }
 
   if (Array.isArray(command)) {
@@ -470,6 +502,13 @@ function createContext({ command, type, step, branch }) {
   } else {
     context.start = command.textRange.start
     context.end = command.textRange.end
+  }
+
+  if (loop) {
+    context.loop = {
+      start: loop.textRange.start,
+      end: loop.textRange.end
+    }
   }
 
   return context

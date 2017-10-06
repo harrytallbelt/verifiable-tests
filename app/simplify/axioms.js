@@ -7,7 +7,12 @@ const Axioms = Object.freeze({
   ARRAY_PROD_REV:     1 << 3,
   ARRAY_CONTAINS:     1 << 4,
   ARRAY_CONTAINS_REV: 1 << 5,
-  MULT_COMMUT:        1 << 6
+  MULT_COMMUT:        1 << 6,
+  ROW_ON_COL_DOTPROD: 1 << 7,
+  MULT_DISTR:         1 << 8,
+  ROW_ON_VEC_DOTPROD: 1 << 9,
+  MATRIX_SUM:         1 << 10,
+  ARRAY_PERM:         1 << 11
 })
 
 function getAxiomList(axiomIDs) {
@@ -69,6 +74,11 @@ function axiomIDsToKeys(axiomIDs) {
   if (axiomIDs & Axioms.ARRAY_CONTAINS)     keys.push('array-contains')
   if (axiomIDs & Axioms.ARRAY_CONTAINS_REV) keys.push('array-contains-rev')
   if (axiomIDs & Axioms.MULT_COMMUT)        keys.push('mult-commut')
+  if (axiomIDs & Axioms.ROW_ON_COL_DOTPROD) keys.push('row-on-col-dotprod')
+  if (axiomIDs & Axioms.MULT_DISTR)         keys.push('mult-distr')
+  if (axiomIDs & Axioms.ROW_ON_VEC_DOTPROD) keys.push('row-on-vec-dotprod')
+  if (axiomIDs & Axioms.MATRIX_SUM)         keys.push('matrix-sum')
+  if (axiomIDs & Axioms.ARRAY_PERM)         keys.push('array-perm')
   return keys
 }
 

@@ -1,6 +1,0 @@
-{
-    "name" : "swap(x,y)",
-    "description" : "The program should \"swap\" the values bound to variables x and y.",
-    "precondition" : "x = X && y = Y",
-    "postcondition" : "x = Y && y = X"
-}

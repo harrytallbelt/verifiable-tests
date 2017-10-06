@@ -1,0 +1,15 @@
+(BG_PUSH
+  (FORALL (from to row A x) (PATS (rowvecprod from to row A x))
+    (AND
+      (IMPLIES
+        (> from to)
+        (EQ (rowvecprod from to row A x) 0) )
+      (IMPLIES
+        (<= from to)
+        (EQ
+          (rowvecprod from to row A x)
+          (+
+            (*
+              (select (select A row) to)
+              (select x to) )
+            (rowvecprod from (- to 1) row A x) ))))))

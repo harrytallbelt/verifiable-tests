@@ -1,0 +1,13 @@
+(BG_PUSH
+  (FORALL (istart iend jstart jend A) (PATS (msum istart iend jstart jend A))
+    (AND
+      (IMPLIES
+        (> istart iend)
+        (EQ (msum istart iend jstart jend A) 0) )
+      (IMPLIES
+        (<= istart iend)
+        (EQ
+          (msum istart iend jstart jend A)
+          (+ 
+            (msum istart (- iend 1) jstart jend A)
+            (sum jstart jend (select A iend)) ))))))

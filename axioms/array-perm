@@ -1,0 +1,19 @@
+(DEFPRED (perm a b n))
+
+(BG_PUSH
+  (FORALL (a b n i j)
+    (IMPLIES
+      (AND
+        (perm a b n)
+        (<= 0 j) (< j n)
+        (<= 0 i) (< i n))
+      (perm (store (store a j (select a i)) i (select a j)) b n))))
+
+(BG_PUSH
+  (FORALL (a b n)
+    (IMPLIES
+      (FORALL (i)
+        (IMPLIES
+          (AND (<= 0 i) (< i n))
+          (EQ (select a i) (select b i))))
+      (perm a b n))))

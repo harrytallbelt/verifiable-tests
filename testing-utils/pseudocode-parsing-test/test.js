@@ -1,5 +1,5 @@
 const fs = require('promisify-node')('fs')
-const parse = require('..')
+const parse = require('../../app/pseudocode-parser')
 
 fs.readdir('examples')
   .then(examples => {

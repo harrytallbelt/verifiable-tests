@@ -1,32 +1,35 @@
-// TODO: this is a naive implementation.
-// It won't be of much help for a more complicated program structure.
 function convertWpContextToError(context) {
-  const leastRecentContext = context[context.length - 1]
-  let errorMessage = null
+  if (context[0].type === 'seq' && context.length > 1) {
+    return contextObjectToError(context[1])
+  }
+  return contextObjectToError(context[0])
+}
 
-  switch (leastRecentContext.type) {
+function contextObjectToError(context) {
+  let errorMessage = null
+  switch (context.type) {
     case 'seq':
       errorMessage = 'The sequence of elementary commands does not lead to the specified postcondition.'
       break
     case 'if':
-      switch (leastRecentContext.step) {
+      switch (context.step) {
         case 1:
           errorMessage = 'An unsatisfactory set of if statement guards: the precondition does not imply the disjunction of all the guards.'
           break
         case 2:
-          errorMessage = `The branch #${leastRecentContext.branch} of an if statement does not ensure the postcondition is true.`
+          errorMessage = `The branch #${context.branch} of an if statement does not ensure the postcondition is true.`
           break
         default:
-          throw new Error(`Unknown WP 'if' context step '${leastRecentContext.step}'.`)
+          throw new Error(`Unknown WP 'if' context step '${context.step}'.`)
       }
       break
     case 'do':
-      switch (leastRecentContext.step) {
+      switch (context.step) {
         case 1:
           errorMessage = 'The loop initialization commands do not set the invariant to be true.'
           break
         case 2:
-          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not ensure the loop invariant is true.`
+          errorMessage = `The branch #${context.branch} of a loop does not ensure the loop invariant is true.`
           break
         case 3:
           errorMessage = 'An unsatisfactory set of loop guards: the loop invariant together with negation of all the guards does not imply the postcondition.'
@@ -35,19 +38,24 @@ function convertWpContextToError(context) {
           errorMessage = 'An unsatisfactory set of loop guards: the loop invariant together with truth of some of the guards does not lead to the bound function being positive.'
           break
         case 5:
-          errorMessage = `The branch #${leastRecentContext.branch} of a loop does not decrease the loop bound function.`
+          errorMessage = `The branch #${context.branch} of a loop does not decrease the loop bound function.`
           break
+        case 6: {
+          const loopStart = `${context.loop.start.row}:${context.loop.start.row}`
+          const loopEnd = `${context.loop.end.row}:${context.loop.end.row}`
+          errorMessage = `One of the inner loops of the loop at (${loopStart} - ${loopEnd}) changes outer loop variant.`
+        }
+        break
         default:
-          throw new Error(`Unknown WP 'do' context step '${leastRecentContext.step}'.`)
+          throw new Error(`Unknown WP 'do' context step '${context.step}'.`)
       }
       break
     default:
-      throw new Error(`Unknown WP context type '${leastRecentContext.type}'.`)
+      throw new Error(`Unknown WP context type '${context.type}'.`)
   }
-
   return {
-    start: leastRecentContext.start,
-    end: leastRecentContext.end,
+    start: context.start,
+    end: context.end,
     message: errorMessage
   }
 }

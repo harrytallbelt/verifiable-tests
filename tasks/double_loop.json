@@ -1,0 +1,15 @@
+{
+  "name" : "double_loop",
+  "description" : "The program should compute and store in s the result of n*m, but can only use increment of s.",
+  "precondition" : "0 <= N && 0 <= M && n = N && m = M",
+  "postcondition" : "s = N * M",
+  "invariants" : [
+    "0 <= M && n = N && m = M && 0 <= i <= n && s = M * i",
+    "n = N && m = M && 0 <= i < n && 0 <= j <= m && s = M * i + j"
+  ],
+  "variants" : [
+    "N - i",
+    "M - j"
+  ],
+  "axioms" : ["MULT_COMMUT", "MULT_DISTR"]
+}

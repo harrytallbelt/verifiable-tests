@@ -151,18 +151,27 @@ PredicatesVisitor.prototype.visitPerm_pred = function(ctx) {
 
 
 PredicatesVisitor.prototype.visitPerm = function(ctx) {
-  const { left, right } = this.visit(ctx.even_var_list())
-  const disjuncts = []
-  for (const rightPerm of generatePermutations(right)) {
-    const conj = formVectorEqualityConjunction(left, rightPerm)
-    disjuncts.push(conj)
+  if (ctx.even_var_list()) {
+    const { left, right } = this.visit(ctx.even_var_list())
+    const disjuncts = []
+    for (const rightPerm of generatePermutations(right)) {
+      const conj = formVectorEqualityConjunction(left, rightPerm)
+      disjuncts.push(conj)
+    }
+    const disjunction = disjuncts.reduce((disj, res) => ({
+      type: 'or',
+      left: disj,
+      right: res
+    }))
+    return disjunction
+  } else {
+    return {
+      type: 'perm',
+      arr1: this.visit(ctx.variable(0)),
+      arr2: this.visit(ctx.variable(1)),
+      n: this.visit(ctx.int_expr())
+    }
   }
-  const disjunction = disjuncts.reduce((disj, res) => ({
-    type: 'or',
-    left: disj,
-    right: res
-  }))
-  return disjunction
 }
 
 

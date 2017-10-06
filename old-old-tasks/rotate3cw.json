@@ -1,8 +1,0 @@
-{
-    "name" : "rotateCW(x,y,z)",
-    "description" : "Програма повинна циклічно переставити значення змінних за годинниковою стрілкою. (Тобто x, y та z приймуть значення z, x та y.)",
-    "human_readable_precondition" : "x, y, z = X, Y, Z",
-    "simplify_precondition" : "(AND (EQ x X) (EQ y Y) (EQ z Z))",
-    "human_readable_postcondition" : "x, y, z = Z, X, Y",
-    "simplify_postcondition" : "(AND (EQ x Z) (EQ y X) (EQ z Y))"
-}
