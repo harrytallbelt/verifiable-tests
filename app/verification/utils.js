@@ -14,5 +14,10 @@ function flatten(arr) {
   return arr.reduce((acc, itemOrArr) => acc.concat(itemOrArr), [])
 }
 
+function sum(arr) {
+  return arr.reduce((sum, n) => sum + n, 0)
+}
+
 module.exports.findLastIndex = findLastIndex
 module.exports.flatten = flatten
+module.exports.sum = sum

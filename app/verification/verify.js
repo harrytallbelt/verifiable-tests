@@ -4,6 +4,7 @@ const { parsePredicate, parseIntegerExpression } = require('../predicate-parser'
 const { prove, convertToSimplifySyntax, Axioms } = require('../simplify')
 const wp = require('./wp')
 const convertWpContextToError = require('./wp-context-to-error')
+const { sum } = require('./utils')
 
 /* Given a task description object and a pseudocode program
  * source code, attemts to prove the program's validity.
@@ -40,15 +41,31 @@ function verify(task, code) {
     .reduce((res, ax) => res | ax, 0)
   
   let err = ''
-  if (!precondition)                err += 'Invalid precondition. '
-  if (!postcondition)               err += 'Invalid postcondition. '
-  if (invariants.some(inv => !inv)) err += 'Invalid invariants. '
-  if (variants.some(v => !v))       err += 'Invalid variants. '
+  if (!precondition)                         err += 'Invalid precondition. '
+  if (!postcondition)                        err += 'Invalid postcondition. '
+  if (invariants.some(inv => !inv))          err += 'Invalid invariants. '
+  if (variants.some(v => !v))                err += 'Invalid variants. '
+  if (variants.length !== invariants.length) err += 'Different number of variants and invariants. '
   if (err) return Promise.reject(new Error(err))
-  
+
   const { errors, program } = parsePseudocode(code)
   if (errors.length > 0) {
     return Promise.resolve({ parsingErrors: errors, semanticErrors: null })
+  }
+
+  const loopCount = countLoopsInCommandSeq(program.statements)
+  if (loopCount !== invariants.length) {
+    const error = {
+      message: `The specification suggests ${invariants.length} loops, while the program has ${loopCount}.`
+    }
+    if (program.statements.length > 0) {
+      error.start = program.statements[0].textRange.start
+      error.end = program.statements[program.statements.length - 1].textRange.end
+    } else {
+      error.start = { row: 0, col: 0 }
+      error.end = { row: 0, col: 0 }
+    }
+    return { parsingErrors: null, semanticErrors: [error] }
   }
 
   const spec = { precondition, postcondition, invariants, variants }
@@ -64,5 +81,23 @@ function verify(task, code) {
     })
 }
 
+function countLoopsInCommandSeq(commandSeq) {
+  return sum(commandSeq.map(countLoopsInCommand))
+}
+
+function countLoopsInCommand(command) {
+  switch (command.type) {
+    case 'abort':
+    case 'skip':
+    case 'assign':
+      return 0
+    case 'if':
+      return sum(command.commands.map(countLoopsInCommandSeq))
+    case 'do':
+      return 1 + sum(command.commands.map(countLoopsInCommandSeq))
+    default:
+      throw new Error(`Unknown command type: ${command.type}.`)
+  }
+}
 
 module.exports = verify
