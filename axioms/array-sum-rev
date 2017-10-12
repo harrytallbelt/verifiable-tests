@@ -8,4 +8,4 @@
         (<= i j)
         (EQ
           (sum i j b)
-          (+ (select b i) (sum (+ i 1) j) b) )))))
+          (+ (select b i) (sum (+ i 1) j b) ))))))
