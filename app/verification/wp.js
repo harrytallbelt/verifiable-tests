@@ -45,13 +45,13 @@ function wp(spec, program, context) {
     }
   }
 
-  const lastLoopIndex = findLastIndex(S, st => st.type === 'do')
-  if (lastLoopIndex >= 0) {
-    const DO = S[lastLoopIndex]
+  const firstLoopIndex = S.findIndex(st => st.type === 'do')
+  if (firstLoopIndex >= 0) {
+    const DO = S[firstLoopIndex]
     const P = spec.invariants.shift()
     const t = spec.variants.shift()
-    const I = S.slice(0, lastLoopIndex)   // commands before the loop
-    const J = S.slice(lastLoopIndex + 1)  // commands after the loop
+    const I = S.slice(0, firstLoopIndex)   // commands before the loop
+    const J = S.slice(firstLoopIndex + 1)  // commands after the loop
 
     return doTheorem(Q, R, P, t, I, DO, J, spec, context)
   }

@@ -14,20 +14,20 @@ that contain an entity for each loop, used in the program.
 ## Loops
 
 WP begins with searching for the loops in the given program. Specifically,
-it looks for the last loop.
+it looks for the first loop.
 
 Suppose the program can be represented as
 
 ```
 S = S_0; DO_1; S_1; DO_2; ... ; S_n-1; DO_n; S_n
-  = I; DO_n; S_n
+  = S_0; DO_1; J
 ```
 
 where `S_i` contains no loops for `i = 0..n`. 
 
-What we want to do is to prove `{Q} I; DO_n; S_n {R}` using the DO theorem.
+What we want to do is to prove `{Q} S_0; DO_1; J {R}` using the DO theorem.
 
-Assume `DO_n` looks like this
+Assume `DO_1` looks like this
 
 
 ```
@@ -38,21 +38,21 @@ do
 od
 ```
 
-Together with loop invarian `P_n` and boundary function `t_n` we compose
+Together with loop invarian `P_1` and boundary function `t_1` we compose
 these triples (and one predicate):
 
- 1. `{Q} I {P_n}`
- 2. `{P_n ^ B_i} C_i {P_n}`, for `i = 1..m`
- 3. `{P_n ^ ~BB} S_n {R}`
- 4. `P_n ^ BB => t > 0`
- 5. `{P_n ^ B_i} t_prev := t; C_i {t < t_prev}`, for `i = 1..m`
+ 1. `{Q} S_0 {P_1}`
+ 2. `{P_1 ^ B_i} C_i {P_1}`, for `i = 1..m`
+ 3. `{P_1 ^ ~BB} J {R}`
+ 4. `P_1 ^ BB => t_1 > 0`
+ 5. `{P_1 ^ B_i} t_prev := t_1; C_i {t_1 < t_prev}`, for `i = 1..m`
 
-where `BB` is a shorhand for `B_1 v B_2 v ... v B_m`.
+where `BB` is a shorthand for `B_1 v B_2 v ... v B_m`.
 
 As one can notice, all the generated Hoare triples can be fed to the same
-algorithm recursively (removing the last loop invariant and boundary function
+algorithm recursively (removing the first loop invariant and boundary function
 and adding to context list a context object that marks the triples as used
-to prove `DO_n` on some specific step).
+to prove `DO_1` on some specific step).
 After all the sub-calls are finished, we get a set of lists with predicates and
 corresponding context objects. We merge all the predicate and context lists
 into two list and return this result wrapped into a result object.
