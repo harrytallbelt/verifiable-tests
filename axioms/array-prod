@@ -6,6 +6,10 @@
         (EQ (prod i j b) 1) )
       (IMPLIES
         (<= i j)
-        (EQ
-          (prod i j b)
-          (* (select b j) (prod i (- j 1) b)) )))))
+        (AND
+          (EQ
+            (prod i j b)
+            (* (select b j) (prod i (- j 1) b)) )
+          (EQ
+            (prod i j b)
+            (* (select b i) (prod (+ i 1) j b)) ))))))
