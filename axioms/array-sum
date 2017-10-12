@@ -6,6 +6,10 @@
         (EQ (sum i j b) 0) )
       (IMPLIES
         (<= i j)
-        (EQ
-          (sum i j b)
-          (+ (select b j) (sum i (- j 1) b)) )))))
+        (AND
+          (EQ
+            (sum i j b)
+            (+ (select b j) (sum i (- j 1) b)) )
+          (EQ
+            (sum i j b)
+            (+ (select b i) (sum (+ i 1) j b)) ))))))

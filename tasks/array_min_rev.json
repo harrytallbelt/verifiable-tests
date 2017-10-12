@@ -5,5 +5,5 @@
     "postcondition" : "(A k : 0 <= k < N : m <= B[k]) && (E k : 0 <= k < N : B[k] = m)",
     "invariants" : [ "-1 <= i < N-1 && n = N && (A k : 0 <= k < N : b[k] = B[k]) && (A k : i < k < N : m <= B[k]) && (E k : i < k < N : B[k] = m)" ],
     "variants" : [ "i + 1" ],
-    "axioms": [ "ARRAY_CONTAINS_REV" ]
+    "axioms": [ "ARRAY_CONTAINS" ]
 }

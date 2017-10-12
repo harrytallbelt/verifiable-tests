@@ -8,8 +8,14 @@
         (IFF (contains a b arr m) FALSE) )
       (IMPLIES
         (<= a b)
-        (IFF
-          (contains a b arr m)
-          (OR
-            (contains a (- b 1) arr m)
-            (EQ (select arr b) m) ))))))
+        (AND
+          (IFF
+            (contains a b arr m)
+            (OR
+              (contains a (- b 1) arr m)
+              (EQ (select arr b) m) ))
+          (IFF
+            (contains a b arr m)
+            (OR
+              (contains (+ a 1) b arr m)
+              (EQ (select arr a) m) )))))))

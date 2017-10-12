@@ -5,5 +5,5 @@
     "postcondition" : "s = (SUM k : 0 <= k < N : B[k])",
     "invariants" : [ "-1 <= i < N && n = N && (A k : 0 <= k < N : b[k] = B[k]) && s = (SUM k : i < k < N : B[k])" ],
     "variants" : [ "i + 1" ],
-    "axioms" : [ "ARRAY_SUM_REV" ]
+    "axioms" : [ "ARRAY_SUM" ]
 }
