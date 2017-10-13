@@ -1,86 +1,68 @@
 const fs = require('promisify-node')('fs')
 
-const Axioms = Object.freeze({
-  ARRAY_SUM:          1 << 0,
-  ARRAY_SUM_REV:      1 << 1,
-  ARRAY_PROD:         1 << 2,
-  ARRAY_PROD_REV:     1 << 3,
-  ARRAY_CONTAINS:     1 << 4,
-  ARRAY_CONTAINS_REV: 1 << 5,
-  MULT_COMMUT:        1 << 6,
-  ROW_ON_COL_DOTPROD: 1 << 7,
-  MULT_DISTR:         1 << 8,
-  ROW_ON_VEC_DOTPROD: 1 << 9,
-  MATRIX_SUM:         1 << 10,
-  ARRAY_PERM:         1 << 11
-})
+// The object is initialized when the module is loaded.
+// It happens only once, so it is fine to use sync fs operation.
+// For each file axioms/axiom-name an enum entry Axioms.AXIOM_NAME
+// is created. The entries are placed in alphabetic order.
+let _axioms = {}
+fs.readdirSync('axioms')
+  .map(toAxiomName)
+  .sort()
+  .forEach((ax, i) => _axioms[ax] = 1 << i)
+const Axioms = Object.freeze(_axioms)
 
-function getAxiomList(axiomIDs) {
-  if (isContradictory(axiomIDs)) {
-    return Promise.reject(new Error('A contradictory axiom set.'))
-  }
-  if (hasUnknownEntries(axiomIDs)) {
+
+function getAxioms(axiomEnum) {
+  if (hasUnknownEntries(axiomEnum)) {
     return Promise.reject(new Error('A request for an unknown axiom.'))
   }
-  const keys = axiomIDsToKeys(axiomIDs)
-  return getAxioms()
+  const keys = toAxiomList(axiomEnum)
+  return getAllAxioms()
     .then(axioms => keys.map(key => axioms[key]))
 }
 
-
 let axiomCache = null
-function getAxioms() {
+function getAllAxioms() {
   if (axiomCache) {
     return Promise.resolve(axiomCache)
   }
   return fs
     .readdir('axioms')
-    .then(fnames => {
-      const promises = fnames
-        .map(fname => fs.readFile(`axioms/${fname}`, 'utf-8'))
-      promises.push(fnames)  // save filenames
-      return Promise.all(promises)
-    })
-    .then(promises => {
-      const fnames = promises.pop()
-      const axiomDefinitions = promises
-      
+    .then(fnames => Promise.all(fnames.sort()
+      .map(fname => fs.readFile(`axioms/${fname}`, 'utf-8'))))
+    .then(axioms => {
       axiomCache = {}
-      fnames.forEach((fname, i) => {
-        axiomCache[fname] = axiomDefinitions[i]
-      })
-
+      Object.keys(Axioms).sort()
+        .forEach((ax, i) => axiomCache[ax] = axioms[i])
       return axiomCache
     })
 }
 
-function isContradictory(axiomIDs) {
-  return (axiomIDs & Axioms.ARRAY_SUM) && (axiomIDs & Axioms.ARRAY_SUM_REV)
-      || (axiomIDs & Axioms.ARRAY_PROD) && (axiomIDs & Axioms.ARRAY_PROD_REV)
-      || (axiomIDs & Axioms.ARRAY_CONTAINS) && (axiomIDs & Axioms.ARRAY_CONTAINS_REV)
+function toAxiomList(axiomEnum) {
+  return Object.keys(Axioms)
+    .filter(ax => axiomEnum & Axioms[ax])
+}
+
+function toAxiomEnum(axiomList) {
+  return axiomList
+    .reduce((res, ax) => res | Axioms[ax], 0)
 }
 
 function hasUnknownEntries(axiomIDs) {
-  const allAxioms = Object.keys(Axioms).reduce((all, key) => all | Axioms[key], 0)
+  // This is how enums work, trust me on this one.
+  const allAxioms = 2 ** Object.keys(Axioms).length - 1
   return (axiomIDs | allAxioms) !== allAxioms
 }
 
-function axiomIDsToKeys(axiomIDs) {
-  const keys = []
-  if (axiomIDs & Axioms.ARRAY_SUM)          keys.push('array-sum')
-  if (axiomIDs & Axioms.ARRAY_SUM_REV)      keys.push('array-sum-rev')
-  if (axiomIDs & Axioms.ARRAY_PROD)         keys.push('array-prod')
-  if (axiomIDs & Axioms.ARRAY_PROD_REV)     keys.push('array-prod-rev')
-  if (axiomIDs & Axioms.ARRAY_CONTAINS)     keys.push('array-contains')
-  if (axiomIDs & Axioms.ARRAY_CONTAINS_REV) keys.push('array-contains-rev')
-  if (axiomIDs & Axioms.MULT_COMMUT)        keys.push('mult-commut')
-  if (axiomIDs & Axioms.ROW_ON_COL_DOTPROD) keys.push('row-on-col-dotprod')
-  if (axiomIDs & Axioms.MULT_DISTR)         keys.push('mult-distr')
-  if (axiomIDs & Axioms.ROW_ON_VEC_DOTPROD) keys.push('row-on-vec-dotprod')
-  if (axiomIDs & Axioms.MATRIX_SUM)         keys.push('matrix-sum')
-  if (axiomIDs & Axioms.ARRAY_PERM)         keys.push('array-perm')
-  return keys
+function toFileName(axiomName) {
+  return axiomName.replace('_', '-').toLowerCase()
+}
+
+function toAxiomName(fileName) {
+  return fileName.replace('-', '_').toUpperCase()
 }
 
 module.exports.Axioms = Axioms
-module.exports.getAxiomList = getAxiomList
+module.exports.getAxioms = getAxioms
+module.exports.toAxiomEnum = toAxiomEnum
+module.exports.toAxiomList = toAxiomList
