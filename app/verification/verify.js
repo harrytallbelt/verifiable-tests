@@ -1,7 +1,7 @@
 const assert = require('assert')
 const parsePseudocode = require('../pseudocode-parser')
 const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
-const { prove, convertToSimplifySyntax, Axioms } = require('../simplify')
+const { prove, convertToSimplifySyntax, Axioms, toAxiomEnum } = require('../simplify')
 const wp = require('./wp')
 const convertWpContextToError = require('./wp-context-to-error')
 const { sum } = require('./utils')
@@ -36,9 +36,7 @@ function verify(task, code) {
     .map(src => parsePredicate(src).predicate)
   const variants = (task.variants ? task.variants : [])
     .map(src => parseIntegerExpression(src).expression)
-  const axioms = (task.axioms ? task.axioms : [])
-    .map(ax => Axioms[ax])
-    .reduce((res, ax) => res | ax, 0)
+  const axioms = toAxiomEnum(task.axioms ? task.axioms : [])
   
   let err = ''
   if (!precondition)                         err += 'Invalid precondition. '

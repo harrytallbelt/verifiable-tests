@@ -1,18 +1,15 @@
-const { Axioms, getAxiomList } = require('./axioms')
+const { Axioms, getAxioms } = require('./axioms')
 
 /* `requiredAxioms` is an optional argument, which
  * is a bitwise-or combination of used axioms from `Axiom` enum.
 */
 function convertToSimplifySyntax(predicates, requiredAxioms) {
   requiredAxioms = requiredAxioms || 0
-  return getAxiomList(requiredAxioms)
-    .then(axiomList => {
-      const preds = predicates
-        .map(p => {
-          return convertToSimplifyPredicate(p, requiredAxioms)
-        })
-      return axiomList.concat(preds).join(' ')
-    })
+  return getAxioms(requiredAxioms)
+    .then(axioms => axioms
+      .concat(predicates
+        .map(p => convertToSimplifyPredicate(p, requiredAxioms)))
+      .join(' '))
 }
 
 function convertToSimplifyPredicate(predicate, axioms) {
