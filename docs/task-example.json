@@ -5,13 +5,9 @@
     "postcondition" : "0 < x",      // (*) cannot be omitted.
     "invariants" : [ "a + b = 0" /* , ... */ ],
     "variants" : [ "a" /* , ... */ ],
-    "axioms" : [  // Some combination of the following:
-        "ARRAY_SUM",
-        "ARRAY_SUM_REV",
+    "axioms" : [      // Some combination of the axioms in axioms/ folder:
+        "ARRAY_SUM",  // (file named axiom-name describes axiom AXIOM_NAME)
         "ARRAY_PROD",
-        "ARRAY_PROD_REV",
-        "ARRAY_CONTAINS",
-        "ARRAY_CONTAINS_REV",
         "MULT_COMMUT"
     ]
 }

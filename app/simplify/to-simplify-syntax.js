@@ -43,7 +43,7 @@ function convertToSimplifyPredicate(predicate, axioms) {
       return `(perm ${arr1} ${arr2} ${n})`
     }
     case 'exists': {
-      if (axioms & Axioms.ARRAY_CONTAINS || axioms & Axioms.ARRAY_CONTAINS_REV) {
+      if (axioms & Axioms.ARRAY_CONTAINS) {
         const { lowerBoundary, upperBoundary } = parseCondition(predicate.condition, predicate.boundVar.name)
         const { array, name } = getArrayAndName(predicate.inner, predicate.boundVar.name)
         if (lowerBoundary && upperBoundary && array && name) {
@@ -182,7 +182,7 @@ function convertToSimplifyIntExpr(intExpr, axioms) {
         if (!lowerBoundary || !upperBoundary) {
           throw new Error('Unsupported quantifier condition format.')
         }
-        if (!(axioms & Axioms.ARRAY_SUM) && !(axioms & Axioms.ARRAY_SUM_REV)) {
+        if (!(axioms & Axioms.ARRAY_SUM)) {
           throw new Error('No axiom for SUM quantifier is specified.')
         }  
         const array = getArray(intExpr.inner, intExpr.boundVar.name)
@@ -283,7 +283,7 @@ function convertToSimplifyIntExpr(intExpr, axioms) {
     }
     case 'prod': {
       // TODO: should this code be concearned with this??
-      if (!(axioms & Axioms.ARRAY_PROD) && !(axioms & Axioms.ARRAY_PROD_REV)) {
+      if (!(axioms & Axioms.ARRAY_PROD)) {
         throw new Error('No axiom for PROD quantifier is specified.')
       }
       const { lowerBoundary, upperBoundary } = parseCondition(intExpr.condition, intExpr.boundVar.name)
