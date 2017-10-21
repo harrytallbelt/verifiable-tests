@@ -325,7 +325,6 @@ function substitutePredicate(pred, names, exprs) {
     case 'const':
       return pred
     case 'not':
-    case 'parets':
       return {
         type: pred.type,
         inner: substitutePredicate(pred.inner, names, exprs)
@@ -396,7 +395,6 @@ function substituteIntExpr(intExpr, names, exprs) {
       return newValue
 
     case 'negate':
-    case 'parets':
       return {
         type: intExpr.type,
         inner: substituteIntExpr(intExpr.inner, names, exprs)
