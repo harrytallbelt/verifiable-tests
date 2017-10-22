@@ -218,8 +218,22 @@ function doTheoremPt6(t, DO, context) {
   return subloopsBranches(DO).map(wpArgumentsFor)
 }
 
-const loops = S => S.filter(s => s.type === 'do')
+function loops(S) {
+  const plainLoops = S.filter(s => s.type === 'do')
+  const loopsInIfs = flatten(S.filter(s => s.type === 'if').map(ifLoops))
+  return plainLoops.concat(loopsInIfs)
+}
+
+const ifLoops = IF => flatten(IF.commands.map(loops))
 const withoutLoops = S => S.filter(s => s.type !== 'do')
+  .map(s => s.type === 'if' ? ifWithoutLoops(s) : s)
+
+function ifWithoutLoops(IF) {
+  const ifCopy = Object.assign({}, IF)
+  ifCopy.commands = IF.commands.map(withoutLoops)
+  return ifCopy
+}
+
 const loopSubloops = DO => flatten(DO.commands.map(loops))
 const loopOwnBranches = DO => DO.commands.map(withoutLoops)
 const subloopsBranches = DO => flatten(loopSubloops(DO).map(allLoopBranches))
@@ -376,15 +390,11 @@ function substituteIntExpr(intExpr, names, exprs) {
 
     case 'var':
       let newValue = substituteVariable(intExpr.var, names, exprs)
-      
-      // WTF ?
-      // // The way parser builds the tree, this must never happen.
-      // assert(newValue.type !== 'store')
 
-      // `substituteVariable` sometimes return an integer expression
+      // `substituteVariable` sometimes returns an integer expression
       // and sometimes a variable. In the second case, the variables should
       // be wrapped in a 'var' integer expression node before proceeding.
-      // This is the right place to do it, because `substituteVariable`
+      // This is the right place to do this, because `substituteVariable`
       // is recursive, so its result sometimes has to be just a variable.
       if (newValue.type === 'name'
        || newValue.type === 'select'
