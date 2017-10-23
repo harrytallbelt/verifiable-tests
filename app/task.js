@@ -4,16 +4,12 @@ const handlebars = require('handlebars')
 const db = require('./db')
 
 function getTaskHtml(taskName) {
-  const tasksPromise = db.getTask(taskName)
-  const templateSourcePromise =
-    fs.readFile('app/task.handlebars', 'UTF-8')
-
-  return Promise
-    .all([templateSourcePromise, tasksPromise])
-    .then(([templateSource, task]) => {
-      if (task === undefined) {
-        throw new Error('Cannot find task with name: ' + taskName)
-      }
+  const task = db.getTask(taskName)
+  if (!task) {
+    return Promise.reject('Cannot find task with name: ' + taskName)
+  }
+  return fs.readFile('app/task.handlebars', 'UTF-8')
+    .then(templateSource => {
       const template = handlebars.compile(templateSource)
       const taskContext = createHandlebarsTaskContext(task)
       return template(taskContext)

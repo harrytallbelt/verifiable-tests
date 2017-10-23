@@ -14,9 +14,8 @@ function convertToSimplifySyntax(predicates, requiredAxioms) {
   requiredAxioms = requiredAxioms || 0
   const axiomTriggers = getParsingFunctions(requiredAxioms)
   return getAxioms(requiredAxioms)
-    .then(axioms => axioms
-      .concat(predicates.map(p => convertToSimplifyPredicate(p, axiomTriggers)))
-      .join(' '))
+    .concat(predicates.map(p => convertToSimplifyPredicate(p, axiomTriggers)))
+    .join(' ')
 }
 
 function convertToSimplifyPredicate(predicate, axiomTriggers) {

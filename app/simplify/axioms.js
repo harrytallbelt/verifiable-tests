@@ -1,10 +1,8 @@
 const fs = require('promisify-node')('fs')
 
-// The object is initialized when the module is loaded.
-// It happens only once, so it is fine to use sync fs operation.
 // For each file axioms/axiom-name an enum entry Axioms.AXIOM_NAME
 // is created. The entries are placed in alphabetic order.
-let _axioms = {}
+const _axioms = {}
 fs.readdirSync('axioms')
   .filter(s => !s.endsWith('.js'))
   .map(toAxiomName)
@@ -26,32 +24,29 @@ const {
   convertToSimplifyVar
 } = require('./to-simplify-syntax')
 
-
+// We cache all the axiom definitions and triggers.
+const axiomsCache = {}
+Object.keys(Axioms).forEach(ax => {
+  const axFile = toFileName(ax)
+  axiomsCache[ax] = {
+    definition: fs.readFileSync(`axioms/${axFile}`, 'utf-8'),
+  }
+  if (fs.existsSync(`axioms/${axFile}.js`)) {
+    const t = require(`../../axioms/${axFile}.js`)
+    axiomsCache[ax].triggers = {
+      onPredicate: t.onPredicate || (() => null),
+      onIntegerExpression: t.onIntegerExpression || (() => null),
+      onVariable: t.onVariable || (() => null)
+    }
+  }
+})
 
 function getAxioms(axiomEnum) {
   if (hasUnknownEntries(axiomEnum)) {
-    return Promise.reject(new Error('A request for an unknown axiom.'))
+    throw new Error('A request for an unknown axiom.')
   }
   const keys = toAxiomList(axiomEnum)
-  return getAllAxioms()
-    .then(axioms => keys.map(key => axioms[key]))
-}
-
-let axiomCache = null
-function getAllAxioms() {
-  if (axiomCache) {
-    return Promise.resolve(axiomCache)
-  }
-  return Promise.all(Object.keys(Axioms)
-      .map(toFileName)
-      .sort()
-      .map(fname => fs.readFile(`axioms/${fname}`, 'utf-8')))
-    .then(axioms => {
-      axiomCache = {}
-      Object.keys(Axioms).sort()
-        .forEach((ax, i) => axiomCache[ax] = axioms[i])
-      return axiomCache
-    })
+  return keys.map(key => axiomsCache[key].definition)
 }
 
 function toAxiomList(axiomEnum) {
@@ -82,6 +77,11 @@ function toAxiomName(fileName) {
  * functions for an axiom set (either as an enum or a list).
  * @param axioms
  * Either enum or list of the required axiom's names.
+ * @returns
+ * An object with three functions:
+ * - onPredicate(predicate)
+ * - onIntegerExpression(expression)
+ * - onVariable(variable)
  */
 function getParsingFunctions(axioms) {
   if (Number.isInteger(axioms)) {
@@ -95,21 +95,13 @@ function getParsingFunctions(axioms) {
   const convertVar = v => convertToSimplifyVar(v, functions)
 
   functions = axioms
-    .map(toFileName)
-    .filter(ax => fs.existsSync(`axioms/${ax}.js`))
-    .map(ax => require(`../../axioms/${ax}.js`))
-    .map(mod => ({
-      onPredicate: p => mod.onPredicate
-        ? mod.onPredicate(p, convertPred, convertExpr, convertVar)
-        : null,
-      onIntegerExpression: e => mod.onIntegerExpression
-        ? mod.onIntegerExpression(e, convertPred, convertExpr, convertVar)
-        : null,
-      onVariable: v => mod.onVariable
-        ? mod.onVariable(v, convertPred, convertExpr, convertVar)
-        : null,
+    .map(ax => axiomsCache[ax].triggers)
+    .filter(t => !!t)
+    .map(t => ({
+      onPredicate: p => t.onPredicate(p, convertPred, convertExpr, convertVar),
+      onIntegerExpression: e => t.onIntegerExpression(e, convertPred, convertExpr, convertVar),
+      onVariable: v => t.onVariable(v, convertPred, convertExpr, convertVar)
     }))
 
   return functions
 }
-

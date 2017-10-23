@@ -5,18 +5,12 @@ const db = require('./db')
 const verify = require('./verification/verify')
 
 function getVerifiedTaskHtml(taskName, code) {
-  return db.getTask(taskName)
-    .then(task => {
-      if (task == null) {
-        throw new Error('Cannot find task with name: ' + taskName)
-      }
-      return Promise.all([
-        task,
-        verify(task, code),
-        fs.readFile('app/task.handlebars', 'UTF-8')
-      ])
-    })
-    .then(([task, verificationResults, templateSource]) => {
+  const task = db.getTask(taskName)
+  if (!task) {
+    return Promise.reject('Cannot find task with name: ' + taskName)
+  }
+  return Promise.all([verify(task, code), fs.readFile('app/task.handlebars', 'UTF-8')])
+    .then(([verificationResults, templateSource]) => {
       const template = handlebars.compile(templateSource)
       const taskContext = createHandlebarsTaskContext(task)
       const context = Object.assign({}, taskContext, {
@@ -26,7 +20,6 @@ function getVerifiedTaskHtml(taskName, code) {
       return template(context)
     })
 }
-
 
 function createHandlebarsTaskContext(task) {
   let taskContext = {
