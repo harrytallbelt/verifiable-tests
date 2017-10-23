@@ -68,9 +68,10 @@ function verify(task, code) {
 
   const spec = { precondition, postcondition, invariants, variants }
   const { predicates, context } = wp(spec, program)
+  
+  const simplifyPredicates = convertToSimplifySyntax(predicates, axioms)
 
-  return convertToSimplifySyntax(predicates, axioms)
-    .then(prove)
+  return prove(simplifyPredicates)
     .then(proofResults => {
       const errors = context
         .filter((_, i) => !proofResults[i])

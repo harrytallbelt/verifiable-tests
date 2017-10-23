@@ -1,2 +1,2 @@
-module.exports.getTasksList = require('./task-list')
-module.exports.getTask = require('./task')
+module.exports.getTask = require('./task').getTask
+module.exports.getTasks = require('./task').getTasks
