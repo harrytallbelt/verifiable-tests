@@ -134,7 +134,7 @@ There are several types of integer expressions.
 ```
 {
   type: 'var',
-  var: (<name>|<select>)
+  var: (<name> | <select>)
 }
 ```
 
@@ -164,6 +164,19 @@ There are three inreger binary operations:
   type: ('plus'|'minus'|'mult'),
   left: <int_expr>,
   right: <int_expr>
+}
+```
+
+### Shorthand Call
+
+Integer expression shorthand is a parametrised integer expression
+definition, used to shorten the expression it is used it.
+
+```
+{
+  type: 'call',
+  name: <string>,
+  args: [ (<store> | <int_expr>), ... , (<store> | <int_expr>) ]
 }
 ```
 

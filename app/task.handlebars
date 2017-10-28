@@ -36,6 +36,17 @@
         </tr>
       {{/each}}
     </table>
+    {{#if shorthands}}
+      <p>Shorthands used in specification:</p>
+      <table border="1">
+        {{#each shorthands}}
+        <tr>
+          <td><b><pre>{{declaration}}</pre></b></td>
+          <td><pre>{{definition}}</pre></td>
+        </tr>
+        {{/each}}
+      </table>
+    {{/if}}
     <form action="./{{name}}" method="POST">
       <input type="hidden" name="name" value="{{name}}" />
       <p>Input your program code into the text area below.</p>

@@ -1,13 +1,30 @@
 {
-    "name" : "example",             // (*) These are 
-    "description" : "lorem ipsum",  // (*) the only four
-    "precondition" : "T",           // (*) fields that
-    "postcondition" : "0 < x",      // (*) cannot be omitted.
-    "invariants" : [ "a + b = 0" /* , ... */ ],
-    "variants" : [ "a" /* , ... */ ],
-    "axioms" : [      // Some combination of the axioms in axioms/ folder:
-        "ARRAY_SUM",  // (file named axiom-name describes axiom AXIOM_NAME)
-        "ARRAY_PROD",
-        "MULT_COMMUT"
-    ]
+  "name" : "example",             // (*) These are 
+  "description" : "lorem ipsum",  // (*) the only four
+  "precondition" : "T",           // (*) fields that
+  "postcondition" : "0 < x",      // (*) cannot be omitted.
+  "invariants" : [ "equalArrays(a,b,0,n)" /* , ... */ ],
+  "variants" : [ "n - i" /* , ... */ ],
+  "axioms" : [      // Some combination of the axioms in axioms/ folder:
+    "ARRAY_SUM",  // (file named axiom-name describes axiom AXIOM_NAME)
+    "ARRAY_PROD",
+    "MULT_COMMUT"
+  ],
+  // You can use shorthands within other shorthands, but
+  // no recursion - direct or indirect - is allowed.
+  // Obscure error messanges await the trespassers.
+  // Feeding a shorthand with an integer expression, where
+  // it expects a variable (consider calling equalArrays(1, 2*k, n))
+  // will also produce an error. Less obscure, though.
+  // Also, a shorthand is either a predicate or an integer
+  // expression and should be used accordingly.
+  "shorthands": [
+    {
+      "name": "equalArrays",
+      "args": [ "a", "b", "from", "to" ],
+      // Define either a predicate or an integer expression.
+      "definition": "(A k : from <= k <= to : a[k] = b[k])"
+    }
+    /* , ... */
+  ]
 }

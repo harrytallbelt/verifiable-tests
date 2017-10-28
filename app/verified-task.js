@@ -3,6 +3,7 @@ const fs = promisify('fs')
 const handlebars = require('handlebars')
 const db = require('./db')
 const verify = require('./verification/verify')
+const createHandlebarsTaskContext = require('./hb-task-context')
 
 function getVerifiedTaskHtml(taskName, code) {
   const task = db.getTask(taskName)
@@ -19,21 +20,6 @@ function getVerifiedTaskHtml(taskName, code) {
       })
       return template(context)
     })
-}
-
-function createHandlebarsTaskContext(task) {
-  let taskContext = {
-    name: task.name,
-    description: task.description,
-    precondition: task.precondition,
-    postcondition: task.postcondition
-  }
-  if (task.invariants) {
-    taskContext.loops = task.invariants
-      .map((inv, i) =>
-        ({ invariant: inv, variant: task.variants[i] }))
-  }
-  return taskContext
 }
 
 module.exports = getVerifiedTaskHtml

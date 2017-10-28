@@ -2,6 +2,7 @@ const promisify = require('promisify-node')
 const fs = promisify('fs')
 const handlebars = require('handlebars')
 const db = require('./db')
+const createHandlebarsTaskContext = require('./hb-task-context')
 
 function getTaskHtml(taskName) {
   const task = db.getTask(taskName)
@@ -14,21 +15,6 @@ function getTaskHtml(taskName) {
       const taskContext = createHandlebarsTaskContext(task)
       return template(taskContext)
     })
-}
-
-function createHandlebarsTaskContext(task) {
-  let taskContext = {
-    name: task.name,
-    description: task.description,
-    precondition: task.precondition,
-    postcondition: task.postcondition
-  }
-  if (task.invariants) {
-    taskContext.loops = task.invariants
-      .map((inv, i) =>
-        ({ invariant: inv, variant: task.variants[i] }))
-  }
-  return taskContext
 }
 
 module.exports = getTaskHtml

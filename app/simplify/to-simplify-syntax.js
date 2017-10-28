@@ -25,7 +25,7 @@ function convertToSimplifyPredicate(predicate, axiomTriggers) {
   
   if (axiomTriggerResults.length > 1) {
     // TODO: or should we just log it and take the first result?
-    throw new Error('More then one axiom trigger is set by a predicate.')
+    throw new Error('More than one axiom trigger is set by a predicate.')
   }
   if (axiomTriggerResults.length === 1) {
     return axiomTriggerResults[0]
@@ -50,6 +50,12 @@ function convertToSimplifyPredicate(predicate, axiomTriggers) {
       const left = convertToSimplifyIntExpr(predicate.left, axiomTriggers)
       const right = convertToSimplifyIntExpr(predicate.right, axiomTriggers)
       return `(${op} ${left} ${right})`
+    }
+    case 'call': {
+      const args = predicate.args(arg => arg.type === 'store'
+        ? convertToSimplifyVar(arg, axiomTriggers)
+        : convertToSimplifyIntExpr(arg, axiomTriggers))
+      return `(${predicate.name} ${args.join(' ')})`
     }
     case 'perm': {                                  // TODO: the (probably) better way to 
       if (!(axioms & Axioms.ARRAY_PERM)) {          // implement this is via an axiom trigger
@@ -180,7 +186,7 @@ function convertToSimplifyIntExpr(intExpr, axiomTriggers) {
 
   if (axiomTriggerResults.length > 1) {
     // TODO: or should we just log it and take the first result?
-    throw new Error('More then one axiom trigger is set by an expression.')
+    throw new Error('More than one axiom trigger is set by an expression.')
   }
   if (axiomTriggerResults.length === 1) {
     return axiomTriggerResults[0]
@@ -200,6 +206,12 @@ function convertToSimplifyIntExpr(intExpr, axiomTriggers) {
       const left = convertToSimplifyIntExpr(intExpr.left, axiomTriggers)
       const right = convertToSimplifyIntExpr(intExpr.right, axiomTriggers)
       return `(${op} ${left} ${right})`
+    }
+    case 'call': {
+      const args = intExpr.args(arg => arg.type === 'store'
+        ? convertToSimplifyVar(arg, axiomTriggers)
+        : convertToSimplifyIntExpr(arg, axiomTriggers))
+      return `(${intExpr.name} ${args.join(' ')})`
     }
     case 'sum':
       throw new Error('No axiom trigger for sum.')
@@ -226,7 +238,7 @@ function convertToSimplifyVar(variable, axiomTriggers) {
 
   if (axiomTriggerResults.length > 1) {
     // TODO: or should we just log it and take the first result?
-    throw new Error('More then one axiom trigger is set by a variable.')
+    throw new Error('More than one axiom trigger is set by a variable.')
   }
   if (axiomTriggerResults.length === 1) {
     return axiomTriggerResults[0]

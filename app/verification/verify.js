@@ -1,10 +1,9 @@
-const assert = require('assert')
 const parsePseudocode = require('../pseudocode-parser')
-const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
-const { prove, convertToSimplifySyntax, Axioms, toAxiomEnum } = require('../simplify')
+const { prove, convertToSimplifySyntax } = require('../simplify')
 const wp = require('./wp')
 const convertWpContextToError = require('./wp-context-to-error')
 const { sum } = require('./utils')
+const { parseTask } = require('./parse-task')
 
 /* Given a task description object and a pseudocode program
  * source code, attemts to prove the program's validity.
@@ -13,7 +12,12 @@ const { sum } = require('./utils')
  *  - `postcondition`,
  *  - `invariants` (might be omited),
  *  - `variants` (might be omited),
- *  - `axioms` (might be omited).
+ *  - `axioms` (might be omited),
+ *  - `shorthands` (might be omited),
+ * where `shorthands` is an array of objects with fields:
+ *  - `name`,
+ *  - `args`,
+ *  - `definition`.
  * Returns a promise of an object with fields:
  *  - `parsingErrors`,
  *  - `semanticErrors`,
@@ -30,45 +34,19 @@ const { sum } = require('./utils')
  * Both `start` and `end` are objects with `row` and `col` fields.
 */
 function verify(task, code) {
-  const precondition = parsePredicate(task.precondition).predicate
-  const postcondition = parsePredicate(task.postcondition).predicate
-  const invariants = (task.invariants ? task.invariants : [])
-    .map(src => parsePredicate(src).predicate)
-  const variants = (task.variants ? task.variants : [])
-    .map(src => parseIntegerExpression(src).expression)
-  const axioms = toAxiomEnum(task.axioms ? task.axioms : [])
-  
-  let err = ''
-  if (!precondition)                         err += 'Invalid precondition. '
-  if (!postcondition)                        err += 'Invalid postcondition. '
-  if (invariants.some(inv => !inv))          err += 'Invalid invariants. '
-  if (variants.some(v => !v))                err += 'Invalid variants. '
-  if (variants.length !== invariants.length) err += 'Different number of variants and invariants. '
-  if (err) return Promise.reject(new Error(err))
-
+  const { spec, axioms, error } = parseTask(task)
+  if (error) {
+    return Promise.reject(error)
+  }
   const { errors, program } = parsePseudocode(code)
   if (errors.length > 0) {
     return Promise.resolve({ parsingErrors: errors, semanticErrors: null })
   }
-
-  const loopCount = countLoopsInCommandSeq(program.statements)
-  if (loopCount !== invariants.length) {
-    const error = {
-      message: `The specification suggests ${invariants.length} loops, while the program has ${loopCount}.`
-    }
-    if (program.statements.length > 0) {
-      error.start = program.statements[0].textRange.start
-      error.end = program.statements[program.statements.length - 1].textRange.end
-    } else {
-      error.start = { row: 0, col: 0 }
-      error.end = { row: 0, col: 0 }
-    }
-    return { parsingErrors: null, semanticErrors: [error] }
+  const loopNumberError = checkLoopNumberIsCorrect(program, spec.invariants.length)
+  if (loopNumberError) {
+    return Promise.resolve({ parsingErrors: null, semanticErrors: [loopNumberError] })
   }
-
-  const spec = { precondition, postcondition, invariants, variants }
   const { predicates, context } = wp(spec, program)
-  
   const simplifyPredicates = convertToSimplifySyntax(predicates, axioms)
 
   return prove(simplifyPredicates)
@@ -78,6 +56,26 @@ function verify(task, code) {
         .map(convertWpContextToError)
       return { parsingErrors: null, semanticErrors: errors }
     })
+}
+
+
+function checkLoopNumberIsCorrect(program, loopNumber) {
+  const actualLoopNumber = countLoopsInCommandSeq(program.statements)
+  if (actualLoopNumber === loopNumber) {
+    return null
+  }
+  const error = {
+    message: `The specification suggests ${loopNumber} loops, `
+            + `but the program has ${actualLoopNumber}.`
+  }
+  if (program.statements.length > 0) {
+    error.start = program.statements[0].textRange.start
+    error.end = program.statements[program.statements.length - 1].textRange.end
+  } else {
+    error.start = { row: 0, col: 0 }
+    error.end = { row: 0, col: 0 }
+  }
+  return { parsingErrors: null, semanticErrors: [error] }
 }
 
 function countLoopsInCommandSeq(commandSeq) {
