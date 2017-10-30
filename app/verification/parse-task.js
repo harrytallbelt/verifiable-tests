@@ -1,4 +1,3 @@
-const { toAxiomEnum } = require('../simplify')
 const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
 const { substitutePredicate, substituteIntExpr } = require('./substitution')
 const { allNamesInPredicate, allNamesInIntExpr } = require('./names-in-pred')
@@ -11,7 +10,7 @@ function parseTask(task) {
     .map(src => parsePredicate(src).predicate)
   let variants = (task.variants || [])
     .map(src => parseIntegerExpression(src).expression)
-  const axioms = toAxiomEnum(task.axioms || [])
+  const axioms = task.axioms || []
   
   let err = ''
   if (!precondition)                         err += 'Invalid precondition. '
@@ -139,13 +138,6 @@ function applyShorthandsToPredicate(predShs, exprShs, pred) {
         op: pred.op,
         left: applyShorthandsToIntExpr(predShs, exprShs, pred.left),
         right: applyShorthandsToIntExpr(predShs, exprShs, pred.right)
-      }
-    case 'perm':
-      return {
-        type: 'perm',
-        arr1: applyShorthandsToVariable(predShs, exprShs, pred.arr1),
-        arr2: applyShorthandsToVariable(predShs, exprShs, pred.arr2),
-        n: applyShorthandsToIntExpr(predShs, exprShs, pred.n)
       }
     case 'exists':
     case 'forall':

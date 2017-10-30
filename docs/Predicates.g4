@@ -7,7 +7,6 @@ predicate : NEGATION? (TRUE | FALSE)                                   # bool_co
           | vector_equality                                            # vector_eq_pred
           | ascending_chain_cmp                                        # asc_chain_pred
           | descending_chain_cmp                                       # desc_chain_pred
-          | perm                                                       # perm_pred
           | predicate '&&' predicate                                   # and_expr
           | predicate '||' predicate                                   # or_expr
           | predicate '=>' predicate                                   # implies_expr
@@ -18,14 +17,6 @@ predicate : NEGATION? (TRUE | FALSE)                                   # bool_co
 vector_equality : int_expr '=' int_expr                       # vector_eq_base
                 | int_expr ',' vector_equality ',' int_expr   # vector_eq_rec
                 ;
-
-perm : PERM '(' even_var_list ')'
-     | PERM '(' variable ',' variable ',' int_expr ')'
-     ;
-
-even_var_list : int_expr ',' int_expr                    # even_var_list_base
-              | int_expr ',' even_var_list ',' int_expr  # even_var_list_rec
-              ;
 
 shorthand : name '(' (/*no args*/ | int_expr (',' int_expr)*) ')' ;
 
@@ -64,7 +55,7 @@ selector : '[' int_expr ']' ;
 // TURE and FALSE are intentionally not used.
 // They actually might be, as the variables will only be used in place
 // of integer expressions, not booleans, but I think this would be too unnatural.
-name : EXISTS | FORALL | SUM | PROD | NUM | PERM | NAME ;
+name : EXISTS | FORALL | SUM | PROD | NUM | NAME ;
 
 LESS : '<' ;
 LESS_EQ : '<=' ;
@@ -77,8 +68,6 @@ EXISTS : 'E' ;
 SUM : 'SUM' ;
 PROD : 'PROD' ;
 NUM : 'N' ;
-
-PERM : 'perm' ;
 
 NEGATION : '~' ;
 

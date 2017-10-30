@@ -57,16 +57,11 @@ PredicateRepresentationBuilder.prototype.visitNeq = ctx => '<>'
 
 PredicateRepresentationBuilder.prototype.visitVector_eq_pred = function(ctx) {
   const { left, right } = this.visit(ctx.vector_equality())
-  return formVectorEqualityConjunction(left, right)
-}
-
-
-function formVectorEqualityConjunction(leftVars, rightVars) {
-  const conjuncts = leftVars.map((leftVar, i) => ({
+  const conjuncts = left.map((leftVar, i) => ({
     type: 'comp',
     op: '=',
     left: leftVar,
-    right: rightVars[i]
+    right: right[i]
   }))
   const conjunction = conjuncts.reduce((conj, res) => ({
     type: 'and',
@@ -145,68 +140,6 @@ PredicateRepresentationBuilder.prototype.visitDesc_chain_cmp_rec = function(ctx)
     right: this.visit(ctx.int_expr())
   }
   return { type: 'and', left: chain, right: cmp }
-}
-
-
-PredicateRepresentationBuilder.prototype.visitPerm_pred = function(ctx) {
-  return this.visit(ctx.perm())
-}
-
-
-PredicateRepresentationBuilder.prototype.visitPerm = function(ctx) {
-  if (ctx.even_var_list()) {
-    const { left, right } = this.visit(ctx.even_var_list())
-    const disjuncts = []
-    for (const rightPerm of generatePermutations(right)) {
-      const conj = formVectorEqualityConjunction(left, rightPerm)
-      disjuncts.push(conj)
-    }
-    const disjunction = disjuncts.reduce((disj, res) => ({
-      type: 'or',
-      left: disj,
-      right: res
-    }))
-    return disjunction
-  } else {
-    return {
-      type: 'perm',
-      arr1: this.visit(ctx.variable(0)),
-      arr2: this.visit(ctx.variable(1)),
-      n: this.visit(ctx.int_expr())
-    }
-  }
-}
-
-
-function* generatePermutations(list) {
-  if (list.length == 0) {
-    yield []
-    return
-  }
-  for (let i = 0; i < list.length; ++i) {
-    const sublist = list.slice(0,i).concat(list.slice(i+1))
-    const subpermutations = generatePermutations(sublist)
-    for (const subpermutation of subpermutations) {
-      subpermutation.push(list[i])
-      yield subpermutation
-    }
-  }
-}
-
-
-PredicateRepresentationBuilder.prototype.visitEven_var_list_base = function(ctx) {
-  return {
-    left: [this.visit(ctx.int_expr(0))],
-    right: [this.visit(ctx.int_expr(1))]
-  }
-}
-
-
-PredicateRepresentationBuilder.prototype.visitEven_var_list_rec = function(ctx) {
-  const inner = this.visit(ctx.even_var_list())
-  inner.left.unshift(this.visit(ctx.int_expr(0)))
-  inner.right.push(this.visit(ctx.int_expr(1)))
-  return inner
 }
 
 
@@ -380,7 +313,6 @@ PredicateRepresentationBuilder.prototype.visitName = function(ctx) {
   if (ctx.SUM())    return ctx.SUM().getText()
   if (ctx.PROD())   return ctx.PROD().getText()
   if (ctx.NUM())    return ctx.NUM().getText()
-  if (ctx.PERM())   return ctx.PERM().getText()
   throw new Error('visitName has exhausted all the options. Check if it is up to date with the grammar.')
 }
 
