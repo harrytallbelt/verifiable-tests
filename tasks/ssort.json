@@ -4,8 +4,8 @@
   "precondition" : "0 < N && n = N && (A qi : 0 <= qi < N : a[qi] = A[qi])",
   "postcondition" : "sorted(a,0,N-1) && perm(a,A,N)",
   "invariants" : [
-    "n = N && perm(a,A,N) && 0 <= i <= N-1 && sorted(a, 0, i-2) && (i > 0 => min(a, a[i-1], i, N-1))",
-    "n = N && perm(a,A,N) && 0 <= i < N-1 && i <= j <= N && i <= imin < N && min(a, a[imin], i, j-1) && sorted(a, 0, i-2) && (i > 0 => min(a, a[i-1], i, N-1))"
+    "n = N && perm(a,A,N) && 0 <= i <= N-1 && sorted(a, 0, i-1) && (i > 0 => min(a, a[i-1], i, N-1))",
+    "n = N && perm(a,A,N) && 0 <= i < N-1 && i <= j <= N && i <= imin < N && min(a, a[imin], i, j-1) && sorted(a, 0, i-1) && (i > 0 => min(a, a[i-1], i, N-1))"
   ],
   "variants" : [
     "N - 1 - i",
@@ -15,7 +15,7 @@
     {
       "name": "sorted",
       "args": ["arr", "from", "to"],
-      "definition": "(A k : 0 <= k <= to : arr[k] <= arr[k+1])"
+      "definition": "(A k : from <= k < to : arr[k] <= arr[k+1])"
     },
     {
       "name": "min",

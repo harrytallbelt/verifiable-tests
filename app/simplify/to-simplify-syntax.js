@@ -52,7 +52,7 @@ function convertToSimplifyPredicate(predicate, axiomTriggers) {
       return `(${op} ${left} ${right})`
     }
     case 'call': {
-      const args = predicate.args(arg => arg.type === 'store'
+      const args = predicate.args.map(arg => arg.type === 'store'
         ? convertToSimplifyVar(arg, axiomTriggers)
         : convertToSimplifyIntExpr(arg, axiomTriggers))
       return `(${predicate.name} ${args.join(' ')})`
@@ -208,7 +208,7 @@ function convertToSimplifyIntExpr(intExpr, axiomTriggers) {
       return `(${op} ${left} ${right})`
     }
     case 'call': {
-      const args = intExpr.args(arg => arg.type === 'store'
+      const args = intExpr.args.map(arg => arg.type === 'store'
         ? convertToSimplifyVar(arg, axiomTriggers)
         : convertToSimplifyIntExpr(arg, axiomTriggers))
       return `(${intExpr.name} ${args.join(' ')})`

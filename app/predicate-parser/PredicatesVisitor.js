@@ -168,6 +168,12 @@ PredicatesVisitor.prototype.visitAdd_expr = function(ctx) {
 };
 
 
+// Visit a parse tree produced by PredicatesParser#shorthand_expr.
+PredicatesVisitor.prototype.visitShorthand_expr = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by PredicatesParser#quantity_quantifier.
 PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
   return this.visitChildren(ctx);

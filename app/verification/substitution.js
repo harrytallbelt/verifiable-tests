@@ -28,7 +28,7 @@ function createUniqueNameGenerator(pred, expr, variable, names, substitutions) {
     : 0
   const maxNameLenInNames = Math.max(... names.map(n => n.name.length))
   const maxNameLenInExprs = Math.max(... substitutions
-    .map(e => isVariable(e) ? allNamesInVariable(e) : allNamesInIntExpr(e))
+    .map(e => e.type === 'store' ? allNamesInVariable(e) : allNamesInIntExpr(e))
     .map(ns => ns.map(n => n.length))
     .map(lens => Math.max(... lens)))
   
@@ -167,16 +167,16 @@ function substituteIntExprImpl(intExpr, names, substitutions, getUniqueName) {
 
 function substituteInArg(arg, names, substitutions) {
   if (arg.type === 'store') {
-    return substituteVariable(arg, names, substitutions)
+    return substituteVariableImpl(arg, names, substitutions)
   }
   try {
-    return substituteIntExpr(arg, names, substitutions)
+    return substituteIntExprImpl(arg, names, substitutions)
   }
   catch (err) {
     if (arg.type === 'var' && arg.var.type === 'name') {
       // We tried to substitute a name var by some map var, but
       // it didn't work, because it was wrapped in a var int expr.
-      return substituteVariable(arg.var, names, substitutions)
+      return substituteVariableImpl(arg.var, names, substitutions)
     }
     throw err
   }

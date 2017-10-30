@@ -2,6 +2,7 @@ const { toAxiomEnum } = require('../simplify')
 const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
 const { substitutePredicate, substituteIntExpr } = require('./substitution')
 const { allNamesInPredicate, allNamesInIntExpr } = require('./names-in-pred')
+const { arraysAreEqual } = require('./utils')
 
 function parseTask(task) {
   let precondition = parsePredicate(task.precondition).predicate
@@ -95,7 +96,9 @@ function parseShorthand(sh) {
       return null
     }
   }
-  if (namesInDefinition.some(name => args.all(arg => arg.name !== name))) {
+  const namesInArgs = args.map(arg => arg.name).sort()
+  namesInDefinition.sort()
+  if (!arraysAreEqual(namesInArgs, namesInDefinition)) {
     return null
   }
   return { name: sh.name, type, args, definition }
@@ -107,7 +110,9 @@ function applyShorthandsToPredicate(predShs, exprShs, pred) {
       const sh = predShs.find(sh => sh.name === pred.name)
       if (sh) {
         const resolvedArgs = pred.args
-          .map(arg => applyShorthandsToIntExpr(predShs, exprShs, arg))
+          .map(arg => arg.type === 'store'
+            ? applyShorthandsToVariable(predShs, exprShs, arg)
+            : applyShorthandsToIntExpr(predShs, exprShs, arg))
         return applyShorthandToPredicate(sh, resolvedArgs)
       }
       return pred
@@ -160,8 +165,10 @@ function applyShorthandsToIntExpr(predShs, exprShs, expr) {
     case 'call':{
       const sh = exprShs.find(sh => sh.name === expr.name)
       if (sh) {
-        const resolvedArgs = pred.args
-          .map(arg => applyShorthandsToIntExpr(predShs, exprShs, arg))
+        const resolvedArgs = expr.args
+          .map(arg => arg.type === 'store'
+            ? applyShorthandsToVariable(predShs, exprShs, arg)
+            : applyShorthandsToIntExpr(predShs, exprShs, arg))
         return applyShorthandToIntExpr(sh, resolvedArgs)
       }
       return expr

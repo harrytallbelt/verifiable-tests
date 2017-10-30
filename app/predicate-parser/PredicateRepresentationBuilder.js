@@ -26,11 +26,14 @@ PredicateRepresentationBuilder.prototype.visitParet_predicate = function(ctx) {
 }
 
 
-function adjustForBoolNegation(expr, ctx) {
-  if (ctx.NEGATION()) {
-    expr = { type: 'not', inner: expr }
-  }
-  return expr
+PredicateRepresentationBuilder.prototype.visitShorthand_pred = function(ctx) {
+  const pred = this.visit(ctx.shorthand())
+  return adjustForBoolNegation(pred, ctx)
+}
+
+
+function adjustForBoolNegation(pred, ctx) {
+  return ctx.NEGATION() ? { type: 'not', inner: pred } : pred
 }
 
 
@@ -207,16 +210,11 @@ PredicateRepresentationBuilder.prototype.visitEven_var_list_rec = function(ctx) 
 }
 
 
-PredicatesVisitor.prototype.visitShorthand_pred = function(ctx) {
-  return this.visit(ctx.shorthand())
-}
-
-
 PredicateRepresentationBuilder.prototype.visitShorthand = function(ctx) {
   return {
     type: 'call',
     name: this.visit(ctx.name()),
-    args: (ctx.int_expr() || []).map(this.visit)
+    args: (ctx.int_expr() || []).map(e => this.visit(e))
   }
 }
 
@@ -288,11 +286,14 @@ PredicateRepresentationBuilder.prototype.visitParet_int_expr = function(ctx) {
 }
 
 
+PredicateRepresentationBuilder.prototype.visitShorthand_expr = function(ctx) {
+  const expr = this.visit(ctx.shorthand())
+  return adjustForIntNegation(expr, ctx)
+}
+
+
 function adjustForIntNegation(expr, ctx) {
-  if (ctx.MINUS()) {
-    expr = { type: 'negate', inner: expr }
-  }
-  return expr
+  return ctx.MINUS() ? { type: 'negate', inner: expr } : expr
 }
 
 
@@ -380,7 +381,7 @@ PredicateRepresentationBuilder.prototype.visitName = function(ctx) {
   if (ctx.PROD())   return ctx.PROD().getText()
   if (ctx.NUM())    return ctx.NUM().getText()
   if (ctx.PERM())   return ctx.PERM().getText()
-  assert(false, 'visitName has exhausted all the options. Check if it is up to date with the grammar.')
+  throw new Error('visitName has exhausted all the options. Check if it is up to date with the grammar.')
 }
 
 

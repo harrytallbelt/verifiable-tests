@@ -26,13 +26,13 @@
     },
     {
       "name": "rowsDone",
-      "args": ["m1", "m2", "res", "rows", "cols", "intrmSize"],
+      "args": ["m1", "m2", "res", "rows", "cols", "intermSize"],
       "definition": "(A i : 0 <= i < rows : rowProgress(m1, m2, res, i, cols, intermSize))"
     },
     {
       "name": "rowProgress",
-      "args": ["m1", "m2", "res", "row", "cols", "intrmSize"],
-      "definition": "(A col : 0 <= col < cols : res[row][col] = rowOnCol(m1, m2, row, col, intrmSize))"
+      "args": ["m1", "m2", "res", "row", "cols", "intermSize"],
+      "definition": "(A col : 0 <= col < cols : res[row][col] = rowOnCol(m1, m2, row, col, intermSize))"
     },
     {
       "name": "rowOnCol",

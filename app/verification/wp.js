@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { findLastIndex, flatten } = require('./utils')
+const { flatten } = require('./utils')
 const { substitutePredicate } = require('./substitution')
 
 /* Processes program and specification to get
@@ -10,8 +10,8 @@ const { substitutePredicate } = require('./substitution')
  * `spec` is an object, that contains fields
  *  - `precondition` with precondition predicate,
  *  - `postcondition` with postcondition predicate,
- *  - `invariants` with list of loop invariants (may be ommited),
- *  - `variants` with list of loop variants (bound functions) (may be ommited).
+ *  - `invariants` with list of loop invariants (may be omitted),
+ *  - `variants` with list of loop variants (bound functions) (may be omitted).
  * `context` field is used by WP to propagate context through recursive calls.
  * You don't need to specify it.
  * WP returns an object of two fields:

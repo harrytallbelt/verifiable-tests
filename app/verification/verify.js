@@ -10,10 +10,10 @@ const { parseTask } = require('./parse-task')
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
- *  - `invariants` (might be omited),
- *  - `variants` (might be omited),
- *  - `axioms` (might be omited),
- *  - `shorthands` (might be omited),
+ *  - `invariants` (might be omitted),
+ *  - `variants` (might be omitted),
+ *  - `axioms` (might be omitted),
+ *  - `shorthands` (might be omitted),
  * where `shorthands` is an array of objects with fields:
  *  - `name`,
  *  - `args`,
@@ -75,7 +75,7 @@ function checkLoopNumberIsCorrect(program, loopNumber) {
     error.start = { row: 0, col: 0 }
     error.end = { row: 0, col: 0 }
   }
-  return { parsingErrors: null, semanticErrors: [error] }
+  return error
 }
 
 function countLoopsInCommandSeq(commandSeq) {

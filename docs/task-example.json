@@ -10,14 +10,15 @@
     "ARRAY_PROD",
     "MULT_COMMUT"
   ],
-  // You can use shorthands within other shorthands, but
-  // no recursion - direct or indirect - is allowed.
-  // Obscure error messanges await the trespassers.
-  // Feeding a shorthand with an integer expression, where
-  // it expects a variable (consider calling equalArrays(1, 2*k, n))
-  // will also produce an error. Less obscure, though.
-  // Also, a shorthand is either a predicate or an integer
-  // expression and should be used accordingly.
+  // Using shorthands, remember the main causes of errors:
+  // - Shorthands can be used within other shorthands,
+  //   as long as it doesn't result in (direct or indirect)
+  //   recursive calls.
+  // - Feeding a shorthand with an integer expression, where
+  //   it expects a variable (consider calling
+  //   equalArrays(1, 2*k, n)) is forbidden too.
+  // - A shorthand is either for a predicate or an integer
+  //   expression and should be used in spec accordingly.
   "shorthands": [
     {
       "name": "equalArrays",
