@@ -1,4 +1,3 @@
-const { toAxiomEnum } = require('../simplify')
 const { parsePredicate, parseIntegerExpression } = require('../predicate-parser')
 const { substitutePredicate, substituteIntExpr } = require('./substitution')
 const { allNamesInPredicate, allNamesInIntExpr } = require('./names-in-pred')
@@ -11,7 +10,7 @@ function parseTask(task) {
     .map(src => parsePredicate(src).predicate)
   let variants = (task.variants || [])
     .map(src => parseIntegerExpression(src).expression)
-  const axioms = toAxiomEnum(task.axioms || [])
+  const axioms = task.axioms || []
   
   let err = ''
   if (!precondition)                         err += 'Invalid precondition. '

@@ -5,13 +5,13 @@ module.exports.convertToSimplifyPredicate = convertToSimplifyPredicate
 module.exports.convertToSimplifyIntExpr = convertToSimplifyIntExpr
 module.exports.convertToSimplifyVar = convertToSimplifyVar
 
-const { Axioms, getAxioms, getParsingFunctions } = require('./axioms')
+const { getAxioms, getParsingFunctions } = require('./axioms')
 
 /* `requiredAxioms` is an optional argument, which
- * is a bitwise-or combination of used axioms from `Axiom` enum.
+ * is a list of the used axioms' names.
 */
 function convertToSimplifySyntax(predicates, requiredAxioms) {
-  requiredAxioms = requiredAxioms || 0
+  requiredAxioms = requiredAxioms || []
   const axiomTriggers = getParsingFunctions(requiredAxioms)
   return getAxioms(requiredAxioms)
     .concat(predicates.map(p => convertToSimplifyPredicate(p, axiomTriggers)))
