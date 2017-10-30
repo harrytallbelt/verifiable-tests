@@ -69,11 +69,6 @@ function allNamesInPredicateImpl(pred, options) {
       }
       return names
     }
-    case 'perm':
-      return Object.assign(
-        allNamesInVariableImpl(pred.arr1, options),
-        allNamesInVariableImpl(pred.arr2, options),
-        allNamesInIntExprImpl(pred.n, options))
     case 'exists':
     case 'forall':{
       const names = Object.assign(

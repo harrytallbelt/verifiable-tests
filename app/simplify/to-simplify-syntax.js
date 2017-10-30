@@ -57,15 +57,6 @@ function convertToSimplifyPredicate(predicate, axiomTriggers) {
         : convertToSimplifyIntExpr(arg, axiomTriggers))
       return `(${predicate.name} ${args.join(' ')})`
     }
-    case 'perm': {                                  // TODO: the (probably) better way to 
-      if (!(axioms & Axioms.ARRAY_PERM)) {          // implement this is via an axiom trigger
-        throw new Error('No axiom for array permutation predicate.')
-      }
-      const arr1 = convertToSimplifyVar(predicate.arr1, axiomTriggers)
-      const arr2 = convertToSimplifyVar(predicate.arr2, axiomTriggers)
-      const n = convertToSimplifyIntExpr(predicate.n, axiomTriggers)
-      return `(perm ${arr1} ${arr2} ${n})`
-    }
     case 'exists': {
       const boundVar = convertToSimplifyVar(predicate.boundVar, axiomTriggers)
       const condition = convertToSimplifyPredicate(predicate.condition, axiomTriggers)
@@ -121,14 +112,14 @@ function findSelectInPred(pred, varName) {
     case 'comp':
       return findSelectInIntExpr(pred.left, varName)
         || findSelectInIntExpr(pred.right, varName)
-    case 'perm':
-      return  findSelectInVar(pred.arr1, varName)
-        || findSelectInVar(pred.arr2, varName)
-        || findSelectInIntExpr(pred.n, varName)
     case 'not':
     case 'forall':
     case 'exists':
       return findSelectInPred(pred.inner, varName)
+    case 'call':
+      return pred.args.reduce((res, arg) => res || (arg.type === 'store'
+        ? findSelectInVar(arg)
+        : findSelectInIntExpr(arg)), null)
     default:
       throw new Error(`Unsupported predicate type '${predicate.type}'.`)
   }
@@ -149,6 +140,10 @@ function findSelectInIntExpr(expr, varName) {
     case 'sum':
     case 'prod':
       return findSelectInIntExpr(expr.inner, varName)
+    case 'call':
+      return expr.args.reduce((res, arg) => res || (arg.type === 'store'
+        ? findSelectInVar(arg)
+        : findSelectInIntExpr(arg)), null)
     default:
       throw new Error(`Unsupported integer expression type '${intExpr.type}'.`)
   }

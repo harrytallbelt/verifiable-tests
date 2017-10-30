@@ -140,13 +140,6 @@ function applyShorthandsToPredicate(predShs, exprShs, pred) {
         left: applyShorthandsToIntExpr(predShs, exprShs, pred.left),
         right: applyShorthandsToIntExpr(predShs, exprShs, pred.right)
       }
-    case 'perm':
-      return {
-        type: 'perm',
-        arr1: applyShorthandsToVariable(predShs, exprShs, pred.arr1),
-        arr2: applyShorthandsToVariable(predShs, exprShs, pred.arr2),
-        n: applyShorthandsToIntExpr(predShs, exprShs, pred.n)
-      }
     case 'exists':
     case 'forall':
       return {

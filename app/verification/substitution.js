@@ -74,13 +74,6 @@ function substitutePredicateImpl(pred, names, substitutions, getUniqueName) {
         name: pred.name,
         args: pred.args.map(arg => substituteInArg(arg, names, substitutions))
       }
-    case 'perm':
-      return {
-        type: 'perm',
-        arr1: substituteVariableImpl(pred.arr1, names, substitutions, getUniqueName),
-        arr2: substituteVariableImpl(pred.arr2, names, substitutions, getUniqueName),
-        n: substituteIntExprImpl(pred.n, names, substitutions, getUniqueName)
-      }
     case 'exists':
     case 'forall': {
       const uniqueBoundVar = { type: 'name', name: getUniqueName() }
