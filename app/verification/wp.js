@@ -1,5 +1,6 @@
 const assert = require('assert')
-const { findLastIndex, flatten } = require('./utils')
+const { flatten } = require('./utils')
+const { substitutePredicate } = require('./substitution')
 
 /* Processes program and specification to get
  * the list of predicates, prooving which will
@@ -9,8 +10,8 @@ const { findLastIndex, flatten } = require('./utils')
  * `spec` is an object, that contains fields
  *  - `precondition` with precondition predicate,
  *  - `postcondition` with postcondition predicate,
- *  - `invariants` with list of loop invariants (may be ommited),
- *  - `variants` with list of loop variants (bound functions) (may be ommited).
+ *  - `invariants` with list of loop invariants (may be omitted),
+ *  - `variants` with list of loop variants (bound functions) (may be omitted).
  * `context` field is used by WP to propagate context through recursive calls.
  * You don't need to specify it.
  * WP returns an object of two fields:
@@ -326,159 +327,6 @@ function elementarySequenceWp(Q, S, R, context) {
   return {
     predicates: [implication],
     context: [newContext]
-  }
-}
-
-
-/* Substitutes variables from `names` by
- * expressions from `exprs` in predicate `pred`
- * and returns the result predicate.
-*/
-function substitutePredicate(pred, names, exprs) {
-  switch (pred.type) {
-    case 'const':
-      return pred
-    case 'not':
-      return {
-        type: pred.type,
-        inner: substitutePredicate(pred.inner, names, exprs)
-      }
-    case 'or':
-    case 'implies':
-    case 'iff':
-    case 'and':
-      return {
-        type: pred.type,
-        left: substitutePredicate(pred.left, names, exprs),
-        right: substitutePredicate(pred.right, names, exprs)
-      }
-    case 'comp':
-      return {
-        type: pred.type,
-        op: pred.op,
-        left: substituteIntExpr(pred.left, names, exprs),
-        right: substituteIntExpr(pred.right, names, exprs)
-      }
-    case 'perm':
-      return {
-        type: 'perm',
-        arr1: substituteVariable(pred.arr1, names, exprs),
-        arr2: substituteVariable(pred.arr2, names, exprs),
-        n: substituteIntExpr(pred.n, names, exprs)
-      }
-    case 'exists':
-    case 'forall': {
-      const { filteredNames, filteredExprs } =
-        filterSubstitutionsForQuantifier(pred, names, exprs)
-      return {
-        type: pred.type,
-        boundVar: pred.boundVar,
-        condition: substitutePredicate(pred.condition, filteredNames, filteredExprs),
-        inner: substitutePredicate(pred.inner, filteredNames, filteredExprs)
-      }
-    }
-    default:
-      throw new Error(`WP error: unknown predicate type: ${pred.type}.`)
-  }
-}
-
-
-function substituteIntExpr(intExpr, names, exprs) {
-  switch (intExpr.type) {
-    case 'const':
-      return intExpr
-
-    case 'var':
-      let newValue = substituteVariable(intExpr.var, names, exprs)
-
-      // `substituteVariable` sometimes returns an integer expression
-      // and sometimes a variable. In the second case, the variables should
-      // be wrapped in a 'var' integer expression node before proceeding.
-      // This is the right place to do this, because `substituteVariable`
-      // is recursive, so its result sometimes has to be just a variable.
-      if (newValue.type === 'name'
-       || newValue.type === 'select'
-       || newValue.type === 'store')
-      {
-        newValue = { type: 'var', var: newValue }
-      }
-      return newValue
-
-    case 'negate':
-      return {
-        type: intExpr.type,
-        inner: substituteIntExpr(intExpr.inner, names, exprs)
-      }
-
-    case 'plus':
-    case 'minus':
-    case 'mult':
-      return {
-        type: intExpr.type,
-        left: substituteIntExpr(intExpr.left, names, exprs),
-        right: substituteIntExpr(intExpr.right, names, exprs)
-      }
-
-    case 'sum':
-    case 'prod': {
-      const { filteredNames, filteredExprs } =
-        filterSubstitutionsForQuantifier(intExpr, names, exprs)
-      return {
-        type: intExpr.type,
-        boundVar: intExpr.boundVar,
-        condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
-        inner: substituteIntExpr(intExpr.inner, filteredNames, filteredExprs)
-      }
-    }
-    case 'count': {
-      const { filteredNames, filteredExprs } =
-        filterSubstitutionsForQuantifier(intExpr, names, exprs)
-      return {
-        type: intExpr.type,
-        boundVar: intExpr.boundVar,
-        condition: substitutePredicate(intExpr.condition, filteredNames, filteredExprs),
-        inner: substitutePredicate(intExpr.inner, filteredNames, filteredExprs)
-      }
-    }
-    default:
-     throw new Error(`WP error: unknown integer expression type: ${intExpr.type}.`)
-  }
-}
-
-function filterSubstitutionsForQuantifier(quantifier, names, exprs) {
-  const pairs = names.map((name, i) => ({ var: name, expr: exprs[i] }))
-  const filteredPairs = pairs.filter(pair => quantifier.boundVar.name !== pair.var.name)
-  return {
-    filteredNames: filteredPairs.map(p => p.var),
-    filteredExprs: filteredPairs.map(p => p.expr)
-  }
-}
-
-function substituteVariable(variable, names, exprs) {
-  switch (variable.type) {
-    case 'name':
-      const nameIndex = names.findIndex(n => n.name === variable.name)
-      return nameIndex < 0 ? variable : exprs[nameIndex]
-
-    case 'select':
-      return {
-        type: 'select',
-        base: substituteVariable(variable.base, names, exprs),
-        selector: substituteIntExpr(variable.selector, names, exprs)
-      }
-
-    case 'store':
-      return {
-        type: 'store',
-        base: substituteVariable(variable.base, names, exprs),
-        selector: substituteIntExpr(variable.selector, names, exprs),
-        value: variable.value.type === 'store'
-          ? substituteVariable(variable.value, names, exprs)
-          : substituteIntExpr(variable.value, names, exprs)
-      }
-
-    default:
-      throw new Error(`WP error: unknown variable type: ${variable.type}.`)
   }
 }
 

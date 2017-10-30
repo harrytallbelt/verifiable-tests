@@ -1,15 +1,27 @@
 {
   "name" : "ssort",
-  "description" : "The program should sort the array a in nondecreasing order.",
+  "description" : "The program should sort the array a in nondecreasing order, where perm(a,b,n) means that the array a[0:n-1] is a permutation of the array b[0:n-1].",
   "precondition" : "0 < N && n = N && (A qi : 0 <= qi < N : a[qi] = A[qi])",
-  "postcondition" : "(A i : 0 <= i < N-1 : a[i] <= a[i+1]) && perm(a,A,N)",
+  "postcondition" : "sorted(a,0,N-1) && perm(a,A,N)",
   "invariants" : [
-    "n = N && perm(a,A,N) && 0 <= i <= N-1 && (A qi : 0 <= qi < i-1 : a[qi] <= a[qi+1]) && (i > 0 => (A qi : i <= qi < N : a[i-1] <= a[qi]))",
-    "n = N && perm(a,A,N) && 0 <= i < N-1 && i <= j <= N && i <= imin < N && (A qi : i <= qi < j : a[imin] <= a[qi]) && (A qi : 0 <= qi < i-1 : a[qi] <= a[qi+1]) && (i > 0 => (A qi : i <= qi < N : a[i-1] <= a[qi]))"
+    "n = N && perm(a,A,N) && 0 <= i <= N-1 && sorted(a, 0, i-1) && (i > 0 => min(a, a[i-1], i, N-1))",
+    "n = N && perm(a,A,N) && 0 <= i < N-1 && i <= j <= N && i <= imin < N && min(a, a[imin], i, j-1) && sorted(a, 0, i-1) && (i > 0 => min(a, a[i-1], i, N-1))"
   ],
   "variants" : [
     "N - 1 - i",
     "N - j"
+  ],
+  "shorthands": [
+    {
+      "name": "sorted",
+      "args": ["arr", "from", "to"],
+      "definition": "(A k : from <= k < to : arr[k] <= arr[k+1])"
+    },
+    {
+      "name": "min",
+      "args": ["arr", "m", "from", "to"],
+      "definition": "(A k : from <= k <= to : m <= arr[k])"
+    }
   ],
   "axioms" : ["ARRAY_PERM"]
 }

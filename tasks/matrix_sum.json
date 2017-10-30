@@ -1,15 +1,37 @@
 {
   "name" : "matrix_sum",
   "description" : "The program should compute the sum of all the elements of matrix a and store it in s.",
-  "precondition" : "n = N && m = M && 0 <= N && 0 <= M && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))",
-  "postcondition" : "s = (SUM qi : 0 <= qi < N : (SUM qj : 0 <= qj < M : A[qi][qj]))",
+  "precondition" : "0 <= N && 0 <= M && fixVars(a,n,m,A,N,M)",
+  "postcondition" : "s = rowsSum(A,N,M)",
   "invariants" : [
-    "n = N && m = M && 0 <= M && 0 <= i <= N && s = (SUM qi : 0 <= qi < i : (SUM qj : 0 <= qj < M : A[qi][qj])) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))",
-    "n = N && m = M && 0 <= i < N && 0 <= j <= M && s = (SUM qi : 0 <= qi < i : (SUM qj : 0 <= qj < M : A[qi][qj])) + (SUM qj : 0 <= qj < j : A[i][qj]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj]))"
+    "0 <= M && 0 <= i <= N && s = rowsSum(A,i,M) && fixVars(a,n,m,A,N,M)",
+    "0 <= i < N && 0 <= j <= M && s = rowsSum(A,i,M) + rowSum(A,i,j) && fixVars(a,n,m,A,N,M)"
   ],
   "variants" : [
     "N - i",
     "M - j"
+  ],
+  "shorthands": [
+    {
+      "name": "fixVars",
+      "args": ["a", "n", "m", "A", "N", "M"],
+      "definition": "n, m = N, M && eqMatr(a,A,N,M)"
+    },
+    {
+      "name": "eqMatr",
+      "args": ["m1", "m2", "rows", "cols"],
+      "definition": "(A i : 0 <= i < rows : (A j : 0 <= j < cols : m1[i][j] = m2[i][j]))"
+    },
+    {
+      "name": "rowsSum",
+      "args": ["m", "rows", "cols"],
+      "definition": "(SUM row : 0 <= row < rows : rowSum(m, row, cols))"
+    },
+    {
+      "name": "rowSum",
+      "args": ["m", "row", "cols"],
+      "definition": "(SUM col : 0 <= col < cols : m[row][col])"
+    }
   ],
   "axioms": ["MATRIX_SUM", "ARRAY_SUM"]
 }

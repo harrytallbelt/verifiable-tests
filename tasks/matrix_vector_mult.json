@@ -1,15 +1,42 @@
 {
   "name" : "matrix_vector_mult",
   "description" : "The program should multiply matrix A by vector x and save the result vector y.",
-  "precondition" : "0 < N && 0 < M && n = N && m = M && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])",
-  "postcondition" : "(A i : 0 <= i < N : y[i] = (SUM j : 0 <= j < M : A[i][j] * X[j]))",
+  "precondition" : "0 < N && 0 < M && fixVars(a,x,m,n,A,X,M,N)",
+  "postcondition" : "matrixOnVec(A, X, y, N, M)",
   "invariants" : [
-    "n = N && m = M && 0 < M && 0 <= i <= N && (A qi : 0 <= qi < i : y[qi] = (SUM qj : 0 <= qj < M : A[qi][qj] * X[qj])) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])",
-    "n = N && m = M && 0 < M && 0 <= i < N && 0 <= j <= M && (A qi : 0 <= qi < i : y[qi] = (SUM qj : 0 <= qj < M : A[qi][qj] * X[qj])) && y[i] = (SUM qj : 0 <= qj < j : A[i][qj] * X[qj]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : a[qi][qj] = A[qi][qj])) && (A qj : 0 <= qj < M : x[qj] = X[qj])"
+    "0 < M && 0 <= i <= N && matrixOnVec(A,X,y,i,M) && fixVars(a,x,m,n,A,X,M,N)",
+    "0 < M && 0 <= i < N && 0 <= j <= M && matrixOnVec(A,X,y,i,M) && y[i] = rowOnVec(A,X,i,j) && fixVars(a,x,m,n,A,X,M,N)"
   ],
   "variants" : [
     "N - i",
     "M - j"
+  ],
+  "shorthands": [
+    {
+      "name": "fixVars",
+      "args": ["a", "x", "m", "n", "A", "X", "M", "N"],
+      "definition": "n,m = N,M && eqMatr(a,A,N,M) && eqArrs(x,X,M)"
+    },
+    {
+      "name": "eqMatr",
+      "args": ["m1", "m2", "rows", "cols"],
+      "definition": "(A i : 0 <= i < rows : eqArrs(m1[i],m2[i],cols))"
+    },
+    {
+      "name": "eqArrs",
+      "args": ["arr1", "arr2", "len"],
+      "definition": "(A k : 0 <= k < len : arr1[k] = arr2[k])"
+    },
+    {
+      "name": "matrixOnVec",
+      "args": ["m", "v", "res", "rows", "cols"],
+      "definition": "(A row : 0 <= row < rows : res[row] = rowOnVec(m, v, row, cols))"
+    },
+    {
+      "name": "rowOnVec",
+      "args": ["m", "v", "row", "to"],
+      "definition": "(SUM k : 0 <= k < to : m[row][k] * v[k])"
+    }
   ],
   "axioms" : ["ROW_ON_VEC_DOTPROD", "MULT_COMMUT"]
 }

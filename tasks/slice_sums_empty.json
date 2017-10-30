@@ -1,9 +1,21 @@
 {
     "name" : "slice sums (with empty array)",
     "description" : "The program should assign to each of the array elements the sum of this element and all the previous elements.",
-    "precondition" : "N >= 0 && n = N && (A k : 0 <= k < N : b[k] = B[k])",
-    "postcondition" : "(A k : 0 <= k < N : b[k] = (SUM k : 0 <= j <= k : B[j]))",
-    "invariants" : [ "1 <= i <= N && n = N && (A k : 0 <= k < i : b[k] = (SUM k : 0 <= j <= k : B[j])) && (A k : i <= k < N : b[k] = B[k])" ],
+    "precondition" : "N >= 0 && n = N && eqArrs(b, B, 0, N-1)",
+    "postcondition" : "(A k : 0 <= k < N : b[k] = sumUpTo(B,k))",
+    "invariants" : [ "1 <= i <= N && n = N && (A k : 0 <= k < i : b[k] = sumUpTo(B,k)) && eqArrs(b, B, i, N-1)" ],
     "variants" : [ "N - i" ],
+    "shorthands": [
+        {
+            "name": "eqArrs",
+            "args": ["arr1", "arr2", "from", "to"],
+            "definition": "(A k : from <= k <= to : arr1[k] = arr2[k])"
+        },
+        {
+            "name": "sumUpTo",
+            "args": ["arr", "to"],
+            "definition": "(SUM k : 0 <= k <= to : arr[k])"
+        }
+    ],
     "axioms" : [ "ARRAY_SUM" ]
 }

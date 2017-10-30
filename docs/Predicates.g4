@@ -7,6 +7,7 @@ predicate : NEGATION? (TRUE | FALSE)                                   # bool_co
           | ascending_chain_cmp                                        # asc_chain_pred
           | descending_chain_cmp                                       # desc_chain_pred
           | perm                                                       # perm_pred
+          | shorthand                                                  # shorthand_pred
           | predicate '&&' predicate                                   # and_expr
           | predicate '||' predicate                                   # or_expr
           | predicate '=>' predicate                                   # implies_expr
@@ -25,6 +26,8 @@ perm : PERM '(' even_var_list ')'
 even_var_list : int_expr ',' int_expr                    # even_var_list_base
               | int_expr ',' even_var_list ',' int_expr  # even_var_list_rec
               ;
+
+shorthand : name '(' (/*no args*/ | int_expr (',' int_expr)*) ')' ;
 
 ascending_chain_cmp : int_expr (LESS | LESS_EQ) int_expr            # asc_chain_cmp_base
                     | ascending_chain_cmp (LESS | LESS_EQ) int_expr # asc_chain_cmp_rec

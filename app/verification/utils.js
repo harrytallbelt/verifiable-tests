@@ -1,15 +1,6 @@
 // If you ever find yourself adding 10th
 // function here, consider using lodash instead.
 
-function findLastIndex(arr, predicate) {
-  for (let i = arr.length - 1; i >= 0; --i) {
-    if (predicate(arr[i], i, arr)) {
-      return i
-    }
-  }
-  return -1
-}
-
 function flatten(arr) {
   return arr.reduce((acc, itemOrArr) => acc.concat(itemOrArr), [])
 }
@@ -18,6 +9,12 @@ function sum(arr) {
   return arr.reduce((sum, n) => sum + n, 0)
 }
 
-module.exports.findLastIndex = findLastIndex
+function arraysAreEqual(a, b) {
+  return a != null && b != null
+    && a.length === b.length
+    && a.every((a_i, i) => a_i === b[i])
+}
+
+module.exports.arraysAreEqual = arraysAreEqual
 module.exports.flatten = flatten
 module.exports.sum = sum

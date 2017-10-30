@@ -2,6 +2,7 @@ grammar Predicates;
 
 predicate : NEGATION? (TRUE | FALSE)                                   # bool_const_expr
           | NEGATION? '(' predicate ')'                                # paret_predicate
+          | NEGATION? shorthand                                        # shorthand_pred
           | int_expr comparison_op int_expr                            # comparison_expr
           | vector_equality                                            # vector_eq_pred
           | ascending_chain_cmp                                        # asc_chain_pred
@@ -26,6 +27,8 @@ even_var_list : int_expr ',' int_expr                    # even_var_list_base
               | int_expr ',' even_var_list ',' int_expr  # even_var_list_rec
               ;
 
+shorthand : name '(' (/*no args*/ | int_expr (',' int_expr)*) ')' ;
+
 ascending_chain_cmp : int_expr (LESS | LESS_EQ) int_expr            # asc_chain_cmp_base
                     | ascending_chain_cmp (LESS | LESS_EQ) int_expr # asc_chain_cmp_rec
                     ;
@@ -37,6 +40,7 @@ descending_chain_cmp : int_expr (GREATER | GREATER_EQ) int_expr             # de
 int_expr : MINUS? INT                                                   # int_const_expr
          | MINUS? variable                                              # variable_expr
          | MINUS? '(' int_expr ')'                                      # paret_int_expr
+         | MINUS? shorthand                                             # shorthand_expr
          | MINUS? '(' (SUM | PROD) name ':' predicate ':' int_expr ')'  # sum_prod_quantifier
          | MINUS? '(' NUM name ':' predicate ':' predicate ')'          # quantity_quantifier
          | int_expr '*' int_expr                                        # mult_expr

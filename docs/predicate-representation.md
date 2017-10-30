@@ -32,7 +32,7 @@ There is only one unary operator, boolean negation.
 
 ## Binary Operators
 
-There are three binary operators:
+There are four binary operators:
 - conjunction,
 - disjuntion,
 - implication,
@@ -67,6 +67,19 @@ Comparisons state one of six relations:
 
 To read more about integer expressions,
 see [program representation docs](./program-representation.md).
+
+## Shorthand Call
+
+Predicate shorthand is a parametrised predicate definition,
+used to shorten the predicate it is used in.
+
+```
+{
+  type: 'call',
+  name: <string>,
+  args: [ (<store> | <int_expr>), ... , (<store> | <int_expr>) ]
+}
+```
 
 ## Array Permutation Predicate
 

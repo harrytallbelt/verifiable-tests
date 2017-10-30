@@ -1,14 +1,36 @@
 {
   "name" : "matrix_search",
   "description" : "The program should either set i and j to the index of x in b or, if x isn't in b, set i to n.",
-  "precondition" : "n = N && m = M && x = X && 0 <= N && 0 <= M && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))",
-  "postcondition" : "0 <= i < N && 0 <= j < M && B[i][j] = X || i = N && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : X <> B[qi][qj]))",
+  "precondition" : "0 <= N && 0 <= M && fixVars(b,n,m,x,B,N,M,X)",
+  "postcondition" : "0 <= i < N && 0 <= j < M && B[i][j] = X || i = N && isNotInRows(X,B,M,N)",
   "invariants" : [
-    "n = N && m = M && x = X && 0 <= M && (0 <= i < N && 0 <= j < M && f = 1 && B[i][j] = X || 0 <= i <= n && f = 0 && (A qi : 0 <= qi < i : (A qj : 0 <= qj < M : X <> B[qi][qj]))) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))",
-    "n = N && m = M && x = X && 0 <= i < N && 0 <= j <= M && f = 0 && (A qi : 0 <= qi < i : (A qj : 0 <= qj < M : X <> B[qi][qj])) && (A qj : 0 <= qj < j : X <> B[i][qj]) && (A qi : 0 <= qi < N : (A qj : 0 <= qj < M : b[qi][qj] = B[qi][qj]))"
+    "0 <= M && (0 <= i < N && 0 <= j < M && f = 1 && B[i][j] = X || 0 <= i <= n && f = 0 && isNotInRows(X,B,M,i)) && fixVars(b,n,m,x,B,N,M,X)",
+    "0 <= i < N && 0 <= j <= M && f = 0 && isNotInRows(X,B,M,i) && isNotInRow(X,B,i,j) && fixVars(b,n,m,x,B,N,M,X)"
   ],
   "variants" : [
     "N - i - f",
     "M - j"
+  ],
+  "shorthands": [
+    {
+      "name": "fixVars",
+      "args": ["b", "n", "m", "x", "B", "N", "M", "X"],
+      "definition": "n, m, x = N, M, X && eqMatr(b,B,N,M)"
+    },
+    {
+      "name": "eqMatr",
+      "args": ["m1", "m2", "rows", "cols"],
+      "definition": "(A i : 0 <= i < rows : (A j : 0 <= j < cols : m1[i][j] = m2[i][j]))"
+    },
+    {
+      "name": "isNotInRows",
+      "args": ["x", "m", "cols", "rows"],
+      "definition": "(A row : 0 <= row < rows : isNotInRow(x,m,row,cols))"
+    },
+    {
+      "name": "isNotInRow",
+      "args": ["x", "m", "row", "to"],
+      "definition": "(A col : 0 <= col < to : x <> m[row][col])"
+    }
   ]
 }

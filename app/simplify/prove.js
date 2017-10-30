@@ -4,7 +4,7 @@ const os = require('os')
 function prove(predicates) {
   return new Promise((resolve, reject) => {
     const simplify = getSimplifyExecutableName()
-    exec(`echo "${predicates}" | ${simplify} -nosc`, (err, stdout, stderr) => {
+    exec(`echo '${predicates}' | ${simplify} -nosc`, (err, stdout, stderr) => {
       if (err) {
         reject(err)
       } else {

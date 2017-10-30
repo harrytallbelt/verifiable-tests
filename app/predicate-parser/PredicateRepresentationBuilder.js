@@ -26,11 +26,14 @@ PredicateRepresentationBuilder.prototype.visitParet_predicate = function(ctx) {
 }
 
 
-function adjustForBoolNegation(expr, ctx) {
-  if (ctx.NEGATION()) {
-    expr = { type: 'not', inner: expr }
-  }
-  return expr
+PredicateRepresentationBuilder.prototype.visitShorthand_pred = function(ctx) {
+  const pred = this.visit(ctx.shorthand())
+  return adjustForBoolNegation(pred, ctx)
+}
+
+
+function adjustForBoolNegation(pred, ctx) {
+  return ctx.NEGATION() ? { type: 'not', inner: pred } : pred
 }
 
 
@@ -52,7 +55,7 @@ PredicateRepresentationBuilder.prototype.visitEq  = ctx => '='
 PredicateRepresentationBuilder.prototype.visitNeq = ctx => '<>'
 
 
-PredicatesVisitor.prototype.visitVector_eq_pred = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitVector_eq_pred = function(ctx) {
   const { left, right } = this.visit(ctx.vector_equality())
   return formVectorEqualityConjunction(left, right)
 }
@@ -74,7 +77,7 @@ function formVectorEqualityConjunction(leftVars, rightVars) {
 }
 
 
-PredicatesVisitor.prototype.visitVector_eq_base = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitVector_eq_base = function(ctx) {
   return {
     left: [this.visit(ctx.int_expr(0))],
     right: [this.visit(ctx.int_expr(1))]
@@ -82,7 +85,7 @@ PredicatesVisitor.prototype.visitVector_eq_base = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitVector_eq_rec = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitVector_eq_rec = function(ctx) {
   const inner = this.visit(ctx.vector_equality())
   inner.left.unshift(this.visit(ctx.int_expr(0)))
   inner.right.push(this.visit(ctx.int_expr(1)))
@@ -90,12 +93,12 @@ PredicatesVisitor.prototype.visitVector_eq_rec = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitAsc_chain_pred = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitAsc_chain_pred = function(ctx) {
   return this.visit(ctx.ascending_chain_cmp())
 }
 
 
-PredicatesVisitor.prototype.visitAsc_chain_cmp_base = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitAsc_chain_cmp_base = function(ctx) {
   return {
     type: 'comp',
     op: ctx.LESS() ? '<' : '<=',
@@ -105,7 +108,7 @@ PredicatesVisitor.prototype.visitAsc_chain_cmp_base = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitAsc_chain_cmp_rec = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitAsc_chain_cmp_rec = function(ctx) {
   const chain = this.visit(ctx.ascending_chain_cmp())
   const lastExpr = chain.type === 'and' ? chain.right.right : chain.right
   const cmp = {
@@ -118,11 +121,11 @@ PredicatesVisitor.prototype.visitAsc_chain_cmp_rec = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitDesc_chain_pred = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitDesc_chain_pred = function(ctx) {
   return this.visit(ctx.descending_chain_cmp())
 }
 
-PredicatesVisitor.prototype.visitDesc_chain_cmp_base = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitDesc_chain_cmp_base = function(ctx) {
   return {
     type: 'comp',
     op: ctx.GREATER() ? '>' : '>=',
@@ -132,7 +135,7 @@ PredicatesVisitor.prototype.visitDesc_chain_cmp_base = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitDesc_chain_cmp_rec = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitDesc_chain_cmp_rec = function(ctx) {
   const chain = this.visit(ctx.descending_chain_cmp())
   const lastExpr = chain.type === 'and' ? chain.right.right : chain.right
   const cmp = {
@@ -145,12 +148,12 @@ PredicatesVisitor.prototype.visitDesc_chain_cmp_rec = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitPerm_pred = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitPerm_pred = function(ctx) {
   return this.visit(ctx.perm())
 }
 
 
-PredicatesVisitor.prototype.visitPerm = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitPerm = function(ctx) {
   if (ctx.even_var_list()) {
     const { left, right } = this.visit(ctx.even_var_list())
     const disjuncts = []
@@ -191,7 +194,7 @@ function* generatePermutations(list) {
 }
 
 
-PredicatesVisitor.prototype.visitEven_var_list_base = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitEven_var_list_base = function(ctx) {
   return {
     left: [this.visit(ctx.int_expr(0))],
     right: [this.visit(ctx.int_expr(1))]
@@ -199,11 +202,20 @@ PredicatesVisitor.prototype.visitEven_var_list_base = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitEven_var_list_rec = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitEven_var_list_rec = function(ctx) {
   const inner = this.visit(ctx.even_var_list())
   inner.left.unshift(this.visit(ctx.int_expr(0)))
   inner.right.push(this.visit(ctx.int_expr(1)))
   return inner
+}
+
+
+PredicateRepresentationBuilder.prototype.visitShorthand = function(ctx) {
+  return {
+    type: 'call',
+    name: this.visit(ctx.name()),
+    args: (ctx.int_expr() || []).map(e => this.visit(e))
+  }
 }
 
 
@@ -223,7 +235,7 @@ PredicateRepresentationBuilder.prototype.visitOr_expr = function(ctx) {
   }
 }
 
-PredicatesVisitor.prototype.visitImplies_expr = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitImplies_expr = function(ctx) {
   return {
     type: 'implies',
     left: this.visit(ctx.predicate(0)),
@@ -231,7 +243,7 @@ PredicatesVisitor.prototype.visitImplies_expr = function(ctx) {
   }
 }
 
-PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitIff_expr = function(ctx) {
   return {
     type: 'iff',
     left: this.visit(ctx.predicate(0)),
@@ -240,7 +252,7 @@ PredicatesVisitor.prototype.visitIff_expr = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitQuantifier_pred = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitQuantifier_pred = function(ctx) {
   return {
     type: ctx.FORALL() ? 'forall' : 'exists',
     boundVar: { type: 'name', name: this.visit(ctx.name()) },
@@ -274,15 +286,18 @@ PredicateRepresentationBuilder.prototype.visitParet_int_expr = function(ctx) {
 }
 
 
-function adjustForIntNegation(expr, ctx) {
-  if (ctx.MINUS()) {
-    expr = { type: 'negate', inner: expr }
-  }
-  return expr
+PredicateRepresentationBuilder.prototype.visitShorthand_expr = function(ctx) {
+  const expr = this.visit(ctx.shorthand())
+  return adjustForIntNegation(expr, ctx)
 }
 
 
-PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
+function adjustForIntNegation(expr, ctx) {
+  return ctx.MINUS() ? { type: 'negate', inner: expr } : expr
+}
+
+
+PredicateRepresentationBuilder.prototype.visitSum_prod_quantifier = function(ctx) {
   const expr = {
     type: ctx.SUM() ? 'sum' : 'prod',
     boundVar: { type: 'name', name: this.visit(ctx.name()) },
@@ -293,7 +308,7 @@ PredicatesVisitor.prototype.visitSum_prod_quantifier = function(ctx) {
 }
 
 
-PredicatesVisitor.prototype.visitQuantity_quantifier = function(ctx) {
+PredicateRepresentationBuilder.prototype.visitQuantity_quantifier = function(ctx) {
   const expr = {
     type: 'count',
     boundVar: { type: 'name', name: this.visit(ctx.name()) },
@@ -366,7 +381,7 @@ PredicateRepresentationBuilder.prototype.visitName = function(ctx) {
   if (ctx.PROD())   return ctx.PROD().getText()
   if (ctx.NUM())    return ctx.NUM().getText()
   if (ctx.PERM())   return ctx.PERM().getText()
-  assert(false, 'visitName has exhausted all the options. Check if it is up to date with the grammar.')
+  throw new Error('visitName has exhausted all the options. Check if it is up to date with the grammar.')
 }
 
 
