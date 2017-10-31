@@ -80,6 +80,7 @@ function parseShorthand(sh) {
   if (undcheckedArgs.some(isBadArg)) {
     throw new Error('Cannot parse shorthand\'s arguments.')
   }
+  const args = undcheckedArgs.map(uarg => uarg.expression.var)
   let namesInDefinition = []
   let type = 'pred'
   let definition = parsePredicate(sh.definition).predicate
