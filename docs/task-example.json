@@ -1,11 +1,16 @@
 {
-  "name" : "example",             // (*) These are 
-  "description" : "lorem ipsum",  // (*) the only four
-  "precondition" : "T",           // (*) fields that
-  "postcondition" : "0 < x",      // (*) cannot be omitted.
-  "invariants" : [ "equalArrays(a,b,0,n)" /* , ... */ ],
-  "variants" : [ "n - i" /* , ... */ ],
-  "axioms" : [      // Some combination of the axioms in axioms/ folder:
+  "name": "example",             // (*) These are 
+  "description": "lorem ipsum",  // (*) the only four
+  "precondition": "T",           // (*) fields that
+  "postcondition": "0 < x",      // (*) cannot be omitted.
+  "loops": [
+    {                                       // You can omitt this whole
+      "invariant": "equalArrays(a,b,0,n)",  // object, but you cannot omitt
+      "variant": "n - i"                    // thsese two fields in it.
+    }
+    /* , ... */
+  ],
+  "axioms": [      // Some combination of the axioms in axioms/ folder:
     "ARRAY_SUM",  // (file named axiom-name describes axiom AXIOM_NAME)
     "ARRAY_PROD",
     "MULT_COMMUT"

@@ -10,8 +10,7 @@ const { substitutePredicate } = require('./substitution')
  * `spec` is an object, that contains fields
  *  - `precondition` with precondition predicate,
  *  - `postcondition` with postcondition predicate,
- *  - `invariants` with list of loop invariants (may be omitted),
- *  - `variants` with list of loop variants (bound functions) (may be omitted).
+ *  - `loops` with list of { invariant, variant } objects (may be omitted),
  * `context` field is used by WP to propagate context through recursive calls.
  * You don't need to specify it.
  * WP returns an object of two fields:
@@ -49,8 +48,9 @@ function wp(spec, program, context) {
   const firstLoopIndex = S.findIndex(st => st.type === 'do')
   if (firstLoopIndex >= 0) {
     const DO = S[firstLoopIndex]
-    const P = spec.invariants.shift()
-    const t = spec.variants.shift()
+    const loop = spec.loops.shift()
+    const P = loop.invariant
+    const t = loop.variant
     const I = S.slice(0, firstLoopIndex)   // commands before the loop
     const J = S.slice(firstLoopIndex + 1)  // commands after the loop
 

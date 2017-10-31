@@ -3,8 +3,12 @@
     "description" : "The program should calculate the product of all the elements of the array b and store it in p. Note that the product of 0 elements is equal to 1.",
     "precondition" : "N >= 0 && n = N && eqArrs(b, B, N)",
     "postcondition" : "p = (PROD k : 0 <= k < N : B[k])",
-    "invariants" : [ "0 <= i <= N && n = N && eqArrs(b, B, N) && p = (PROD k : 0 <= k < i : B[k])" ],
-    "variants" : [ "N - i" ],
+    "loops": [
+      {
+        "invariant": "0 <= i <= N && n = N && eqArrs(b, B, N) && p = (PROD k : 0 <= k < i : B[k])",
+        "variant": "N - i"
+      }
+    ],
     "shorthands": [
         {
             "name": "eqArrs",

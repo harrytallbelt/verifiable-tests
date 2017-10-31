@@ -1,10 +1,14 @@
 {
-    "name" : "min",
-    "description" : "The program should find the min element of the array b and assign it to m.",
-    "precondition" : "N > 0 && n = N && eqArrs(b, B, N)",
-    "postcondition" : "(A k : 0 <= k < N : m <= B[k]) && contains(B, m, 0, N-1)",
-    "invariants" : [ "1 <= i <= N && n = N && eqArrs(b, B, N) && (A k : 0 <= k < i : m <= B[k]) && contains(B, m, 0, i-1)" ],
-    "variants" : [ "N - i" ],
+    "name": "min",
+    "description": "The program should find the min element of the array b and assign it to m.",
+    "precondition": "N > 0 && n = N && eqArrs(b, B, N)",
+    "postcondition": "(A k : 0 <= k < N : m <= B[k]) && contains(B, m, 0, N-1)",
+    "loops": [
+        {
+            "invariant": "1 <= i <= N && n = N && eqArrs(b, B, N) && (A k : 0 <= k < i : m <= B[k]) && contains(B, m, 0, i-1)",
+            "variant": "N - i"
+        }
+    ],
     "shorthands": [
         {
             "name": "eqArrs",

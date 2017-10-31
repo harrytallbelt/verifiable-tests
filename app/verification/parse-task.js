@@ -6,10 +6,10 @@ const { arraysAreEqual } = require('./utils')
 function parseTask(task) {
   let precondition = parsePredicate(task.precondition).predicate
   let postcondition = parsePredicate(task.postcondition).predicate
-  let invariants = (task.invariants || [])
-    .map(src => parsePredicate(src).predicate)
-  let variants = (task.variants || [])
-    .map(src => parseIntegerExpression(src).expression)
+  let invariants = (task.loops || [])
+    .map(loop => parsePredicate(loop.invariant).predicate)         // TODO: check on undefined/null invariant
+  let variants = (task.loops || [])
+    .map(loop => parseIntegerExpression(loop.variant).expression)  // TODO: check on undefined/null variant
   const axioms = task.axioms || []
   
   let err = ''
@@ -17,7 +17,6 @@ function parseTask(task) {
   if (!postcondition)                        err += 'Invalid postcondition. '
   if (invariants.some(inv => !inv))          err += 'Invalid invariants. '
   if (variants.some(v => !v))                err += 'Invalid variants. '
-  if (variants.length !== invariants.length) err += 'Different number of variants and invariants. '
   if (err) return { spec: null, axioms, error: new Error(err) }
 
   let shorthands = null
@@ -38,7 +37,8 @@ function parseTask(task) {
   if (variants.some(v => !v))       err += 'Cannot apply shorthands to variants. '
   if (err) return { spec: null, axioms, error: new Error(err) }
 
-  const spec = { precondition, postcondition, invariants, variants }
+  const loops = invariants.map((invariant, i) => ({ invariant, variant: variants[i] }))
+  const spec = { precondition, postcondition, loops }
   return { spec, axioms, error: null }
 }
 
