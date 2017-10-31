@@ -1,5 +1,11 @@
 module.exports.onPredicate = onPredicate
 
+// Applies axiom to predicates of form
+// (E k : from <= k <= to : a[k] = m),
+// where variable's names can be different,
+// equality reversed, and condition expression is
+// a three variable cmp chain that can use <, <=, >, >=.
+// Returns '(contains from to a m)'.
 function onPredicate(predicate, convertPredicate, convertIntegerExpression, convertVariable) {
   if (predicate.type !== 'exists') {
     return null
@@ -37,7 +43,7 @@ function getBoundary(comparison, boundVarName) {
   let boundVarOnLeft = intExprIsName(comparison.left, boundVarName)
   let boundVarOnRight = intExprIsName(comparison.right, boundVarName)
 
-  if (boundVarOnLeft && boundVarOnRight) {
+  if (boundVarOnLeft && boundVarOnRight || !boundVarOnLeft && !boundVarOnRight) {
     return { lowerBoundary: null, upperBoundary: null }
   }
   const otherExpression = boundVarOnLeft ? comparison.right : comparison.left

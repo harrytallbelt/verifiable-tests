@@ -1,5 +1,11 @@
 module.exports.onIntegerExpression = onIntegerExpression
 
+// Applies axiom to expressions of form
+// (SUM k : from <= k <= to : a[i][k] * x[k]),
+// where variable's names can be different,
+// multiplication order reversed, and condition expression
+// is a three variable cmp chain that can use <, <=, >, >=.
+// Returns '(rowvecprod from to i a x)'.
 function onIntegerExpression(expression, convertPredicate, convertIntegerExpression, convertVariable) {
   if (expression.type !== 'sum' || expression.inner.type !== 'mult') {
     return null
@@ -56,7 +62,7 @@ function getBoundary(comparison, boundVarName) {
   let boundVarOnLeft = intExprIsName(comparison.left, boundVarName)
   let boundVarOnRight = intExprIsName(comparison.right, boundVarName)
 
-  if (boundVarOnLeft && boundVarOnRight) {
+  if (boundVarOnLeft && boundVarOnRight || !boundVarOnLeft && !boundVarOnRight) {    
     return { lowerBoundary: null, upperBoundary: null }
   }
   const otherExpression = boundVarOnLeft ? comparison.right : comparison.left

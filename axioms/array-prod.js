@@ -1,5 +1,11 @@
 module.exports.onIntegerExpression = onIntegerExpression
 
+// Applies axiom to expressions of form
+// (PROD k : from <= k <= to : a[k]),
+// where variable's names can be different,
+// and condition expression is a three variable
+// cmp chain that can use <, <=, >, >=.
+// Returns '(prod from to a)'.
 function onIntegerExpression(expression, convertPredicate, convertIntegerExpression, convertVariable) {
   if (expression.type !== 'prod') {
     return null
@@ -39,7 +45,7 @@ function getBoundary(comparison, boundVarName) {
   let boundVarOnLeft = intExprIsName(comparison.left, boundVarName)
   let boundVarOnRight = intExprIsName(comparison.right, boundVarName)
 
-  if (boundVarOnLeft && boundVarOnRight) {
+  if (boundVarOnLeft && boundVarOnRight || !boundVarOnLeft && !boundVarOnRight) {
     return { lowerBoundary: null, upperBoundary: null }
   }
   const otherExpression = boundVarOnLeft ? comparison.right : comparison.left
