@@ -20,9 +20,10 @@ function parseTask(task) {
   if (variants.length !== invariants.length) err += 'Different number of variants and invariants. '
   if (err) return { spec: null, axioms, error: new Error(err) }
 
-  const shorthands = parseShorthands(task.shorthands || [])
-  if (!shorthands) {
-    return { spec: null, axioms, error: new Error('Cannot parse shorthands.') }
+  let shorthands = null
+  try { shorthands = parseShorthands(task.shorthands || []) }
+  catch (error) {
+    return { spec: null, axioms, error }
   }
 
   precondition = shorthands.applyToPred(precondition)
@@ -42,11 +43,7 @@ function parseTask(task) {
 }
 
 function parseShorthands(shorthands) {
-  const parsedShs = shorthands.map(parseShorthand)
-  if (parsedShs.some(sh => !sh)) {
-    return null
-  }
-
+  const parsedShs = shorthands.map(parseShorthand) // throws
   let predShs = parsedShs.filter(sh => sh.type === 'pred')
   let exprShs = parsedShs.filter(sh => sh.type === 'expr')
   
@@ -76,11 +73,14 @@ function parseShorthands(shorthands) {
 }
 
 function parseShorthand(sh) {
-  const args = sh.args
-    .map(arg => parseIntegerExpression(arg).expression.var)
-  if (args.some(arg => !arg) || args.some(arg => arg.type !== 'name')) {
-    return null
+  const undcheckedArgs = sh.args.map(parseIntegerExpression)
+  const isBadArg = uarg => uarg.errors.length > 0
+    || uarg.expression.type !== 'var'
+    || uarg.expression.var.type !== 'name'
+  if (undcheckedArgs.some(isBadArg)) {
+    throw new Error('Cannot parse shorthand\'s arguments.')
   }
+  const args = undcheckedArgs.map(uarg => uarg.expression.var)
   let namesInDefinition = []
   let type = 'pred'
   let definition = parsePredicate(sh.definition).predicate
@@ -92,13 +92,14 @@ function parseShorthand(sh) {
     if (definition) {
       namesInDefinition = allNamesInIntExpr(definition)
     } else {
-      return null
+      throw new Error('Cannot parse shorthand\'s definition.')
     }
   }
   const namesInArgs = args.map(arg => arg.name).sort()
   namesInDefinition.sort()
   if (!arraysAreEqual(namesInArgs, namesInDefinition)) {
-    return null
+    throw new Error('Names of the shorthand\'s arguments aren\'t '
+      + ' the same as the names in its definition.')
   }
   return { name: sh.name, type, args, definition }
 }
@@ -232,7 +233,7 @@ function applyShorthandsToVariable(predShs, exprShs, variable) {
 function applyShorthandToPredicate(sh, args) {
   if (sh.args.length !== args.length) {
     throw new Error(`Shorthand expects ${sh.args.length} arguments, `
-                  + `but ${args.length} were given.`)
+      + `but ${args.length} were given.`)
   }
   return substitutePredicate(sh.definition, sh.args, args)
 }
@@ -240,7 +241,7 @@ function applyShorthandToPredicate(sh, args) {
 function applyShorthandToIntExpr(sh, args) {
   if (sh.args.length !== args.length) {
     throw new Error(`Shorthand expects ${sh.args.length} arguments, `
-                  + `but ${args.length} were given.`)
+      + `but ${args.length} were given.`)
   }
   return substituteIntExpr(sh.definition, sh.args, args)
 }
