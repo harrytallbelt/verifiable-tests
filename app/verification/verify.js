@@ -65,7 +65,7 @@ function checkLoopNumberIsCorrect(program, loopNumber) {
   }
   const error = {
     message: `The specification suggests ${loopNumber} loops, `
-            + `but the program has ${actualLoopNumber}.`
+      + `but the program has ${actualLoopNumber}.`
   }
   if (program.statements.length > 0) {
     error.start = program.statements[0].textRange.start
@@ -96,4 +96,5 @@ function countLoopsInCommand(command) {
   }
 }
 
-module.exports = verify
+module.exports.verify = verify
+module.exports.checkLoopNumberIsCorrect = checkLoopNumberIsCorrect

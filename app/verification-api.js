@@ -1,5 +1,5 @@
 const db = require('./db')
-const verify = require('./verification/verify')
+const verify = require('./verification')
 
 function getVerificationApiAnswer(taskName, code) {
   return db.getTask(taskName)

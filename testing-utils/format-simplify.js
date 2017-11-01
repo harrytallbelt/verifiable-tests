@@ -9,7 +9,7 @@ const DEFAULT_LINE_ENDING = '\n'
 // An s-list shorter than this would be a one-liner.
 // This number is not exact, though (see `estimatedLength`).
 // Use value <= 0 to get no one-liners.
-const DEFAULT_MAX_LENGTH = 60
+const DEFAULT_MAX_LENGTH = 40
 
 /***************************************************************/
 /* Note that formatting will remove comments from source code. */
@@ -26,16 +26,19 @@ if (!module.parent) {
     }
   })
   process.stdin.on('end', () => {
-    const list = parse(code).map(combineAnds).map(combineOrs)
-    const formattedCode = listToString(list,
-      DEFAULT_INDENT_STR,
-      DEFAULT_LINE_ENDING,
-      DEFAULT_MAX_LENGTH)
-    console.log(formattedCode)
+    console.log(formatSimplifyCode(code))
   })
 }
 
-module.exports = { parse, combineAnds, combineOrs, listToString }
+module.exports = { formatSimplifyCode, parse, combineAnds, combineOrs, listToString }
+
+function formatSimplifyCode(code, indentStr, lineEnd, maxLen) {
+  indentStr = indentStr || DEFAULT_INDENT_STR
+  lineEnd = lineEnd || DEFAULT_LINE_ENDING
+  maxLen = maxLen || DEFAULT_MAX_LENGTH
+  const list = parse(code).map(combineAnds).map(combineOrs)
+  return listToString(list, indentStr, lineEnd, maxLen)
+}
 
 function parse(code) {
   return parseImpl(removeComments(code), 0).list
