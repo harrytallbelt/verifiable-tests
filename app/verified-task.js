@@ -2,7 +2,7 @@ const promisify = require('promisify-node')
 const fs = promisify('fs')
 const handlebars = require('handlebars')
 const db = require('./db')
-const verify = require('./verification/verify')
+const verify = require('./verification')
 const createHandlebarsTaskContext = require('./hb-task-context')
 
 function getVerifiedTaskHtml(taskName, code) {

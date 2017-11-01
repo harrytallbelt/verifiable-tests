@@ -1,6 +1,6 @@
 const { renderProgram } = require('./rendering/render-pseudocode-impl')
 
-const DEFAULT_IDENT_STR = '  '
+const DEFAULT_INDENT_STR = '  '
 const DEFAULT_LINE_END = '\n'
 
 let input = ''
@@ -22,7 +22,7 @@ process.stdin.on('end', () => {
     process.exit(-1)
   }
   try {
-    console.log(renderProgram(inputObj, DEFAULT_IDENT_STR, DEFAULT_LINE_END))
+    console.log(renderProgram(inputObj, DEFAULT_INDENT_STR, DEFAULT_LINE_END))
   } catch (error) {
     console.error('ERROR RENDERING PSEUDOCODE:')
     console.error(error)

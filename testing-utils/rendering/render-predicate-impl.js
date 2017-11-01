@@ -14,6 +14,9 @@ function renderPredicate(pred) {
     case 'comp':
       return renderIntegerExpression(pred.left)
         + ` ${pred.op} ` + renderIntegerExpression(pred.right)
+    case 'call':
+      return pred.name + '('
+        + pred.args.map(renderArgument).join(', ') + ')'
     case 'forall': {
       const name = renderVariable(pred.boundVar)
       const condition = renderPredicate(pred.condition)
@@ -56,6 +59,9 @@ function renderIntegerExpression(expr) {
       return renderIntegerExpression(expr.left)
         + ` ${renderIntegerOperation(expr.type)} `
         + renderIntegerExpression(expr.right)
+    case 'call':
+      return pred.name + '('
+        + pred.args.map(renderArgument).join(', ') + ')'
     case 'sum': {
       const name = renderVariable(expr.boundVar)
       const condition = renderPredicate(expr.condition)
@@ -115,6 +121,12 @@ function renderVariable(variable) {
     default:
       throw new Error(`Unknown type of variable: ${variable.type}.`)
   }
+}
+
+function renderArgument(arg) {
+  return arg.type === 'store'
+    ? renderVariable(arg)
+    : renderIntegerExpression(arg)
 }
 
 module.exports.renderPredicate = renderPredicate
