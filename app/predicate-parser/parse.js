@@ -75,20 +75,3 @@ function parseIntegerExpression(sourceCode) {
 
 module.exports.parsePredicate = parsePredicate
 module.exports.parseIntegerExpression = parseIntegerExpression
-
-
-// Run as a script for testing purposes.
-if (!module.parent) {
-  let source = ''
-  process.stdin.on('readable', () => {
-    const chunk = process.stdin.read()
-    if (chunk !== null) {
-      source += chunk
-    }
-  })
-  process.stdin.on('end', () => {
-    const result = parsePredicate(source)
-    const json = JSON.stringify(result, null, 2)
-    console.log(json)
-  })
-}

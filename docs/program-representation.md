@@ -62,26 +62,7 @@ Assignment statement representation contains two lists:
 ```
 
 Lvalues can only be represented via the name variables (see below).
-
-On the other hand, there are two cases of rvalues. They can be either
-
-```
-{
-  type: 'int',
-  inner: <int_expr>
-}
-```
-
-if we want to assign an integer value, or
-
-```
-{
-  type: 'map',
-  inner: <var>
-}
-```
-
-if we want to assign a map value.
+On the other hand, rvalues can be either `<int_expr>` or store `<var>`.
 
 ### If and Do
 
@@ -105,134 +86,35 @@ A boolean expression is a more restricted form of a predicate.
 Concretely, it cannot contain
 - implications,
 - equivalentions,
-- quantifiers.
+- quantifiers,
+- shorthand calls.
 
 This leaves us with:
 - boolean constants,
-- negation,
+- boolean negation,
 - conjunction/disjunction,
 - comparisons.
 
-Tou can read about those in [predicate format describtion](./predicate-representation.md).
+You can read about those in [predicate format describtion](./predicate-representation.md).
 
 
 ## Integer Expressions
 
-There are several types of integer expressions.
+An integer expression in pseudocode is a more restricted form
+of an integer expression in predicate.
+Concretely, it cannot contain
+- quantifiers,
+- shorthand calls.
 
-### Constants
+Which leaves us with:
+- integer constants,
+- integer negation,
+- variable expressions
+- +, -, *.
 
-```
-{
-  type: 'const',
-  const: <int>
-}
-```
+You can read about those in [predicate format describtion](./predicate-representation.md).
 
-### Variable Expressions
+## Variable
 
-```
-{
-  type: 'var',
-  var: (<name> | <select>)
-}
-```
-
-Note that `<store>` variable will not appear in
-integer expression, as its value is allways a map.
-
-### Negation
-
-There is only one unary operator, integer negation.
-
-```
-{
-  type: 'negate',
-  inner: <int_expr>
-}
-```
-
-### Binary Operators
-
-There are three inreger binary operations:
-- addition,
-- subtraction,
-- multiplication.
-
-```
-{
-  type: ('plus'|'minus'|'mult'),
-  left: <int_expr>,
-  right: <int_expr>
-}
-```
-
-### Shorthand Call
-
-Integer expression shorthand is a parametrised integer expression
-definition, used to shorten the expression it is used it.
-
-```
-{
-  type: 'call',
-  name: <string>,
-  args: [ (<store> | <int_expr>), ... , (<store> | <int_expr>) ]
-}
-```
-
-## Variables
-
-We support arrays via the theory of maps, i.e. each array
-is represented by a map `index -> value`. This way each assignment
-to an array element is converted to an assignment of a new map
-to the array variable.
-
-```
-a[i] := x   <===>   a := (a; i:x)
-
-where (a; i:x)[i] = x
-      (a; i:x)[j] = a[j],  i ≠ j
-```
-
-Because of that, variables come in three different types:
-- name-variable,
-- store-variable,
-- select-variable.
-
-### Names
-
-Name-variables are the simplest case of a variable.
-Note that only this class of variables can take place
-of an lvalue of an assignment operation.
-
-```
-{
-  type: 'name',
-  name: <string>
-}
-```
-
-### Select
-
-Select-variables represent access by index `a[i]`.
-
-```
-{
-  type: 'select',
-  base: <var>,
-  selector: <int_expr>
-}
-```
-
-### Store
-
-Store-variables represent a map, changed in one place `(a: i:x)`.
-
-```
-{
-  type: 'store',
-  base: <var>,
-  selector: <int_expr>,
-  value: (<store> | <int_expr>)
-}
-```
+A variable in pseudocode is the same as in predicate.
+You can read about those in [predicate format describtion](./predicate-representation.md).

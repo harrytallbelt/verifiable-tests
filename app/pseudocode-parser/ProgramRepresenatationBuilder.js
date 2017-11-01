@@ -52,7 +52,7 @@ ProgramRepresenatationBuilder.prototype.visitAssignment_statement = function(ctx
   const assignment = this.visit(ctx.assignment())
   assignment.type = 'assign'
 
-  // Throw an error if two lvalues are identical.
+  // Create an error if two lvalues are identical.
   // This will trigger for x and x or a[i] and a[i],
   // but not for a[i] and a[j].
   const localErrors = []
