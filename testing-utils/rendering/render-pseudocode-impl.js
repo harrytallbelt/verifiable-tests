@@ -1,15 +1,15 @@
-function renderProgram(program, identStr, lineEnd) {
-  return renderStatements(program.statements, 0, identStr, lineEnd)
+function renderProgram(program, indentStr, lineEnd) {
+  return renderStatements(program.statements, 0, indentStr, lineEnd)
 }
 
-function renderStatements(statements, nestingLevel, identStr, lineEnd) {
+function renderStatements(statements, nestingLevel, indentStr, lineEnd) {
   return statements
-    .map(s => renderStatement(s, nestingLevel, identStr, lineEnd))
+    .map(s => renderStatement(s, nestingLevel, indentStr, lineEnd))
     .join(';' + lineEnd)
 }
 
-function renderStatement(statement, nestingLevel, identStr, lineEnd) {
-  const ident = repeatString(identStr, nestingLevel)
+function renderStatement(statement, nestingLevel, indentStr, lineEnd) {
+  const ident = repeatString(indentStr, nestingLevel)
   switch (statement.type) {
     case 'abort':
       return ident + 'abort'
@@ -51,12 +51,12 @@ function renderStatement(statement, nestingLevel, identStr, lineEnd) {
       const commands = statement.commands.map(s =>
         (s.length === 1 && s[0].type !== 'if' && s[0].type !== 'do')
           ? renderStatement(s[0], 0, '', '')
-          : lineEnd + renderStatements(s, nestingLevel + 2, identStr, lineEnd))
+          : lineEnd + renderStatements(s, nestingLevel + 2, indentStr, lineEnd))
       const guardedCommands = guards.map((guard, i) => {
         const command = commands[i]
         const innerIdent = i === 0
-          ? ident + (identStr === '' ? ' ' : identStr)
-          : ident + '|' + identStr.slice(1)
+          ? ident + (indentStr === '' ? ' ' : indentStr)
+          : ident + '|' + indentStr.slice(1)
         const arrow = command.startsWith(lineEnd) ? '  ->' : '  ->  '
         return innerIdent + guard + arrow + command
       })
