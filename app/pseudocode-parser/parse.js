@@ -40,19 +40,3 @@ function parsePseudocode(sourceCode) {
 }
 
 module.exports = parsePseudocode
-
-// Run as a script for testing purposes.
-if (!module.parent) {
-  let source = ''
-  process.stdin.on('readable', () => {
-    const chunk = process.stdin.read()
-    if (chunk !== null) {
-      source += chunk
-    }
-  })
-  process.stdin.on('end', () => {
-    const result = parsePseudocode(source)
-    const json = JSON.stringify(result, null, 2)
-    console.log(json)
-  })
-}
