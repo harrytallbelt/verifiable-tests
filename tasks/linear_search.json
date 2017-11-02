@@ -1,10 +1,14 @@
 {
-    "name" : "linear_search",
-    "description" : "The program should either set i to the index of x in the array b or, if x isn't in b, set i to n.",
-    "precondition" : "N >= 0 && n = N && eqArrs(b, B, N)",
-    "postcondition" : "0 <= i < N && B[i] = x || i = N && (A k : 0 <= k < N : x <> B[k])",
-    "invariants" : [ "0 <= i <= N && n = N && eqArrs(b, B, N) && (A k : 0 <= k < i : x <> B[k])" ],
-    "variants" : [ "N - i" ],
+    "name": "linear_search",
+    "description": "The program should either set i to the index of x in the array b or, if x isn't in b, set i to n.",
+    "precondition": "N >= 0 && n = N && eqArrs(b, B, N)",
+    "postcondition": "0 <= i < N && B[i] = x || i = N && (A k : 0 <= k < N : x <> B[k])",
+    "loops": [
+        {
+            "invariant": "0 <= i <= N && n = N && eqArrs(b, B, N) && (A k : 0 <= k < i : x <> B[k])",
+            "variant": "N - i"
+        }
+    ],
     "shorthands": [
         {
             "name": "eqArrs",

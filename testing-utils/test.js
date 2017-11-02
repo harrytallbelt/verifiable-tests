@@ -50,7 +50,7 @@ for (let i = 0; i < tasks.length; ++i) {
     continue
   }
   const loopNumberError =
-    checkLoopNumberIsCorrect(program, spec.invariants.length)
+    checkLoopNumberIsCorrect(program, spec.loops.length)
   if (loopNumberError) {
     console.log(`; ---------------------------`)
     console.log(`; ${tasks[i].name} (${taskFileNames[i]})`)

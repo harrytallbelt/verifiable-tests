@@ -3,13 +3,15 @@
   "description" : "The program should compute the sum of all the elements of matrix a and store it in s.",
   "precondition" : "0 <= N && 0 <= M && fixVars(a,n,m,A,N,M)",
   "postcondition" : "s = rowsSum(A,N,M)",
-  "invariants" : [
-    "0 <= M && 0 <= i <= N && s = rowsSum(A,i,M) && fixVars(a,n,m,A,N,M)",
-    "0 <= i < N && 0 <= j <= M && s = rowsSum(A,i,M) + rowSum(A,i,j) && fixVars(a,n,m,A,N,M)"
-  ],
-  "variants" : [
-    "N - i",
-    "M - j"
+  "loops": [
+    {
+      "invariant": "0 <= M && 0 <= i <= N && s = rowsSum(A,i,M) && fixVars(a,n,m,A,N,M)",
+      "variant": "N - i"
+    },
+    {
+      "invariant": "0 <= i < N && 0 <= j <= M && s = rowsSum(A,i,M) + rowSum(A,i,j) && fixVars(a,n,m,A,N,M)",
+      "variant": "M - j"
+    }
   ],
   "shorthands": [
     {

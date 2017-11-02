@@ -10,9 +10,8 @@ const { parseTask } = require('./parse-task')
  * Expects `task` to contain fields:
  *  - `precondition`,
  *  - `postcondition`,
- *  - `invariants` (might be omitted),
- *  - `variants` (might be omitted),
- *  - `axioms` (might be omitted),
+ *  - `loops`, list of { invariant, variant } objects (might be omitted),
+ *  - `axioms`, list of the required axioms' names (might be omitted),
  *  - `shorthands` (might be omitted),
  * where `shorthands` is an array of objects with fields:
  *  - `name`,
@@ -42,7 +41,7 @@ function verify(task, code) {
   if (errors.length > 0) {
     return Promise.resolve({ parsingErrors: errors, semanticErrors: null })
   }
-  const loopNumberError = checkLoopNumberIsCorrect(program, spec.invariants.length)
+  const loopNumberError = checkLoopNumberIsCorrect(program, spec.loops.length)
   if (loopNumberError) {
     return Promise.resolve({ parsingErrors: null, semanticErrors: [loopNumberError] })
   }

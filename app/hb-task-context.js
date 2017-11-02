@@ -5,10 +5,9 @@ function createHandlebarsTaskContext(task) {
     precondition: task.precondition,
     postcondition: task.postcondition
   }
-  if (task.invariants && task.invariants.length > 0) {
-    taskContext.loops = task.invariants
-      .map((inv, i) =>
-        ({ invariant: inv, variant: task.variants[i] }))
+  if (task.loops && task.loops.length > 0) {
+    taskContext.loops = task.loops
+      .map((loop, i) => Object.assign({}, loop, { number: i+1 }))
   }
   if (task.shorthands && task.shorthands.length > 0) {
     taskContext.shorthands = task.shorthands.map(sh => ({

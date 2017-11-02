@@ -3,15 +3,19 @@
   "description" : "The program should multiply matrices a and b and save the result in matrix c.",
   "precondition" : "0 < N && 0 < M && 0 < L && fixVars(a,b,n,m,l,A,B,N,M,L)",
   "postcondition" : "rowsDone(A, B, c, N, M, L)",
-  "invariants" : [
-    "0 < M && 0 < L && 0 <= i <= N && rowsDone(A,B,c,i,M,L) && fixVars(a,b,n,m,l,A,B,N,M,L)",
-    "0 < L && 0 < M && 0 <= i < N && 0 <= j <= M && rowsDone(A,B,c,i,M,L) && rowProgress(A,B,c,i,j,L) && fixVars(a,b,n,m,l,A,B,N,M,L)",
-    "0 < L && 0 < M && 0 <= i < N && 0 <= j < M && 0 <= k <= L && rowsDone(A,B,c,i,M,L) && rowProgress(A,B,c,i,j,L) && c[i][j] = rowOnCol(A,B,i,j,k) && fixVars(a,b,n,m,l,A,B,N,M,L)"
-  ],
-  "variants" : [
-    "N - i",
-    "M - j",
-    "L - k"
+  "loops": [
+    {
+      "invariant": "0 < M && 0 < L && 0 <= i <= N && rowsDone(A,B,c,i,M,L) && fixVars(a,b,n,m,l,A,B,N,M,L)",
+      "variant": "N - i"
+    },
+    {
+      "invariant": "0 < L && 0 < M && 0 <= i < N && 0 <= j <= M && rowsDone(A,B,c,i,M,L) && rowProgress(A,B,c,i,j,L) && fixVars(a,b,n,m,l,A,B,N,M,L)",
+      "variant": "M - j"
+    },
+    {
+      "invariant": "0 < L && 0 < M && 0 <= i < N && 0 <= j < M && 0 <= k <= L && rowsDone(A,B,c,i,M,L) && rowProgress(A,B,c,i,j,L) && c[i][j] = rowOnCol(A,B,i,j,k) && fixVars(a,b,n,m,l,A,B,N,M,L)",
+      "variant": "L - k"
+    }
   ],
   "shorthands": [
     {

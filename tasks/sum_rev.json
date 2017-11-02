@@ -3,8 +3,12 @@
     "description" : "The program should compute the sum of all the elements of the array b and store it in s.",
     "precondition" : "N >= 0 && n = N && eqArrs(b, B, N)",
     "postcondition" : "s = (SUM k : 0 <= k < N : B[k])",
-    "invariants" : [ "-1 <= i < N && n = N && eqArrs(b, B, N) && s = (SUM k : i < k < N : B[k])" ],
-    "variants" : [ "i + 1" ],
+    "loops": [
+      {
+        "invariant": "-1 <= i < N && n = N && eqArrs(b, B, N) && s = (SUM k : i < k < N : B[k])",
+        "variant": "i + 1"
+      }
+    ],
     "shorthands": [
         {
             "name": "eqArrs",
