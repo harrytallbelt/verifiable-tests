@@ -34,5 +34,6 @@
       "args": ["x", "m", "row", "to"],
       "definition": "(A col : 0 <= col < to : x <> m[row][col])"
     }
-  ]
+  ],
+  "axioms": ["SELECT_PATTERNS"]
 }

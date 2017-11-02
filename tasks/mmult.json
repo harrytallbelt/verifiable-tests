@@ -44,5 +44,5 @@
       "definition": "(SUM k : 0 <= k < to : m1[row][k] * m2[k][col])"
     }
   ],
-  "axioms" : ["ROW_ON_COL_DOTPROD", "MULT_COMMUT"]
+  "axioms" : ["ROW_ON_COL_DOTPROD", "MULT_COMMUT", "SELECT_PATTERNS"]
 }
