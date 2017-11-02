@@ -35,5 +35,5 @@
       "definition": "(SUM col : 0 <= col < cols : m[row][col])"
     }
   ],
-  "axioms": ["MATRIX_SUM", "ARRAY_SUM"]
+  "axioms": ["MATRIX_SUM", "ARRAY_SUM", "SELECT_PATTERNS"]
 }

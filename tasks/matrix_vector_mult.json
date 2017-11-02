@@ -40,5 +40,5 @@
       "definition": "(SUM k : 0 <= k < to : m[row][k] * v[k])"
     }
   ],
-  "axioms" : ["ROW_ON_VEC_DOTPROD", "MULT_COMMUT"]
+  "axioms" : ["ROW_ON_VEC_DOTPROD", "MULT_COMMUT", "SELECT_PATTERNS"]
 }
