@@ -47,9 +47,87 @@
         {{/each}}
       </table>
     {{/if}}
+    {{!-- If verification has been performed,
+          we'll display its results. --}}
+    {{#if verification}}
+      {{#if verification.parsingErrors}}
+        <p>
+          <b>Verification Results: </b>
+          <a style="background-color:pink">
+            The program contains syntax errors.
+          </a>
+        </p>
+        <table border="1">
+          <tr>
+            <th>Coordinates</th>
+            <th>Error description</th>
+            <th>
+              <button onclick="highlightSyntaxError()">
+                Clear
+              </button>
+            </th>
+          </tr>
+          {{#each verification.parsingErrors}}
+            <tr>
+              <td>{{row}}:{{col}}</td>
+              <td>{{message}}</td>
+              <td>
+                <button onclick="highlightSyntaxError({{row}}, {{col}})">
+                  Show
+                </button>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+      {{else if verification.semanticErrors}}
+        <p>
+          <b>Verification Results: </b>
+          <a style="background-color:pink">
+            The program contains semantic errors.
+          </a>
+        </p>
+        <table border="1">
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Error description</th>
+            <th>
+              <button onclick="highlightSemnticError()">
+                Clear
+              </button>
+            </th>
+          </tr>
+          {{#each verification.semanticErrors}}
+            <tr>
+              <td>{{start.row}}:{{start.col}}</td>
+              <td>{{end.row}}:{{end.col}}</td>
+              <td>{{message}}</td>
+              <td>
+                <button onclick="highlightSemnticError({{start.row}}, {{end.row}}, {{start.col}}, {{end.col}})">
+                  Show
+                </button>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+      {{else}}
+        <p>
+          <b>Verification Results: </b>
+          <a style="background-color:lightgreen">
+            The solution is correct!
+          </a>
+        </p>
+      {{/if}}
+      <p>Your solution:</p>
+      <p><pre id="code">{{code}}</pre></p>
+    {{/if}}
     <form action="./{{name}}" method="POST">
       <input type="hidden" name="name" value="{{name}}" />
-      <p>Input your program code into the text area below.</p>
+      {{#if verification}}
+        <p>You can enter a new solution in the text area below.</p>
+      {{else}}
+        <p>Enter your solution in the text area below.</p>
+      {{/if}}
       <p>
         {{!-- We might have no code in context. This is fine. --}}
         <textarea name="code" rows="15" cols="80">{{code}}</textarea>
@@ -58,42 +136,71 @@
         <input type="submit" value="Verify" />
       </p>
     </form>
-    {{!-- If verification has been performed,
-          we'll display its results. --}}
-    {{#if verification}}
-      {{#if verification.parsingErrors}}
-        <p>The program contains syntax errors.</p>
-        <table border="1">
-          <tr>
-            <th>Coordinates</th>
-            <th>Error description</th>
-          </tr>
-          {{#each verification.parsingErrors}}
-            <tr>
-              <td>{{row}}:{{col}}</td>
-              <td>{{message}}</td>
-            </tr>
-          {{/each}}
-        </table>
-      {{else if verification.semanticErrors}}
-        <p>The program contains semantic errors.</p>
-        <table border="1">
-          <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>Error description</th>
-          </tr>
-          {{#each verification.semanticErrors}}
-            <tr>
-              <td>{{start.row}}:{{start.col}}</td>
-              <td>{{end.row}}:{{end.col}}</td>
-              <td>{{message}}</td>
-            </tr>
-          {{/each}}
-        </table>
-      {{else}}
-        <p>The solution is correct!</p>
-      {{/if}}
-    {{/if}}
+  <script type="text/javascript">
+    {{!-- Triple curly braces mean no html escaping. --}}
+    const code = `{{{code}}}`
+    const highlightOpening = `<a style="background-color:red; color:white">`
+    const highlightClosing = `</a>`
+
+    function highlightSyntaxError(row, col) {
+      if (row == null || col == null) {
+        highlightSemnticError()
+      } else {
+        highlightSemnticError(row, row, col, code.split('\n')[row-1].length-1)
+      }
+    }
+
+    function highlightSemnticError(startRow, endRow, startCol, endCol) {
+      if (startRow == null
+       || endRow == null
+       || startCol == null
+       || endCol == null
+       || startRow > endRow
+       || startCol >= endCol)
+      {
+        document.getElementById('code').innerHTML = escapeHtml(code)
+        return
+      }
+      const rows = code.split('\n')
+      let anchor = 'anchor'
+      while (code.indexOf(anchor) > 0) anchor += '0'
+      if (startRow === endRow) {
+        const row = rows[startRow-1].split('')
+        row.splice(startCol,0,anchor)
+        row.splice(endCol+2,0,anchor)
+        rows[startRow-1] = row.join('')
+      } else {
+        const firstRow = rows[startRow-1].split('')
+        firstRow.splice(startCol,0,anchor)
+        rows[startRow-1] = firstRow.join('')
+        const lastRow = rows[endRow-1].split('')
+        lastRow.splice(endCol+1,0,anchor)
+        rows[endRow-1] = lastRow.join('')
+      }
+      let res = rows.join('\n')
+      res = escapeHtml(res)
+      res = res.replace(anchor, highlightOpening)
+      res = res.replace(anchor, highlightClosing)
+      document.getElementById('code').innerHTML = res
+    }
+
+    // Shameless copypaste from stackoverflow.com/a/12034334
+    var entityMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;'
+    };
+
+    function escapeHtml (string) {
+      return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap (s) {
+        return entityMap[s];
+      });
+    }
+  </script>
   </body>
 </html>
