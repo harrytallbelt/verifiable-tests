@@ -23,7 +23,6 @@
   "dependencies": {
     "antlr4": "^4.6.0",
     "body-parser": "^1.16.1",
-    "deep-equal": "^1.0.1",
     "express": "^4.14.1",
     "handlebars": "^4.0.6",
     "promisify-node": "^0.4.0"

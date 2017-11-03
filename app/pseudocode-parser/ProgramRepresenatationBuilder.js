@@ -1,9 +1,8 @@
-const deepEqual = require('deep-equal')
 const PseudocodeVisitor = require('./PseudocodeVisitor')
+const { flatten } = require('../verification/utils')
 
 function ProgramRepresenatationBuilder() {
   PseudocodeVisitor.PseudocodeVisitor.call(this)
-  this.errors = []
   return this
 }
 
@@ -19,10 +18,9 @@ ProgramRepresenatationBuilder.prototype.visitProgram = function(ctx) {
 
 
 ProgramRepresenatationBuilder.prototype.visitStatements = function(ctx) {
-  return ctx.statement().map(sctx => {
+  return flatten(ctx.statement().map(sctx => {
     const statement = this.visit(sctx)
-
-    statement.textRange = {
+    const textRange = {
       start: {
         row: sctx.start.line,
         col: sctx.start.column
@@ -32,9 +30,15 @@ ProgramRepresenatationBuilder.prototype.visitStatements = function(ctx) {
         col: sctx.stop.column + sctx.stop.text.length
       }
     }
-
+    if (Array.isArray(statement)) {
+      // Assignment is parsed into an array of assignments,
+      // due to vector assignment with selectors.
+      statement.forEach(s => s.textRange = textRange)
+    } else {
+      statement.textRange = textRange
+    }
     return statement
-  })
+  }))
 }
 
 
@@ -49,67 +53,40 @@ ProgramRepresenatationBuilder.prototype.visitSkip = function(ctx) {
 
 
 ProgramRepresenatationBuilder.prototype.visitAssignment_statement = function(ctx) {
-  const assignment = this.visit(ctx.assignment())
-  assignment.type = 'assign'
+  const assignments = this.visit(ctx.assignment())
+  
+  const pairs = assignments.lvalues
+    .map((lv,i) => ({ lvalue: lv, rvalue: assignments.rvalues[i] }))
 
-  // Create an error if two lvalues are identical.
-  // This will trigger for x and x or a[i] and a[i],
-  // but not for a[i] and a[j].
-  const localErrors = []
-  for (let i = 0; i < assignment.lvalues.length; ++i) {
-    for (let j = i + 1; j < assignment.lvalues.length; ++j) {
-      if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
-        localErrors.push({
-          row: ctx.start.line,    // It is probably good
-          col: ctx.start.column,  // enough of a coordinate.
-          message: 'identical variables on the left hand side of a parallel assignment'
-        })
-      }
-    }
-  }
-  if (localErrors.length !== 0) {
-    this.errors.push(...localErrors)
-    return {}   // We do not want to continue to parse this assignment,
-                // but we also do not want to break code above.
-  }
+  const rvaluesToTmpVars = { type: 'assign', lvalues: [], rvalues: [] }
+  pairs.forEach((p, i) => {
+    rvaluesToTmpVars.lvalues.push({ type: 'name', name: '@tmp'+i })
+    rvaluesToTmpVars.rvalues.push(p.rvalue)
+  })
 
-  // If there's a map assignment, we would have to correct
-  // it so `a[i][j] := x` becomes `a := (a; i:(a[i]; j:x))`
-  // (see `docs/program-representation.md#Variables`).
-  for (let i = 0; i < assignment.lvalues.length; ++i) {
-    while (assignment.lvalues[i].type !== 'name') {
-      assignment.rvalues[i] = {
-        type: 'store',
-        base: assignment.lvalues[i].base,
-        selector: assignment.lvalues[i].selector,
-        value: assignment.rvalues[i]
-      }
-      assignment.lvalues[i] = assignment.lvalues[i].base
-    }
-  }
-
-  // After the previous step we might have repeating lvalues again.
-  // This is due to statements like `a[i], a[j] := a[j], a[i]`,
-  // which get converted to `a, a := (a; i:a[j]), (a; j:a[i])`.
-  // We now remove the excessive lvalues and combine the corresponding
-  // rvalues like this `a := ((a; i:a[j]); j:a[i])`.
-  for (let i = 0; i < assignment.lvalues.length; ++i) {
-    for (let j = i + 1; j < assignment.lvalues.length; ++j) {
-      if (deepEqual(assignment.lvalues[i], assignment.lvalues[j])) {
-        assignment.rvalues[i] = {
+  const tmpVarsToLvalues = pairs
+    .map((p, i) => {
+      let lvalue = p.lvalue,
+          rvalue = { type: 'var', var: rvaluesToTmpVars.lvalues[i] }
+      while (lvalue.type !== 'name') {
+        rvalue = {
           type: 'store',
-          base: assignment.rvalues[i],
-          selector: assignment.rvalues[j].selector,
-          value: assignment.rvalues[j].value
+          base: lvalue.base,
+          selector: lvalue.selector,
+          value: rvalue
         }
-        assignment.lvalues.splice(j, 1)
-        assignment.rvalues.splice(j, 1)
-        j -= 1
+        lvalue = lvalue.base
       }
-    }
-  }
+      return { type: 'assign', lvalues: [lvalue], rvalues: [rvalue] }
+    })
 
-  return assignment
+  const resultingAssignmentSeq = []
+  if (rvaluesToTmpVars.lvalues.length > 0) {
+    resultingAssignmentSeq.push(rvaluesToTmpVars)
+  }
+  resultingAssignmentSeq.push(... tmpVarsToLvalues)
+
+  return resultingAssignmentSeq
 }
 
 

@@ -34,9 +34,7 @@ function parsePseudocode(sourceCode) {
   const builder = new ProgramRepresenatationBuilder()
   const program = builder.visit(tree)
 
-  return builder.errors.length > 0
-    ? { errors: builder.errors, program: null }
-    : { errors: [], program: program }
+  return { errors: [], program }
 }
 
 module.exports = parsePseudocode
