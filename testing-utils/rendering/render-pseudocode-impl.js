@@ -1,3 +1,6 @@
+const { renderPredicate, renderIntegerExpression, renderVariable } =
+  require('./render-predicate-impl')
+
 function renderProgram(program, indentStr, lineEnd) {
   return renderStatements(program.statements, 0, indentStr, lineEnd)
 }
@@ -47,7 +50,7 @@ function renderStatement(statement, nestingLevel, indentStr, lineEnd) {
     }
     case 'if':
     case 'do': {
-      const guards = statement.guards.map(renderBoolExpression)
+      const guards = statement.guards.map(renderPredicate)
       const commands = statement.commands.map(s =>
         (s.length === 1 && s[0].type !== 'if' && s[0].type !== 'do')
           ? renderStatement(s[0], 0, '', '')
@@ -62,64 +65,10 @@ function renderStatement(statement, nestingLevel, indentStr, lineEnd) {
       })
       return ident + statement.type + lineEnd
         + guardedCommands.join(lineEnd) + lineEnd
-        + ident + statement.type.split('').reverse().join('')
+        + ident + (statement.type === 'if' ? 'fi' : 'od')
     }
     default:
       throw new Error(`Unknown type of statement: ${statement.type}.`)
-  }
-}
-
-function renderBoolExpression(pred) {
-  switch (pred.type) {
-    case 'const':
-      return pred.const ? 'T' : 'F'
-    case 'not':
-      return '~' + renderBoolExpression(pred.inner)
-    case 'and':
-      return renderBoolExpression(pred.left)
-        + ' && ' + renderBoolExpression(pred.right)
-    case 'or':
-      return renderBoolExpression(pred.left)
-        + ' || ' + renderBoolExpression(pred.right)
-    case 'comp':
-      return renderIntegerExpression(pred.left)
-        + ` ${pred.op} ` + renderIntegerExpression(pred.right)
-    default:
-      throw new Error(`Unknown type of boolean expression: ${pred.type}.`)
-  }
-}
-
-function renderIntegerExpression(expr) {
-  switch (expr.type) {
-    case 'const':
-      return expr.const.toString()
-    case 'negate':
-      return '- ' + renderIntegerExpression(expr.inner)
-    case 'var':
-      return renderVariable(expr.var)
-    case 'plus':
-      return renderIntegerExpression(expr.left)
-        + ' + ' + renderIntegerExpression(expr.right)
-    case 'minus':
-      return renderIntegerExpression(expr.left)
-        + ' - ' + renderIntegerExpression(expr.right)
-    case 'mult':
-      return renderIntegerExpression(expr.left)
-        + ' * ' + renderIntegerExpression(expr.right)
-    default:
-      throw new Error(`Unknown type of integer expression: ${expr.type}.`)
-  }
-}
-
-function renderVariable(variable) {
-  switch (variable.type) {
-    case 'name':
-      return variable.name
-    case 'select':
-      return renderVariable(variable.base)
-        + `[${renderIntegerExpression(variable.selector)}]`
-    default:
-      throw new Error(`Unknown type of variable: ${variable.type}.`)
   }
 }
 
