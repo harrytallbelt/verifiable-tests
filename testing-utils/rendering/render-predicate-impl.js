@@ -129,22 +129,29 @@ function renderVariable(variable) {
     case 'store': {
       const base = renderVariable(variable.base)
       let selector = renderIntegerExpression(variable.selector)
-      if (variable.selector.type !== 'var') {
+      if (exprNeedsParentheses(variable.selector)) {
         selector = '(' + selector + ')'
       }
       let value = null
       if (variable.value.type === 'store') {
         value = renderVariable(variable.value)
-      } else if (variable.value.type === 'var') {
-        value = renderIntegerExpression(variable.value)
-      } else {
+      } else if (exprNeedsParentheses(variable.value)) {
         value = '(' + renderIntegerExpression(variable.value) + ')'
+      } else {
+        value = renderIntegerExpression(variable.value)
       }
       return `(${base}; ${selector}:${value})`
     }
     default:
       throw new Error(`Unknown type of variable: ${variable.type}.`)
   }
+}
+
+function exprNeedsParentheses(expr) {
+  return expr.type === 'negate'
+    expr.type === 'plus'
+    expr.type === 'minus'
+    expr.type === 'mult'
 }
 
 function renderArgument(arg) {
