@@ -188,7 +188,7 @@ function doTheoremPt5(P, t, DO, innerSpec, context) {
       right: { type: 'var', var: tInit }
     }
     const contextObject = createContext({
-      command: command,
+      command: DO.commands[i],
       type: 'do',
       step: 5,
       branch: i + 1
