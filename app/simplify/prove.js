@@ -28,9 +28,9 @@ function getSimplifyExecutableName() {
       case 'Linux':
         simplifyExecutableName = 'bin/simplify.linux'
         break
-      case 'Darwin':                                // We aren't sure it works,
-        simplifyExecutableName = 'bin/simplify.osx' // but we haven't got any
-        break                                       // other binaries.
+      case 'Darwin':
+        simplifyExecutableName = 'bin/simplify.osx'
+        break
       default:
         throw new Error('Unsupported type of OS.')
     }

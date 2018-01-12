@@ -27,8 +27,3 @@ for all the task examples we have and the other ones you come up with
  
     and check out `localhost:3000` in your browser.
 
-### Note for MacOS Users
-You probably won't be able to start the server under MacOS.
-The prover we use - Simplify - comes only as precompiled binaries
-and apparently the Mac binary is compiled under older version of the OS,
-which prevents it from running on recent MacOS versions.
