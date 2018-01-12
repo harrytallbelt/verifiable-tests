@@ -1,5 +1,9 @@
 const parsePseudocode = require('../app/pseudocode-parser')
 
+const preserveTextInfoKeys = ['--text-coordinates', '-t']
+const removeTextInfo = !process.argv
+  .some(key => preserveTextInfoKeys.includes(key))
+
 let input = ''
 
 process.stdin.on('readable', () => {
@@ -16,7 +20,9 @@ process.stdin.on('end', () => {
     errors.forEach(e => console.error(`${e.row}:${e.col} ${e.message}`))
     process.exit(-1)
   }
-  removeKeyFromObjectTree(program, 'textRange')
+  if (removeTextInfo) {
+    removeKeyFromObjectTree(program, 'textRange')
+  }
   console.log(JSON.stringify(program, null, 2))
 })
 
