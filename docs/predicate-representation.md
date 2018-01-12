@@ -187,7 +187,7 @@ sum or product of all array elements:
 
 ```
 {
-  type: 'sum'|'prod',
+  type: ('sum'|'prod'),
   boundVar: <name>,
   condition: <predicate>
   inner: <int_expr>
@@ -202,7 +202,7 @@ the amount of array elements, that are less than 5:
 
 ```
 {
-  type: 'sum'|'prod',
+  type: 'count',
   boundVar: <name>,
   condition: <predicate>
   inner: <predicate>
