@@ -10,7 +10,7 @@ for all the task examples we have and the other ones you come up with
  1. Install [Node.js](nodejs.org).
  2. Clone repository with
  
-    `git clone https://github.com/harry-tallbelt/verifiable-tests.git`
+    `git clone https://github.com/harrytallbelt/verifiable-tests.git`
     
     or just download and unzip it.
  3. Enter the repo directory:
@@ -27,3 +27,5 @@ for all the task examples we have and the other ones you come up with
  
     and check out `localhost:3000` in your browser.
 
+6. If you want to run on a different interface or choose a different port,
+   set `VTESTS_HOST` and `VTESTS_PORT` environment variables.

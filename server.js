@@ -28,14 +28,6 @@ server.post('/tasks/:taskName', urlencodedBodyParser, (req, res) => {
      .catch(err => res.status(500).send('Server error: ' + err))
 })
 
-// server.post('/api/verify', urlencodedBodyParser, (req, res) => {
-//   if (!req.body) {
-//     return res.sendStatus(400)
-//   }
-//   app.getVerificationApiAnswer(req.body.name, req.body.code)
-//      .then(answerObject => res.json(answerObject))
-//      .catch(err => res.status(500).json(err))
-// })
-
-let port = 3000
-server.listen(port, () => console.log(`Listening on port ${port}`))
+const host = process.env.VTESTS_HOST || 'localhost'
+const port = process.env.VTESTS_PORT || 3000
+server.listen(port, host, () => console.log(`Listening on ${host}:${port}`))

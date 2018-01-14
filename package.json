@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/harry-tallbelt/verifiable-tests.git"
+    "url": "git+https://github.com/harrytallbelt/verifiable-tests.git"
   },
-  "author": "harry-tallbelt",
+  "author": "harrytallbelt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/harry-tallbelt/verifiable-tests/issues"
+    "url": "https://github.com/harrytallbelt/verifiable-tests/issues"
   },
-  "homepage": "https://github.com/harry-tallbelt/verifiable-tests#readme",
+  "homepage": "https://github.com/harrytallbelt/verifiable-tests#readme",
   "dependencies": {
     "antlr4": "^4.6.0",
     "body-parser": "^1.16.1",

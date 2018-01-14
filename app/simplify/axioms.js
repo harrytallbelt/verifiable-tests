@@ -1,4 +1,4 @@
-const fs = require('promisify-node')('fs')
+const fs = require('fs')
 
 // We create exports object before requiring to-simplify-syntax.js,
 // because there is a circular dependence between these two modules.
