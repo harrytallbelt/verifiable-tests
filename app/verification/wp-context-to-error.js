@@ -41,8 +41,8 @@ function contextObjectToError(context) {
           errorMessage = `The branch #${context.branch} of a loop does not decrease the loop bound function.`
           break
         case 6: {
-          const loopStart = `${context.loop.start.row}:${context.loop.start.row}`
-          const loopEnd = `${context.loop.end.row}:${context.loop.end.row}`
+          const loopStart = `${context.loop.start.row}:${context.loop.start.col}`
+          const loopEnd = `${context.loop.end.row}:${context.loop.end.col}`
           errorMessage = `One of the inner loops of the loop at (${loopStart} - ${loopEnd}) changes outer loop variant.`
         }
         break
