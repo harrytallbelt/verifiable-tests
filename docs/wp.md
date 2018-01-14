@@ -136,19 +136,8 @@ The structure of a context object can be seen below.
 }
 ```
 
-On each recursive call to WP this object is created and added to the start
-of `context` field of specification, passed to WP sub-call.
-
-```
-{
-  precondition: <predicate>,
-  postcondition: <predicate>,
-  invariants: [<predicate>, ... , <predicate>],
-  boundaryFunctions: [<int-expr>, ... , <int-expr>],
-  program: <program>,
-  context: [<context-obj>, ... , <context-obj>]
-}
-```
+On each recursive call to WP this object is created, added to the start
+of the `context` list, which is then passed to the WP sub-call.
 
 When WP execution comes to the point of constructing a predicate to proove an
 elementary command sequence, the last context object is created and added to
