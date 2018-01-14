@@ -129,10 +129,6 @@ function convertToSimplifyIntExpr(intExpr, axiomTriggers) {
         : convertToSimplifyIntExpr(arg, axiomTriggers))
       return `(${intExpr.name} ${args.join(' ')})`
     }
-    case 'sum':
-      throw new Error('No axiom trigger for sum.')
-    case 'prod':
-      throw new Error('No axiom trigger for prod.')
     default:
       throw new Error(`Unsupported integer expression type '${intExpr.type}'.`)
   }
