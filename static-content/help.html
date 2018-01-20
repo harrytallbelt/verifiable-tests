@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Help</title>
+  <style type="text/css">
+    body {
+      max-width: 480pt;
+    }
+    /* Nested list numbering in contents. */
+    .contents ol { counter-reset: item }
+    .contents li { display: block }
+    .contents li:before { content: counters(item, ".") " "; counter-increment: item }
+  </style>
+</head>
+<body>
+<p>
+  Hey! This little guide page is supposed to explain the syntax of programming
+  and specification languages, used by the system, and tell you a bit about
+  the specification structure itself. Hope it helps!
+</p>
+
+<h1>Contents</h1>
+<div class="contents">
+<ol>
+  <li>
+    <a href="#Pseudocode">Pseudocode</a>
+    <ol>
+      <li><a href="#Pseudocode_identifiers">Identifiers</a></li>
+      <li><a href="#Pseudocode_integer_expressions">Integer expressions</a></li>
+      <li><a href="#Boolean_expressions">Boolean expressions</a></li>
+      <li><a href="#skip_and_abort">skip and abort</a></li>
+      <li><a href="#Assignment">Assignment</a></li>
+      <li><a href="#Command_composition">Command composition</a></li>
+      <li><a href="#Branching_command">Branching command</a></li>
+      <li><a href="#Repetition_command">Repetition command</a></li>
+    </ol>
+  </li>
+  <li>
+    <a href="#Predicates">Predicates</a>
+    <ol>
+      <li><a href="#Predicates_identifiers">Identifiers</a></li>
+      <li><a href="#Predicates_integer_expressions">Integer expressions</a></li>
+      <li><a href="#Predicates_predicates">Predicates</a></li>
+    </ol>
+  </li>
+  <li><a href="#Specification">Specification meaning</a></li>
+</ol>
+</div>
+
+  <h1 id="Pseudocode"> Pseudocode </h1>
+    <p>Pseudocode - the programming language of our system - consists of a few
+    simple commands, that can be joined together.</p>
+  
+  <h2 id="Pseudocode_identifiers">Identifiers</h2>
+  <p>To name a variable, you can use decimal digits 0-9, lowercase Latin
+    letters a-z, uppercase Latin letters A-Z, and the underscore sign.
+    Note that a valid name must start with an lowercase Latin letter.
+    The names, starting with an uppercase letter, are reserved for
+    specification predicates. This allows the specification refer to
+    variables, that the program will not be able to change.
+  </p>
+
+  <h2 id="Pseudocode_integer_expressions">Integer expressions</h2>
+    <p>In pseudocode, an integer expression can be one of these:</p>
+    <ul>
+      <li>An integer constant: <pre>1, -2, 39</pre></li>
+      <li>A (negated) variable:
+        <pre>x,  -a[i],  a[i][x - 3]</pre></li>
+      <li>A sum, a difference or a product of two integer expressions (with
+        familiar operator precedence):
+        <pre>1 + 2,  y - 3*b,  5*5*5*5</pre></li>
+      <li>A (negated) group: <pre>(1 - 2),  -(5 - 6)</pre></li>
+    </ul>
+
+    <h2 id="Boolean_expressions">Boolean expressions</h2>
+      <p>In pseudocode, a boolean expression is one of the following:</p>
+      <ul>
+        <li>A boolean constant: <pre>T,  F</pre></li>
+        <li>A conjunction (&amp;&amp;, logical AND) or disjunction
+          (||, logical OR) of two boolean expressions.
+          (The order of precedence if the same order operations were
+          listed in.)
+          <pre>0 &lt; i &amp;&amp; i &lt; n || i = -1 </pre>
+        </li>
+        <li>Comparison operators (&lt;, &lt;=, &gt;, &gt;=, =,
+          &lt;&gt; [not equal]) that compare two integer expressions:
+          <pre>1 + 1 = 2,  3 <= 5, x &lt;&gt; a[i]</pre>
+        </li>
+      </ul>
+  
+    <h2 id="skip_and_abort">skip and abort</h2>
+    <p>The two most basic commands are:</p>
+    <dl>
+      <dt><pre>skip</pre></dt>
+      <dd>The command that does exactly nothing.</dd>
+      <dt><pre>abort</pre></dt>
+      <dd>The command that stops the program execution with an error.</dd>
+    </dl>
+  
+    <h2 id="Assignment">Assignment</h2>
+    <p>The <em>assignment</em> command assigns some integer expression to a
+     variable name.</p>
+    <pre>&lt;var-list&gt; := &lt;int-expr-list&gt;</pre>
+    <p>Here's a few examples of valid assignment commands:</p>
+    <ul>
+      <li><pre>x := 1</pre></li>
+      <li><pre>x := 5 - (y + 3 * z)</pre></li>
+      <li><pre>x, y := y, x</pre></li>
+      <li><pre>a[i] := -1</pre></li>
+      <li><pre>a[i], a[j] := a[j], a[i]</pre></li>
+    </ul>
+  
+    <h2 id="Command_composition">Command composition</h2>
+    <p>Two commands might be conjoined into one which has the effect of
+      executing the original commands in sequence. For this ; (semicolon)
+      operator is used. For example:</p>
+    <pre>x := 1; y := 5; abort</pre>
+  
+    <h2 id="Branching_command">Branching command</h2>
+      <p>In general, a branching command has this kind of structure:</p>
+      <pre>if
+  &lt;bool-expr&gt; -&gt; &lt;command&gt;
+| &lt;bool-expr&gt; -&gt; &lt;command&gt;
+  ...
+| &lt;bool-expr&gt; -&gt; &lt;command&gt;
+fi</pre>
+     <p>For example, it might look like this:</p>
+    <pre>if
+  a &lt; 10 -&gt;
+    y := x;
+    x := a
+| a &gt;= 10 -&gt; abort
+fi</pre>
+    <p>A branching command is executed by this algorithm:</p>
+    <ol>
+      <li>Compute all the boolean expressions (guards) on the left hand
+      side of the arrow symbol.</li>
+      <li>If no guard is true, terminate with an error (just like abort
+      command).</li>
+      <li>If there are some true guards, select one at random and execute
+      its guarded commands (the commands on the right hand side of
+      the arrow symbol).</li>
+    </ol>
+  
+    <h2 id="Repetition_command">Repetition command</h2>
+      <p>In general, a repetition command has this kind of structure:</p>
+      <pre>do
+  &lt;bool-expr&gt; -&gt; &lt;command&gt;
+| &lt;bool-expr&gt; -&gt; &lt;command&gt;
+  ...
+| &lt;bool-expr&gt; -&gt; &lt;command&gt;
+od</pre>
+     <p>For example, it might look like this:</p>
+    <pre>do
+  x &lt;&gt; a[i] -&gt; i := i + 1
+od </pre>
+    <p>A repetition command is executed by this algorithm:</p>
+    <ol>
+      <li>Compute all the boolean expressions (guards) on the left hand
+      side of the arrow symbol.</li>
+      <li>If no guard is true, continue execution (just as if it was a skip
+      command).</li>
+      <li>If there are some true guards, select one at random, execute
+      its guarded commands (the commands on the right hand side of
+      the arrow symbol), and then execute the whole repetition command
+      one more time.</li>
+    </ol>
+  
+  <h1 id="Predicates"> Predicates </h1>
+  <p>The language of specification predicates is similar to boolean expressions
+  of pseudocode, except it is extended with various kinds of quantifiers.</p>
+  
+  <h2 id="Predicates_identifiers">Identifiers</h2>
+  <p>To name a variable, you can use decimal digits 0-9, lowercase Latin
+    letters a-z, uppercase Latin letters A-Z, and the underscore sign.
+    A valid name must start with a lowercase or an uppercase Latin letter.
+    Note that the names, starting with an uppercase letter, cannot be changed
+    in the program.
+  </p>
+
+  <h2 id="Predicates_integer_expressions">Integer expressions</h2>
+    <p>In a predicate, an integer expression can be one of these:</p>
+    <ul>
+      <li>
+        An integer constant: <pre>1, -2, 39</pre></li>
+      <li>
+        A (negated) variable:
+        <pre>x,  -a[i],  A[i][x - 3]</pre></li>
+      <li>
+        A sum, a difference or a product of two integer expressions (with
+        familiar operator precedence):
+        <pre>1 + 2,  y - 3*b,  5*5*5*5</pre></li>
+      <li>
+        A (negated) group: <pre>(1 - 2),  -(5 - 6)</pre>
+      </li>
+      <li>
+        A sum or product quantifiers
+<pre>(SUM &lt;variable&gt; : &lt;condition-predicate&gt; : &lt;integer-expression&gt;)</pre>
+<pre>(PROD &lt;variable&gt; : &lt;condition-predicate&gt; : &lt;integer-expression&gt;)</pre>
+        For example consider this sum of an array elements:
+        <pre>(SUM k : 0 &lt;= k &lt; n : a[k])</pre>
+      </li>
+      <li>
+        Quantity quantifier, that represents the number of a value predicate
+        becomes true, while condition predicate is also true. The general
+        structure is:
+<pre>(NUM &lt;variable&gt; : &lt;condition-predicate&gt; : &lt;value-predicate&gt;)</pre>
+        For example consider this quantifier, that represents the number of
+        array elements, which are less than 5:
+        <pre>(NUM k : 0 &lt;= k &lt; n : a[k] < 5)</pre>
+      </li>
+    </ul>
+
+    <h2 id="Predicates_predicates">Predicates</h2>
+    <p>A predicate is one of the following:</p>
+      <ul>
+        <li>A boolean constant: <pre>T,  F</pre></li>
+        <li>A conjunction (&amp;&amp;, logical AND), disjunction
+          (||, logical OR), implication (=&gt;) or logical equivalence
+          (&lt;=&gt;) of two predicates.
+          (The order of precedence if the same order operations were
+          listed in.)
+<pre>A =&gt; B &amp;&amp; C &lt;=&gt; (A =&gt; B) &amp;&amp; (A =&gt; C)</pre>
+          <pre>A =&gt; B || C &lt;=&gt; (A =&gt; B) || (A =&gt; C)</pre>
+        </li>
+        <li>Comparison operators (&lt;, &lt;=, &gt;, &gt;=, =,
+          &lt;&gt; [not equal]) that compare two integer expressions:
+          <pre>1 + 1 = 2,  3 <= 5, x &lt;&gt; a[i]</pre>
+        </li>
+        <li>
+          Chained comparisons:
+          <pre>0 &lt;= k &lt; n,  n &gt; j &gt;= 0</pre>
+        </li>
+        <li>
+          Vector equalities:
+          <pre>x, y, z = 1, 2, 3</pre>
+        </li>
+        <li>
+          Universal and existential quantifiers. For example, here's
+          quantifier meaning "all the array elements 0 to n-1 are less than 5":
+          <pre>(FORALL k : 0 &lt;= k &lt; n : a[k] < 5)</pre>
+          And here's the quantifier, meaning "there is an element, that is less
+          then 5, in the array a from 0 to n-1":
+          <pre>(EXISTS k : 0 &lt;= k &lt; n : a[k] < 5)</pre>
+        </li>
+      </ul>
+
+  <h1 id="Specification"> Specification meaning </h1>
+  <p>The program specification contains:</p>
+  <ul>
+    <li>Precondition predicate</li>
+    <li>Postcondition predicate</li>
+    <li>(Possibly) a list of loop invariant-variant pairs.</li>
+  </ul>
+  <p>You can count on the <em>precondition</em> predicate being true
+    <em>before</em> your program starts execution, i.e. consider your program
+    will only ever be run in such a program states, that the precondition
+    predicate is true.
+  </p>
+  <p>The <em>postcondition</em> predicate, on the other hand, describes the
+    target states of your program, i.e. you program must terminate in such a
+    state that the postcondition predicate is true.
+  </p>
+  <p> Loop <em>invariants</em> and <em>variants</em> are given for every loop
+    your program would need implementing. The order is the same as the order
+    of loops in your program top to bottom (including nested loops). The
+    <em>loop invariant</em> is a predicate that must be true before and after
+    each loop iteration (execution of loop body). The <em>loop variant</em>
+    is a non-negative integer function, that should decrease with each loop
+    iteration.
+  </p>
+
+</body>
+</html>

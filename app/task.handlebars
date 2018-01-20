@@ -7,11 +7,17 @@
       pre {
         white-space: pre-wrap
       }
+      body {
+        max-width: 480pt;
+      }
     </style>
   </head>
   <body>
     <a href="..">Back to task list</a>
     <h3>{{name}}</h3>
+    <p>Help on <a href="/help#Predicates">predicates</a> and
+      <a href="/help#Specification">specification</a>.
+    </p>
     <table border="1">
       <tr>
         <td><b>Task description:</b></td>
@@ -50,6 +56,7 @@
     {{!-- If verification has been performed,
           we'll display its results. --}}
     {{#if verification}}
+      <a id="Results"></a>
       {{#if verification.parsingErrors}}
         <p>
           <b>Verification Results: </b>
@@ -121,14 +128,17 @@
       <p>Your solution:</p>
       <p><pre id="code">{{code}}</pre></p>
     {{/if}}
-    <form action="./{{name}}" method="POST">
+    <form action="./{{name}}#Results" method="POST">
       <input type="hidden" name="name" value="{{name}}" />
       {{#if verification}}
-        <p>You can enter a new solution in the text area below.</p>
+        <p>You can enter a new solution in the text area below
+          (<a href="/help#Pseudocode">language guide</a>).
+        </p>
       {{else}}
-        <p>Enter your solution in the text area below.</p>
+        <p>Enter your solution in the text area below
+          (<a href="/help#Pseudocode">language guide</a>).
+        </p>
       {{/if}}
-      <p>
         {{!-- We might have no code in context. This is fine. --}}
         <textarea name="code" rows="15" cols="80">{{code}}</textarea>
       </p>
