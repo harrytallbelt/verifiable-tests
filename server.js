@@ -3,10 +3,10 @@ const server = express()
 const app = require('./app')
 const bodyParser = require('body-parser')
 
-server.use('/favicon.ico', express.static('static-content/favicon.ico'))
-server.use('/help', express.static('static-content/help.html'))
+server.use(express.static('static-content'))
+server.use('/help', express.static('app/help.html'))
 
-// The main page _is_ static, but I cannot 
+// The main page _is_ static, but I cannot
 // seem to send it the way /help is sent.
 server.get('/', (req, res) => {
   app.getMainPageHtml()
